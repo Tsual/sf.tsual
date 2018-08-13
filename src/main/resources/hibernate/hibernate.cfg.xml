@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="show_sql">true</property>
+        <property name="connection.url">jdbc:oracle:thin:@20.26.19.93:1521:CSHP93</property>
+        <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+        <property name="dialect">org.hibernate.dialect.Oracle8iDialect</property>
+        <property name="connection.username">qa_huangling</property>
+        <property name="connection.password">huangling123</property>
+        <mapping class="sf.hibernate.beans.BceAttrEntity"/>
+        <mapping class="sf.hibernate.beans.BceAttrFieldMapEntity"/>
+        <mapping class="sf.hibernate.beans.BceBatInputFieldFormatEntity"/>
+        <mapping class="sf.hibernate.beans.BceBatInputFormatEntity"/>
+        <mapping class="sf.hibernate.beans.BceButtonEntity"/>
+        <mapping class="sf.hibernate.beans.BceConftoolMenuEntity"/>
+        <mapping class="sf.hibernate.beans.BceExtTableConfigEntity"/>
+        <mapping class="sf.hibernate.beans.BceFormGroupEntity"/>
+        <mapping class="sf.hibernate.beans.BceFrameEntity"/>
+        <mapping class="sf.hibernate.beans.BceFrameAreaFormEntity"/>
+        <mapping class="sf.hibernate.beans.BceFrameAreaPagetabEntity"/>
+        <mapping class="sf.hibernate.beans.BceFrameAttrEntity"/>
+        <mapping class="sf.hibernate.beans.BceFrameButtonEntity"/>
+        <mapping class="sf.hibernate.beans.BceFrameJavaRulesetRelEntity"/>
+        <mapping class="sf.hibernate.beans.BceFramePageRoleEntity"/>
+        <mapping class="sf.hibernate.beans.BceFrameSpecialPageEntity"/>
+        <mapping class="sf.hibernate.beans.BceFrameTabitemEntity"/>
+        <mapping class="sf.hibernate.beans.BceModuleEntity"/>
+        <mapping class="sf.hibernate.beans.BceModuleMenuRelatEntity"/>
+        <mapping class="sf.hibernate.beans.BcePageEntity"/>
+        <mapping class="sf.hibernate.beans.BcePageFrameEntity"/>
+        <mapping class="sf.hibernate.beans.BcePageFramePageEntity"/>
+        <mapping class="sf.hibernate.beans.BcePageRelConfigEntity"/>
+        <mapping class="sf.hibernate.beans.BcePageRowsetRelEntity"/>
+        <mapping class="sf.hibernate.beans.BceQrAttrEntity"/>
+        <mapping class="sf.hibernate.beans.BceQrTemplateEntity"/>
+        <mapping class="sf.hibernate.beans.BceRowsetEntity"/>
+        <mapping class="sf.hibernate.beans.BceRuleEntity"/>
+        <mapping class="sf.hibernate.beans.BceRulesetEntity"/>
+        <mapping class="sf.hibernate.beans.BceRulesetRuleEntity"/>
+        <mapping class="sf.hibernate.beans.BceSimpleFuncEntity"/>
+        <mapping class="sf.hibernate.beans.BceSimpleFuncFieldMappingEntity"/>
+        <mapping class="sf.hibernate.beans.BsI18NResourceEntity"/>
+        <mapping class="sf.hibernate.beans.RuleAttrEntity"/>
+        <mapping class="sf.hibernate.beans.RuleAttrRelEntity"/>
+        <mapping class="sf.hibernate.beans.RuleBusiRelEntity"/>
+        <mapping class="sf.hibernate.beans.RuleBusiRelExpireEntity"/>
+        <mapping class="sf.hibernate.beans.RuleInstanceEntity"/>
+        <mapping class="sf.hibernate.beans.RuleMsgInfoEntity"/>
+        <mapping class="sf.hibernate.beans.RuleObjectEntity"/>
+        <mapping class="sf.hibernate.beans.RuleParamValueEntity"/>
+        <mapping class="sf.hibernate.beans.RuleProdAttrMapingEntity"/>
+        <mapping class="sf.hibernate.beans.RuleRelatEntity"/>
+        <mapping class="sf.hibernate.beans.RuleTemplateEntity"/>
+        <mapping class="sf.hibernate.beans.RuleTmplParamEntity"/>
+        <mapping class="sf.hibernate.beans.RuleV2AccessEntity"/>
+
+        <!-- DB schema will be updated if needed -->
+        <!-- <property name="hbm2ddl.auto">update</property> -->
+    </session-factory>
+</hibernate-configuration>

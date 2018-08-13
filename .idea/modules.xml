@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sf.tsual.iml" filepath="$PROJECT_DIR$/.idea/modules/sf.tsual.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sf.tsual_main.iml" filepath="$PROJECT_DIR$/.idea/modules/sf.tsual_main.iml" group="sf.tsual" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sf.tsual_test.iml" filepath="$PROJECT_DIR$/.idea/modules/sf.tsual_test.iml" group="sf.tsual" />
+    </modules>
+  </component>
+</project>
