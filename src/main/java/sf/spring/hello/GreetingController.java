@@ -1,10 +1,12 @@
 package sf.spring.hello;
 
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-@RestController
+@Controller
 public class GreetingController
 {
 
@@ -18,7 +20,7 @@ public class GreetingController
 				String.format(template, name));
 	}
 
-	@RequestMapping("/greeting2")
+	@RequestMapping(value = "/greeting2",consumes = {MediaType.ALL_VALUE},produces = {MediaType.ALL_VALUE},method = RequestMethod.POST)
 	public String greeting2(@RequestBody Object body)
 	{
 		return "{test}" + body.toString();
