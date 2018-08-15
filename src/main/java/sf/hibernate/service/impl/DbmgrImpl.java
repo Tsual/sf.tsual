@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DbmgrImpl implements IDbmgr
 {
@@ -50,6 +51,7 @@ public class DbmgrImpl implements IDbmgr
 	@Override
 	public void SyncData() throws Exception
 	{
+		AtomicInteger modifyCount= new AtomicInteger();
 		try (Session baseSession = baseSessionFactory.openSession();
 		     Session wengdbSession = wengdbSessionFactory.openSession())
 		{
@@ -90,9 +92,14 @@ public class DbmgrImpl implements IDbmgr
 							}
 							return wengdbInstance;
 						})
-						.foreach(t->wengdbSession.save(t));
+						.foreach(t ->
+						{
+							wengdbSession.save(t);
+							modifyCount.getAndIncrement();
+						});
 				wengdbSession.getTransaction().commit();
 			}
 		}
+		System.out.println("Modify Count:" + modifyCount.toString());
 	}
 }
