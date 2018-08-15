@@ -5,7 +5,7 @@ import java.sql.Time;
 import java.util.Objects;
 
 @Entity
-@Table(name = "RULE_MSG_INFO", schema = "BASE", catalog = "")
+@Table(name = "RULE_MSG_INFO", schema = "RULE_CFG", catalog = "")
 public class RuleMsgInfoEntity
 {
 	private long msgId;

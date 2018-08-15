@@ -5,7 +5,7 @@ import java.sql.Time;
 import java.util.Objects;
 
 @Entity
-@Table(name = "RULE_RELAT", schema = "BASE", catalog = "")
+@Table(name = "RULE_RELAT", schema = "RULE_CFG", catalog = "")
 public class RuleRelatEntity
 {
 	private long relatId;

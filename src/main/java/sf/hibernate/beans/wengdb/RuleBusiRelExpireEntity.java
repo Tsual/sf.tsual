@@ -5,7 +5,7 @@ import java.sql.Time;
 import java.util.Objects;
 
 @Entity
-@Table(name = "RULE_BUSI_REL_EXPIRE", schema = "BASE", catalog = "")
+@Table(name = "RULE_BUSI_REL_EXPIRE", schema = "RULE_CFG", catalog = "")
 public class RuleBusiRelExpireEntity
 {
 	private long expireId;

@@ -8,11 +8,9 @@ import java.util.List;
 
 public class Test2
 {
-	public static void main(String[] args) throws IOException, ClassNotFoundException
+	public static void main(String[] args) throws Exception
 	{
-		ResourceHelper.loadJar("lib");
-		final Class<?> aClass = Class.forName("oracle.jdbc.driver.OracleDriver");
-		final List<String> resourceInPackage = ResourceHelper.getResourceInPackage(true, "lib");
+		ResourceHelper.loadJars();
 		new DbmgrImpl().SyncData();
 	}
 }

@@ -2,5 +2,5 @@ package sf.hibernate.service.interfaces;
 
 public interface IDbmgr
 {
-	void SyncData();
+	void SyncData() throws Exception;
 }

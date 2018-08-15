@@ -5,7 +5,7 @@ import java.sql.Time;
 import java.util.Objects;
 
 @Entity
-@Table(name = "RULE_PARAM_VALUE", schema = "BASE", catalog = "")
+@Table(name = "RULE_PARAM_VALUE", schema = "RULE_CFG", catalog = "")
 public class RuleParamValueEntity
 {
 	private long paramInstId;

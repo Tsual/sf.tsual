@@ -4,28 +4,29 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "RULE_V2_ACCESS", schema = "RULE_CFG", catalog = "")
-public class RuleV2AccessEntity
+@Table(name = "RULE_SHARE_CFG", schema = "RULE_CFG", catalog = "")
+public class RuleShareCfgEntity
 {
-	private long accessId;
+	private long cfgId;
 	private String interfaceCode;
 	private String ext1;
 	private String ext2;
 	private String ext3;
+	private String shareCode;
 	private String notes;
 	private String state;
 	private String remarks;
 
 	@Id
-	@Column(name = "ACCESS_ID")
-	public long getAccessId()
+	@Column(name = "CFG_ID")
+	public long getCfgId()
 	{
-		return accessId;
+		return cfgId;
 	}
 
-	public void setAccessId(long accessId)
+	public void setCfgId(long cfgId)
 	{
-		this.accessId = accessId;
+		this.cfgId = cfgId;
 	}
 
 	@Basic
@@ -77,6 +78,18 @@ public class RuleV2AccessEntity
 	}
 
 	@Basic
+	@Column(name = "SHARE_CODE")
+	public String getShareCode()
+	{
+		return shareCode;
+	}
+
+	public void setShareCode(String shareCode)
+	{
+		this.shareCode = shareCode;
+	}
+
+	@Basic
 	@Column(name = "NOTES")
 	public String getNotes()
 	{
@@ -117,12 +130,13 @@ public class RuleV2AccessEntity
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		RuleV2AccessEntity that = (RuleV2AccessEntity) o;
-		return accessId == that.accessId &&
+		RuleShareCfgEntity that = (RuleShareCfgEntity) o;
+		return cfgId == that.cfgId &&
 				Objects.equals(interfaceCode, that.interfaceCode) &&
 				Objects.equals(ext1, that.ext1) &&
 				Objects.equals(ext2, that.ext2) &&
 				Objects.equals(ext3, that.ext3) &&
+				Objects.equals(shareCode, that.shareCode) &&
 				Objects.equals(notes, that.notes) &&
 				Objects.equals(state, that.state) &&
 				Objects.equals(remarks, that.remarks);
@@ -131,6 +145,6 @@ public class RuleV2AccessEntity
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(accessId, interfaceCode, ext1, ext2, ext3, notes, state, remarks);
+		return Objects.hash(cfgId, interfaceCode, ext1, ext2, ext3, shareCode, notes, state, remarks);
 	}
 }

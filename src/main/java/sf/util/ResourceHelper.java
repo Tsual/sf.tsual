@@ -16,6 +16,14 @@ import java.util.jar.JarEntry;
 
 public class ResourceHelper
 {
+	public static void loadJars(){
+		try {
+			loadJar("lib");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void loadJar(String path) throws IOException
 	{
 		path = path.replace(".", "/");

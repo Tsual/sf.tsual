@@ -6,11 +6,21 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import sf.hibernate.beans.base.RuleInstanceEntity;
 import sf.hibernate.service.interfaces.IDbmgr;
+import sf.tquery.JRE6.Iterators;
+import sf.tquery.interfaces.Iterator;
+import sf.tquery.interfaces.exec.ITypeConverter;
+import sf.uds.interfaces.del.executable.IExec_1;
+import sf.uds.interfaces.del.executable.IExec_2;
+import sf.uds.interfaces.del.executable.IExec_3;
+import sf.util.StringUtil;
 
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.SingularAttribute;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DbmgrImpl implements IDbmgr
@@ -24,19 +34,19 @@ public class DbmgrImpl implements IDbmgr
 			baseSessionFactory = new Configuration().configure("hibernate/hibernate.base.cfg.xml").buildSessionFactory();
 			wengdbSessionFactory = new Configuration().configure("hibernate/hibernate.wengdb.cfg.xml").buildSessionFactory();
 			Map<Class, Class> map = new HashMap<>();
-			map.put(Class.forName("sf.hibernate.beans.base.RuleAttrEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleAttrEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleAttrRelEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleAttrRelEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleBusiRelEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleBusiRelEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleBusiRelExpireEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleBusiRelExpireEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleInstanceEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleInstanceEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleMsgInfoEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleMsgInfoEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleObjectEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleObjectEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleParamValueEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleParamValueEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleProdAttrMapingEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleProdAttrMapingEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleRelatEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleRelatEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleTemplateEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleTemplateEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleTmplParamEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleTmplParamEntity"));
-			map.put(Class.forName("sf.hibernate.beans.base.RuleV2AccessEntity"), Class.forName("sf.hibernate.beans.wengdb.RuleV2AccessEntity"));
+			map.put(sf.hibernate.beans.base.RuleAttrEntity.class, sf.hibernate.beans.wengdb.RuleAttrEntity.class);
+			map.put(sf.hibernate.beans.base.RuleAttrRelEntity.class, sf.hibernate.beans.wengdb.RuleAttrRelEntity.class);
+			map.put(sf.hibernate.beans.base.RuleBusiRelEntity.class, sf.hibernate.beans.wengdb.RuleBusiRelEntity.class);
+			map.put(sf.hibernate.beans.base.RuleBusiRelExpireEntity.class, sf.hibernate.beans.wengdb.RuleBusiRelExpireEntity.class);
+			map.put(sf.hibernate.beans.base.RuleInstanceEntity.class, sf.hibernate.beans.wengdb.RuleInstanceEntity.class);
+			map.put(sf.hibernate.beans.base.RuleMsgInfoEntity.class, sf.hibernate.beans.wengdb.RuleMsgInfoEntity.class);
+			map.put(sf.hibernate.beans.base.RuleObjectEntity.class, sf.hibernate.beans.wengdb.RuleObjectEntity.class);
+			map.put(sf.hibernate.beans.base.RuleParamValueEntity.class, sf.hibernate.beans.wengdb.RuleParamValueEntity.class);
+			map.put(sf.hibernate.beans.base.RuleProdAttrMapingEntity.class, sf.hibernate.beans.wengdb.RuleProdAttrMapingEntity.class);
+			map.put(sf.hibernate.beans.base.RuleRelatEntity.class, sf.hibernate.beans.wengdb.RuleRelatEntity.class);
+			map.put(sf.hibernate.beans.base.RuleTemplateEntity.class, sf.hibernate.beans.wengdb.RuleTemplateEntity.class);
+			map.put(sf.hibernate.beans.base.RuleTmplParamEntity.class, sf.hibernate.beans.wengdb.RuleTmplParamEntity.class);
+			map.put(sf.hibernate.beans.base.RuleV2AccessEntity.class, sf.hibernate.beans.wengdb.RuleV2AccessEntity.class);
 			classMapping = Collections.unmodifiableMap(map);
 		} catch (Throwable ex) {
 			throw new ExceptionInInitializerError(ex);
@@ -44,24 +54,50 @@ public class DbmgrImpl implements IDbmgr
 	}
 
 	@Override
-	public void SyncData()
+	public void SyncData() throws Exception
 	{
 		try (Session baseSession = baseSessionFactory.openSession();
-		     Session wengdbSession = wengdbSessionFactory.openSession()) {
+		     Session wengdbSession = wengdbSessionFactory.openSession())
+		{
 
 			final Metamodel baseSessionMetamodel = baseSession.getMetamodel();
 			final Metamodel wengdbSessionMetamodel = wengdbSession.getMetamodel();
 
 			for (Map.Entry<Class, Class> entry : classMapping.entrySet()) {
 				final EntityType baseEntity = baseSessionMetamodel.entity(entry.getKey());
-				final Query<RuleInstanceEntity> baseSessionQuery = baseSession.createQuery("from " + baseEntity.getName(), RuleInstanceEntity.class);
-
+				final Query baseSessionQuery = baseSession.createQuery("from " + baseEntity.getName(), entry.getKey());
 
 				final EntityType wengdbEntity = wengdbSessionMetamodel.entity(entry.getValue());
+				final Query wengdbSessionQuery = wengdbSession.createQuery("from " + wengdbEntity.getName(), entry.getValue());
 
+				final List baseList = baseSessionQuery.list();
+				final List wengdbList = wengdbSessionQuery.list();
 
+				final Method wengdbIdJavaMember = (Method) wengdbEntity.getId(wengdbEntity.getIdType().getJavaType()).getJavaMember();
+				final Method baseIdJavaMember = (Method) baseEntity.getId(baseEntity.getIdType().getJavaType()).getJavaMember();
 
-				int a =0;
+				final List wengdbIdList = Iterators.getIterator(wengdbList)
+						.as(t -> wengdbIdJavaMember.invoke(t))
+						.toList();
+
+				wengdbSession.beginTransaction();
+				Iterators.getIterator(baseList)
+						.where(t -> !wengdbIdList.contains(baseIdJavaMember.invoke(t)))
+						.as(t ->
+						{
+							final Object wengdbInstance = wengdbEntity.getJavaType().newInstance();
+							for (Object baseAttr : baseEntity.getDeclaredAttributes()) {
+								final String baseAttrName = ((SingularAttribute) baseAttr).getName();
+								final Method baseAttrMethod = (Method) ((SingularAttribute) baseAttr).getJavaMember();
+								final Object baseAttrValue = baseAttrMethod.invoke(t);
+
+								final Method wengdbValueSetter = wengdbInstance.getClass().getMethod("set" + StringUtil.firstCharUpper(baseAttrName), baseAttrMethod.getReturnType());
+								wengdbValueSetter.invoke(wengdbInstance, baseAttrValue);
+							}
+							return wengdbInstance;
+						})
+						.foreach(t->wengdbSession.save(t));
+				wengdbSession.getTransaction().commit();
 			}
 		}
 	}

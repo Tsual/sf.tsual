@@ -3,13 +3,13 @@
         "-//Hibernate/Hibernate Configuration DTD//EN"
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
-    <session-factory name="wengdb-session">
+    <session-factory>
         <property name="show_sql">true</property>
-        <property name="connection.url">jdbc:oracle:thin:@20.26.19.93:1521:CSHP93</property>
+        <property name="connection.url">jdbc:oracle:thin:@10.70.128.20:1521:test1</property>
         <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
         <property name="dialect">org.hibernate.dialect.Oracle8iDialect</property>
-        <property name="connection.username">qa_huangling</property>
-        <property name="connection.password">huangling123</property>
+        <property name="connection.username">qa_zhangzh</property>
+        <property name="connection.password">qa_zhangzh</property>
         <mapping class="sf.hibernate.beans.wengdb.RuleAttrEntity"/>
         <mapping class="sf.hibernate.beans.wengdb.RuleAttrRelEntity"/>
         <mapping class="sf.hibernate.beans.wengdb.RuleBusiRelEntity"/>
@@ -23,6 +23,8 @@
         <mapping class="sf.hibernate.beans.wengdb.RuleTemplateEntity"/>
         <mapping class="sf.hibernate.beans.wengdb.RuleTmplParamEntity"/>
         <mapping class="sf.hibernate.beans.wengdb.RuleV2AccessEntity"/>
+        <mapping class="sf.hibernate.beans.wengdb.RuleShareCfgEntity"/>
+        <mapping class="sf.hibernate.beans.wengdb.RuleShareDefEntity"/>
 
         <!-- DB schema will be updated if needed -->
         <!-- <property name="hbm2ddl.auto">update</property> -->

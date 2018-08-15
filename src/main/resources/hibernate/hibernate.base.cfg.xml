@@ -3,14 +3,13 @@
         "-//Hibernate/Hibernate Configuration DTD//EN"
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
-    <session-factory name="base-session">
+    <session-factory>
         <property name="show_sql">true</property>
         <property name="connection.url">jdbc:oracle:thin:@20.26.19.93:1521:CSHP93</property>
         <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
         <property name="dialect">org.hibernate.dialect.Oracle8iDialect</property>
         <property name="connection.username">qa_huangling</property>
         <property name="connection.password">huangling123</property>
-        <property name="hibernate.connection.pool_size">3</property>
         <mapping class="sf.hibernate.beans.base.BceAttrEntity"/>
         <mapping class="sf.hibernate.beans.base.BceAttrFieldMapEntity"/>
         <mapping class="sf.hibernate.beans.base.BceBatInputFieldFormatEntity"/>

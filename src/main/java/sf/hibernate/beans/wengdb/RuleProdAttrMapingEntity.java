@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "RULE_PROD_ATTR_MAPING", schema = "BASE", catalog = "")
+@Table(name = "RULE_PROD_ATTR_MAPING", schema = "RULE_CFG", catalog = "")
 public class RuleProdAttrMapingEntity
 {
 	private long mapingKey;
