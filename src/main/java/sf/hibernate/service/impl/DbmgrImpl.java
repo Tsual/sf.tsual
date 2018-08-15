@@ -4,15 +4,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
-import sf.hibernate.beans.base.RuleInstanceEntity;
 import sf.hibernate.service.interfaces.IDbmgr;
 import sf.tquery.JRE6.Iterators;
-import sf.tquery.interfaces.Iterator;
-import sf.tquery.interfaces.exec.ITypeConverter;
-import sf.uds.interfaces.del.executable.IExec_1;
-import sf.uds.interfaces.del.executable.IExec_2;
-import sf.uds.interfaces.del.executable.IExec_3;
-import sf.util.StringUtil;
+import sf.uds.util.string.StringHelper;
 
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
@@ -91,7 +85,7 @@ public class DbmgrImpl implements IDbmgr
 								final Method baseAttrMethod = (Method) ((SingularAttribute) baseAttr).getJavaMember();
 								final Object baseAttrValue = baseAttrMethod.invoke(t);
 
-								final Method wengdbValueSetter = wengdbInstance.getClass().getMethod("set" + StringUtil.firstCharUpper(baseAttrName), baseAttrMethod.getReturnType());
+								final Method wengdbValueSetter = wengdbInstance.getClass().getMethod("set" + StringHelper.firstCharUpper(baseAttrName), baseAttrMethod.getReturnType());
 								wengdbValueSetter.invoke(wengdbInstance, baseAttrValue);
 							}
 							return wengdbInstance;

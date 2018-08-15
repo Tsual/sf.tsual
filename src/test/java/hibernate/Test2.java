@@ -1,16 +1,20 @@
 package hibernate;
 
 import sf.hibernate.service.impl.DbmgrImpl;
-import sf.util.ResourceHelper;
+import sf.resource.JarHelper;
+import sf.resource.ResourceHelper;
 
 import java.io.IOException;
-import java.util.List;
 
 public class Test2
 {
 	public static void main(String[] args) throws Exception
 	{
-		ResourceHelper.loadJars();
+		try {
+			JarHelper.loadJar("lib");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		new DbmgrImpl().SyncData();
 	}
 }

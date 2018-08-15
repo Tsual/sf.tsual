@@ -1,12 +1,9 @@
-package sf.util;
-
-import sf.uds.interfaces.del.runnable.IRun_1;
+package sf.resource;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -16,53 +13,6 @@ import java.util.jar.JarEntry;
 
 public class ResourceHelper
 {
-	public static void loadJars(){
-		try {
-			loadJar("lib");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void loadJar(String path) throws IOException
-	{
-		path = path.replace(".", "/");
-		Enumeration<URL> urls = ClassLoader.getSystemClassLoader().getResources(path);
-		IRun_1<URL> delLoadUrl = new IRun_1<URL>()
-		{
-			boolean init = false;
-			java.lang.reflect.Method method;
-			URLClassLoader cl = (URLClassLoader) ClassLoader.getSystemClassLoader();
-
-			@Override
-			public void run(URL arg1) throws Exception
-			{
-				if (!init) {
-					method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-					method.setAccessible(true);
-					init = true;
-				}
-				method.invoke(cl, arg1);
-			}
-		};
-		while (urls.hasMoreElements()) {
-			URL url = urls.nextElement();
-			if ("file".equals(url.getProtocol())) {
-				for (File classFile : Objects.requireNonNull((new File(URLDecoder.decode(url.getFile(), "UTF-8"))).listFiles(pathname -> pathname.isDirectory() || pathname.getName().endsWith(".jar")))) {
-					if (classFile.isDirectory())
-						loadJar(path + "." + classFile.getName());
-					else if (classFile.isFile()) {
-						try {
-							delLoadUrl.run(classFile.toURL());
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		}
-	}
-
 	public static List<String> getResourceInPackage(final Boolean _IsRecursive, String _Package) throws IOException
 	{
 		String _Package_ls = _Package.replace(".", "/");
