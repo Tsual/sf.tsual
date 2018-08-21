@@ -2,7 +2,6 @@ package hibernate;
 
 import sf.hibernate.service.impl.DbmgrImpl;
 import sf.resource.JarHelper;
-import sf.resource.ResourceHelper;
 
 import java.io.IOException;
 

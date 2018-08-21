@@ -2,11 +2,11 @@ package sf.hibernate.service.impl;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
+import sf.hibernate.service.HibernateServiceFactory;
 import sf.hibernate.service.interfaces.IDbmgr;
-import sf.tquery.JRE6.Iterators;
-import sf.uds.util.string.StringHelper;
+import sf.uds.util.tquery.JRE6.Iterators;
+import sf.uds.util.StringHelper;
 
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
@@ -26,8 +26,8 @@ public class DbmgrImpl implements IDbmgr
 
 	static {
 		try {
-			baseSessionFactory = new Configuration().configure("hibernate/hibernate.base.cfg.xml").buildSessionFactory();
-			wengdbSessionFactory = new Configuration().configure("hibernate/hibernate.wengdb.cfg.xml").buildSessionFactory();
+			baseSessionFactory = HibernateServiceFactory.getConfiguration().configure("hibernate/hibernate.base.cfg.xml").buildSessionFactory();
+			wengdbSessionFactory = HibernateServiceFactory.getConfiguration().configure("hibernate/hibernate.wengdb.cfg.xml").buildSessionFactory();
 			Map<Class, Class> map = new HashMap<>();
 			map.put(sf.hibernate.beans.base.RuleAttrEntity.class, sf.hibernate.beans.wengdb.RuleAttrEntity.class);
 			map.put(sf.hibernate.beans.base.RuleAttrRelEntity.class, sf.hibernate.beans.wengdb.RuleAttrRelEntity.class);
