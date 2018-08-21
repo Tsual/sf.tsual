@@ -45,7 +45,11 @@ public class BasicTypeComparator
 
 	public static boolean typeEqual(Class<?> clazzA, Class<?> clazzB)
 	{
-		return clazzA.equals(clazzB) || (basicTypeEqualMap.containsKey(clazzA) && basicTypeEqualMap.get(clazzA).equals(clazzB));
+		return clazzA.equals(clazzB) || clazzB.equals(basicTypeEqualMap.get(clazzA));
+	}
+
+	public static Class getEquivalenceType(Class clazz){
+		return basicTypeEqualMap.get(clazz);
 	}
 
 }
