@@ -39,7 +39,8 @@ public class BasicConvertor
 			{
 				final int length = Array.getLength(ret);
 				if (length > 0) {
-					final Object res = Array.newInstance(BasicTypeComparator.getEquivalenceType(Array.get(ret, 0).getClass()), length);
+					final Class tarClazz = BasicTypeComparator.getEquivalenceType(Array.get(ret, 0).getClass());
+					final Object res = Array.newInstance(tarClazz, length);
 					for (int i = 0; i < length; i++) {
 						Array.set(res, i, Array.get(ret, i));
 					}
