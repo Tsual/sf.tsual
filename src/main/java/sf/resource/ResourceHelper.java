@@ -1,14 +1,13 @@
 package sf.resource;
 
+import sf.hibernate.service.HibernateServiceFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.jar.JarEntry;
 
 public class ResourceHelper
@@ -40,5 +39,40 @@ public class ResourceHelper
 			}
 		}
 		return _ClassNames;
+	}
+
+	public static Map<Class, List<Class>> genImplCache(String pacName)
+	{
+		Map<Class, List<Class>> implCache_tar = new HashMap<>();
+		try {
+			final List<String> resourceInPackage = ResourceHelper.getResourceInPackage(true, pacName);
+			final List<Class> classes = new ArrayList<>();
+			for (String str : resourceInPackage) {
+				Class clazz = null;
+				try {
+					clazz = Class.forName(str);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+				if (clazz != null) {
+					if (clazz.isInterface()) {
+						implCache_tar.put(clazz, new ArrayList<>());
+					} else {
+						classes.add(clazz);
+					}
+				}
+			}
+			for (Class clazz : classes) {
+				for (Class interface_t : clazz.getInterfaces()) {
+					if (implCache_tar.containsKey(interface_t)) {
+						List<Class> impl_list = implCache_tar.get(interface_t);
+						impl_list.add(clazz);
+					}
+				}
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return implCache_tar;
 	}
 }

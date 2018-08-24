@@ -2,6 +2,7 @@ package sf.hibernate.service.impl;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import sf.hibernate.service.HibernateServiceFactory;
 import sf.hibernate.service.interfaces.IDbmgr;
@@ -26,8 +27,8 @@ public class DbmgrImpl implements IDbmgr
 
 	static {
 		try {
-			baseSessionFactory = HibernateServiceFactory.getConfiguration().configure("hibernate/hibernate.base.cfg.xml").buildSessionFactory();
-			wengdbSessionFactory = HibernateServiceFactory.getConfiguration().configure("hibernate/hibernate.wengdb.cfg.xml").buildSessionFactory();
+			baseSessionFactory = new Configuration().configure("hibernate/hibernate.base.cfg.xml").buildSessionFactory();
+			wengdbSessionFactory = new Configuration().configure("hibernate/hibernate.wengdb.cfg.xml").buildSessionFactory();
 			Map<Class, Class> map = new HashMap<>();
 			map.put(sf.hibernate.beans.base.RuleAttrEntity.class, sf.hibernate.beans.wengdb.RuleAttrEntity.class);
 			map.put(sf.hibernate.beans.base.RuleAttrRelEntity.class, sf.hibernate.beans.wengdb.RuleAttrRelEntity.class);
