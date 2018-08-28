@@ -1,16 +1,15 @@
 package hibernate;
 
-import sf.hibernate.service.HibernateServiceFactory;
-import sf.hibernate.service.impl.DbmgrImpl;
-import sf.hibernate.service.interfaces.IDbmgr;
-import sf.resource.JarHelper;
-
-import java.io.IOException;
+import sf.tquery.JRE6.Iterators;
 
 public class Test2
 {
 	public static void main(String[] args) throws Exception
 	{
-		HibernateServiceFactory.getService(IDbmgr.class).SyncData();
+		Iterators.getIterator(new String[]{"rrr","bbb"})
+				.as(t->{throw  new Exception();})
+				.foreach(t->t.equals("null"));
+
+
 	}
 }

@@ -4,9 +4,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
-import sf.hibernate.service.HibernateServiceFactory;
 import sf.hibernate.service.interfaces.IDbmgr;
-import sf.uds.util.tquery.JRE6.Iterators;
+import sf.tquery.JRE6.Iterators;
 import sf.uds.util.StringHelper;
 
 import javax.persistence.metamodel.EntityType;
@@ -102,5 +101,11 @@ public class DbmgrImpl implements IDbmgr
 			}
 		}
 		System.out.println("Modify Count:" + modifyCount.toString());
+	}
+
+	@Override
+	public void test() throws Exception
+	{
+
 	}
 }

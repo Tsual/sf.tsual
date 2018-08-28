@@ -6,11 +6,10 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.util.list;
+package sf.tquery.interfaces.exec;
 
-import java.util.List;
+import sf.uds.interfaces.del.executable.IExec_0;
 
-public interface Listable<T>
+public interface IAction<T> extends IExec_0<T>
 {
-	public List<T> toList() throws Exception;
 }

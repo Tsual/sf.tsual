@@ -6,11 +6,16 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.util.list;
+package sf.tquery.interfaces.preview;
 
-import java.util.List;
+import sf.tquery.interfaces.preview.sub.AggregateOperation;
+import sf.tquery.interfaces.preview.sub.BasicIterator;
+import sf.tquery.interfaces.preview.sub.StreamOperation;
+import sf.uds.interfaces.util.list.Listable;
 
-public interface Listable<T>
-{
-	public List<T> toList() throws Exception;
-}
+public interface Iterator<T>
+extends Listable<T>,
+		StreamOperation<T>,
+		AggregateOperation<T>,
+		BasicIterator<T>
+{}

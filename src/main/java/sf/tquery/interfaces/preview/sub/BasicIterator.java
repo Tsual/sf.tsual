@@ -6,11 +6,12 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.util.list;
+package sf.tquery.interfaces.preview.sub;
 
-import java.util.List;
+import sf.tquery.interfaces.preview.Iterator ;
+import sf.tquery.interfaces.exec.IRunnable;
 
-public interface Listable<T>
+public interface BasicIterator<T> extends Iterable<T>
 {
-	public List<T> toList() throws Exception;
+	public Iterator<T> foreach(IRunnable<T> del) throws Exception;
 }
