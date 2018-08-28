@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 public class Iterators
 {
-	private static final String className="sf.tquery.common.BaseIterator";
 	public static <T> Iterator<T> get(java.lang.Iterable<T> it)
 	{
 		if (it == null)
