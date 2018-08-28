@@ -6,17 +6,18 @@ import java.util.ArrayList;
 
 public class Iterators
 {
+	private static final String className="sf.tquery.common.BaseIterator";
 	public static <T> Iterator<T> get(java.lang.Iterable<T> it)
 	{
 		if (it == null)
-			return new BaseIterator<T>(new ArrayList<>());
+			it=new ArrayList<T>();
 		return new BaseIterator<T>(it);
 	}
 
 	public static <T> Iterator<T> get(T[] ar)
 	{
 		if (ar == null)
-			return new BaseIterator<T>(new ArrayList<T>());
+			return get(new ArrayList<T>());
 		return new BaseIterator<T>(ar);
 	}
 

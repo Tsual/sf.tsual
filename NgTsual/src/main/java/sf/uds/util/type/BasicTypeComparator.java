@@ -7,7 +7,7 @@ import java.util.Map;
 public class BasicTypeComparator
 {
 	static {
-		Map<Class, Class> temp = new HashMap<>();
+		Map<Class, Class> temp = new HashMap<Class, Class>();
 		temp.put(long.class, Long.class);
 		temp.put(Long.class, long.class);
 		temp.put(long[].class, Long[].class);

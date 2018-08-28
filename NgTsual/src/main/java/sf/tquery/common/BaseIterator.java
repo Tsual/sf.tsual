@@ -37,15 +37,15 @@ class BaseIterator<T> implements Iterator<T>
 
 	BaseIterator(java.lang.Iterable<T> it)
 	{
-		tIterable = new JavaIterable<>(it);
+		tIterable = new JavaIterable<T>(it);
 	}
 
 	@Override
 	public <V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter)
 	{
 		if (tvTypeConverter == null) throw new NullPointerException();
-		final BaseIterator<V> objectBaseIterator = new BaseIterator<>();
-		objectBaseIterator.tIterable = new AsIterable<>(tIterable, (ITypeConverter<Object, V>) tvTypeConverter);
+		final BaseIterator<V> objectBaseIterator = new BaseIterator<V>();
+		objectBaseIterator.tIterable = new AsIterable<V>(tIterable, (ITypeConverter<Object, V>) tvTypeConverter);
 		return objectBaseIterator;
 	}
 
@@ -53,12 +53,12 @@ class BaseIterator<T> implements Iterator<T>
 	public <V> Iterator<V> convert(ITypeConverter<T, V> tvTypeConverter) throws Exception
 	{
 		if (tvTypeConverter == null) throw new NullPointerException();
-		List<V> list = new ArrayList<>();
+		List<V> list = new ArrayList<V>();
 		reset();
 		while (hasNext())
 			list.add(tvTypeConverter.execute(next()));
-		final BaseIterator<V> objectBaseIterator = new BaseIterator<>();
-		objectBaseIterator.tIterable = new JavaIterable<>(list);
+		final BaseIterator<V> objectBaseIterator = new BaseIterator<V>();
+		objectBaseIterator.tIterable = new JavaIterable<V>(list);
 		return objectBaseIterator;
 	}
 
@@ -66,7 +66,7 @@ class BaseIterator<T> implements Iterator<T>
 	public Iterator<T> where(ISelector<T> tSelector)
 	{
 		if (tSelector == null) throw new NullPointerException();
-		if (selectors == null) selectors = new ArrayList<>();
+		if (selectors == null) selectors = new ArrayList<ISelector<T>>();
 		selectors.add(tSelector);
 		return this;
 	}
@@ -114,7 +114,7 @@ class BaseIterator<T> implements Iterator<T>
 	public Iterator<T> add(T item)
 	{
 		if (item != null)
-			tIterable = new LinkedIterable<>(tIterable, new SingleItemIterable<>(item));
+			tIterable = new LinkedIterable<T>(tIterable, new SingleItemIterable<T>(item));
 		return this;
 	}
 
@@ -122,7 +122,7 @@ class BaseIterator<T> implements Iterator<T>
 	public Iterator<T> add(T[] arr)
 	{
 		if (arr != null)
-			tIterable = new LinkedIterable<>(tIterable, new ArrayIterable<>(arr));
+			tIterable = new LinkedIterable<T>(tIterable, new ArrayIterable<T>(arr));
 		return this;
 	}
 
@@ -130,7 +130,7 @@ class BaseIterator<T> implements Iterator<T>
 	public Iterator<T> add(java.lang.Iterable<T> it)
 	{
 		if (it != null)
-			tIterable = new LinkedIterable<>(tIterable, new JavaIterable<>(it));
+			tIterable = new LinkedIterable<T>(tIterable, new JavaIterable<T>(it));
 		return this;
 	}
 
@@ -189,7 +189,7 @@ class BaseIterator<T> implements Iterator<T>
 	@Override
 	public List<T> toList() throws Exception
 	{
-		List<T> tList = new ArrayList<>();
+		List<T> tList = new ArrayList<T>();
 		reset();
 		while (hasNext())
 			tList.add(next());

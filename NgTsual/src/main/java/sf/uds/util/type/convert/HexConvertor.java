@@ -28,7 +28,7 @@ public class HexConvertor
 	{
 		byte[] arr = new byte[str.length()];
 		for (int i = 0; i < str.length(); i++)
-			arr[i] = (byte) map.get(str.charAt(i));
+			arr[i] = (Byte) map.get(str.charAt(i));
 		return arr;
 	}
 }

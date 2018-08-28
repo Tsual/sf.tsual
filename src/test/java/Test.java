@@ -8,10 +8,11 @@ public class Test
 	public static void main(String[] args) throws Exception
 	{
 		Random ran = new Random();
-		List<Long> list = new ArrayList<>();
+		List<Long> list1 = new ArrayList<>();
 		for (int i = 0; i < 2000; i++) {
-			list.add(ran.nextLong());
+			list1.add(ran.nextLong());
 		}
+		Long[] list = list1.toArray(new Long[0]);
 		Date date = new Date();
 		long l1 = 0l;
 		long l2 = 0l;
