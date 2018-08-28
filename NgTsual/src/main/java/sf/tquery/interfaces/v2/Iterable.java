@@ -1,4 +1,4 @@
-package sf.tquery.interfaces;
+package sf.tquery.interfaces.v2;
 
 public interface Iterable<T>
 {

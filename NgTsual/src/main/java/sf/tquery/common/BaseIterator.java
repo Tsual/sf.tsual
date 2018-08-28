@@ -9,8 +9,8 @@
 package sf.tquery.common;
 
 
-import sf.tquery.interfaces.Iterable;
-import sf.tquery.interfaces.Iterator;
+import sf.tquery.interfaces.v2.Iterable;
+import sf.tquery.interfaces.v2.Iterator;
 import sf.tquery.interfaces.exec.IAction;
 import sf.tquery.interfaces.exec.IRunnable;
 import sf.tquery.interfaces.exec.ISelector;

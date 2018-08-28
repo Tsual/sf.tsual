@@ -1,6 +1,6 @@
 package sf.tquery.common;
 
-import sf.tquery.interfaces.Iterator;
+import sf.tquery.interfaces.v2.Iterator;
 
 import java.util.ArrayList;
 

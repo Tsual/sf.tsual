@@ -1,4 +1,4 @@
-package sf.tquery.interfaces;
+package sf.tquery.interfaces.v2;
 
 import sf.tquery.interfaces.exec.IAction;
 import sf.tquery.interfaces.exec.IRunnable;
