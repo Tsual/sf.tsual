@@ -41,7 +41,7 @@ class BaseIterator<T> implements Iterator<T>
 	}
 
 	@Override
-	public <V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter) throws Exception
+	public <V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter)
 	{
 		if (tvTypeConverter == null) throw new NullPointerException();
 		final BaseIterator<V> objectBaseIterator = new BaseIterator<>();
@@ -50,7 +50,20 @@ class BaseIterator<T> implements Iterator<T>
 	}
 
 	@Override
-	public Iterator<T> where(ISelector<T> tSelector) throws Exception
+	public <V> Iterator<V> convert(ITypeConverter<T, V> tvTypeConverter) throws Exception
+	{
+		if (tvTypeConverter == null) throw new NullPointerException();
+		List<V> list = new ArrayList<>();
+		reset();
+		while (hasNext())
+			list.add(tvTypeConverter.execute(next()));
+		final BaseIterator<V> objectBaseIterator = new BaseIterator<>();
+		objectBaseIterator.tIterable = new JavaIterable<>(list);
+		return objectBaseIterator;
+	}
+
+	@Override
+	public Iterator<T> where(ISelector<T> tSelector)
 	{
 		if (tSelector == null) throw new NullPointerException();
 		if (selectors == null) selectors = new ArrayList<>();
@@ -98,7 +111,7 @@ class BaseIterator<T> implements Iterator<T>
 	}
 
 	@Override
-	public Iterator<T> add(T item) throws Exception
+	public Iterator<T> add(T item)
 	{
 		if (item != null)
 			tIterable = new LinkedIterable<>(tIterable, new SingleItemIterable<>(item));
@@ -106,7 +119,7 @@ class BaseIterator<T> implements Iterator<T>
 	}
 
 	@Override
-	public Iterator<T> add(T[] arr) throws Exception
+	public Iterator<T> add(T[] arr)
 	{
 		if (arr != null)
 			tIterable = new LinkedIterable<>(tIterable, new ArrayIterable<>(arr));
@@ -114,7 +127,7 @@ class BaseIterator<T> implements Iterator<T>
 	}
 
 	@Override
-	public Iterator<T> add(java.lang.Iterable<T> it) throws Exception
+	public Iterator<T> add(java.lang.Iterable<T> it)
 	{
 		if (it != null)
 			tIterable = new LinkedIterable<>(tIterable, new JavaIterable<>(it));
@@ -122,7 +135,7 @@ class BaseIterator<T> implements Iterator<T>
 	}
 
 	@Override
-	public Iterator<T> add(Iterator<T> it) throws Exception
+	public Iterator<T> add(Iterator<T> it)
 	{
 		if (it != null)
 			tIterable = new LinkedIterable<T>(tIterable, it);
@@ -161,7 +174,7 @@ class BaseIterator<T> implements Iterator<T>
 	}
 
 	@Override
-	public T next() throws Exception
+	public T next()
 	{
 		return current;
 	}
