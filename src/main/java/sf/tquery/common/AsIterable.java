@@ -3,12 +3,12 @@ package sf.tquery.common;
 import sf.tquery.interfaces.Iterable;
 import sf.tquery.interfaces.exec.ITypeConverter;
 
-public class AsIterable<T> implements Iterable<T>
+class AsIterable<T> implements Iterable<T>
 {
 	private Iterable it;
 	private ITypeConverter<Object, T> converter;
 
-	public AsIterable(Iterable it, ITypeConverter<Object, T> converter)
+	AsIterable(Iterable it, ITypeConverter<Object, T> converter)
 	{
 		this.it = it;
 		this.converter = converter;

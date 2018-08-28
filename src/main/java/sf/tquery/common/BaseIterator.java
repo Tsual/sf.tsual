@@ -135,7 +135,7 @@ class BaseIterator<T> implements Iterator<T>
 	}
 
 	@Override
-	public Iterator<T> add(Iterator<T> it)
+	public Iterator<T> add(Iterable<T> it)
 	{
 		if (it != null)
 			tIterable = new LinkedIterable<T>(tIterable, it);

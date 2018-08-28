@@ -26,7 +26,7 @@ public interface Iterator<T> extends Iterable<T>, Listable<T>
 
 	Iterator<T> add(java.lang.Iterable<T> Iterable) throws Exception;
 
-	Iterator<T> add(Iterator<T> Iterator) throws Exception;
+	Iterator<T> add(Iterable<T> Iterator) throws Exception;
 
 	<V> V execute(IAction<V> action) throws Exception;
 }
