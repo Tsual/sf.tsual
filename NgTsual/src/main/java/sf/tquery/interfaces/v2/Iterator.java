@@ -10,15 +10,19 @@ public interface Iterator<T> extends Iterable<T>, Listable<T>
 {
 	<V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter) throws Exception;
 
-	<V> Iterator<V> convert(ITypeConverter<T, V> tvTypeConverter) throws Exception;
-
 	Iterator<T> where(ISelector<T> tSelector) throws Exception;
 
 	Iterator<T> foreach(IRunnable<T> runnable) throws Exception;
 
+	Iterator<T> settle() throws Exception;
+
 	T first(ISelector<T> tSelector) throws Exception;
 
 	Iterator<T> first(ISelector<T> tSelector, IRunnable<T> runnable) throws Exception;
+
+	T last(ISelector<T> tSelector) throws Exception;
+
+	Iterator<T> last(ISelector<T> tSelector, IRunnable<T> runnable) throws Exception;
 
 	Iterator<T> add(T item) throws Exception;
 
