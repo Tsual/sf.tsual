@@ -15,6 +15,7 @@ import sf.tquery.interfaces.exec.IAction;
 import sf.tquery.interfaces.exec.IRunnable;
 import sf.tquery.interfaces.exec.ISelector;
 import sf.tquery.interfaces.exec.ITypeConverter;
+import sf.uds.util.ObjectHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,27 +39,28 @@ class BaseIterator<T> implements Iterator<T>
 		tIterable = new JavaIterable<T>(it);
 	}
 
+	private BaseIterator(Iterable<T> it)
+	{
+		tIterable = it;
+	}
+
 	@Override
 	public <V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter)
 	{
-		if (tvTypeConverter == null) throw new NullPointerException();
-		final BaseIterator<V> objectBaseIterator = new BaseIterator<V>();
-		objectBaseIterator.tIterable = new AsIterable<V>(tIterable, (ITypeConverter<Object, V>) tvTypeConverter);
-		return objectBaseIterator;
+		return new BaseIterator<V>(new AsIterable<V>(tIterable, (ITypeConverter<Object, V>) ObjectHelper.requireNotNull(tvTypeConverter)));
 	}
 
 	@Override
 	public Iterator<T> where(ISelector<T> tSelector)
 	{
-		if (tSelector == null) throw new NullPointerException();
-		tIterable = WhereIterable.add(tIterable, tSelector);
+		tIterable = WhereIterable.add(tIterable, ObjectHelper.requireNotNull(tSelector));
 		return this;
 	}
 
 	@Override
 	public Iterator<T> foreach(IRunnable<T> runnable) throws Exception
 	{
-		if (runnable == null) throw new NullPointerException();
+		ObjectHelper.requireNotNull(runnable);
 		reset();
 		while (hasNext())
 			runnable.run(next());
@@ -68,7 +70,7 @@ class BaseIterator<T> implements Iterator<T>
 	@Override
 	public T first(ISelector<T> tSelector) throws Exception
 	{
-		if (tSelector == null) throw new NullPointerException();
+		ObjectHelper.requireNotNull(tSelector);
 		reset();
 		while (hasNext()) {
 			T t = next();
@@ -81,15 +83,14 @@ class BaseIterator<T> implements Iterator<T>
 	@Override
 	public Iterator<T> first(ISelector<T> tSelector, IRunnable<T> runnable) throws Exception
 	{
-		if (runnable == null) throw new NullPointerException();
-		runnable.run(first(tSelector));
+		ObjectHelper.requireNotNull(runnable).run(first(tSelector));
 		return this;
 	}
 
 	@Override
 	public T last(ISelector<T> tSelector) throws Exception
 	{
-		if (tSelector == null) throw new NullPointerException();
+		ObjectHelper.requireNotNull(tSelector);
 		reset();
 		T t = null;
 		while (hasNext()) {
@@ -103,8 +104,7 @@ class BaseIterator<T> implements Iterator<T>
 	@Override
 	public Iterator<T> last(ISelector<T> tSelector, IRunnable<T> runnable) throws Exception
 	{
-		if (runnable == null) throw new NullPointerException();
-		runnable.run(last(tSelector));
+		ObjectHelper.requireNotNull(runnable).run(last(tSelector));
 		return this;
 	}
 
@@ -118,40 +118,35 @@ class BaseIterator<T> implements Iterator<T>
 	@Override
 	public Iterator<T> add(T item)
 	{
-		if (item != null)
-			tIterable = LinkedIterable.link(tIterable, new SingleItemIterable<T>(item));
+		tIterable = LinkedIterable.link(tIterable, new SingleItemIterable<T>(ObjectHelper.requireNotNull(item)));
 		return this;
 	}
 
 	@Override
 	public Iterator<T> add(T[] arr)
 	{
-		if (arr != null)
-			tIterable = LinkedIterable.link(tIterable, new ArrayIterable<T>(arr));
+		tIterable = LinkedIterable.link(tIterable, new ArrayIterable<T>(ObjectHelper.requireNotNull(arr)));
 		return this;
 	}
 
 	@Override
 	public Iterator<T> add(java.lang.Iterable<T> it)
 	{
-		if (it != null)
-			tIterable = LinkedIterable.link(tIterable, new JavaIterable<T>(it));
+		tIterable = LinkedIterable.link(tIterable, new JavaIterable<T>(ObjectHelper.requireNotNull(it)));
 		return this;
 	}
 
 	@Override
 	public Iterator<T> add(Iterable<T> it)
 	{
-		if (it != null)
-			tIterable = LinkedIterable.link(tIterable, it);
+		tIterable = LinkedIterable.link(tIterable, ObjectHelper.requireNotNull(it));
 		return this;
 	}
 
 	@Override
 	public <V> V execute(IAction<V> action) throws Exception
 	{
-		if (action == null) throw new NullPointerException();
-		return action.execute();
+		return ObjectHelper.requireNotNull(action).execute();
 	}
 
 	@Override
