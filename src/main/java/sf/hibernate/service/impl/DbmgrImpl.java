@@ -5,7 +5,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import sf.hibernate.service.interfaces.IDbmgr;
-import sf.tquery.JRE6.Iterators;
+import sf.tquery.common.Iterators;
 import sf.uds.util.StringHelper;
 
 import javax.persistence.metamodel.EntityType;
@@ -51,7 +51,7 @@ public class DbmgrImpl implements IDbmgr
 	@Override
 	public void SyncData() throws Exception
 	{
-		AtomicInteger modifyCount= new AtomicInteger();
+		AtomicInteger modifyCount = new AtomicInteger();
 		try (Session baseSession = baseSessionFactory.openSession();
 		     Session wengdbSession = wengdbSessionFactory.openSession())
 		{
@@ -72,12 +72,20 @@ public class DbmgrImpl implements IDbmgr
 				final Method wengdbIdJavaMember = (Method) wengdbEntity.getId(wengdbEntity.getIdType().getJavaType()).getJavaMember();
 				final Method baseIdJavaMember = (Method) baseEntity.getId(baseEntity.getIdType().getJavaType()).getJavaMember();
 
-				final List wengdbIdList = Iterators.getIterator(wengdbList)
+				final List wengdbIdList = Iterators.get(wengdbList)
 						.as(t -> wengdbIdJavaMember.invoke(t))
 						.toList();
 
+//				final List baseIdList = Iterators.get(baseList)
+//						.as(t -> baseIdJavaMember.invoke(t))
+//						.toList();
+//
+//				final List compareList = Iterators.get(baseList)
+//						.where(t -> !wengdbIdList.contains(baseIdJavaMember.invoke(t)))
+//						.toList();
+
 				wengdbSession.beginTransaction();
-				Iterators.getIterator(baseList)
+				Iterators.get(baseList)
 						.where(t -> !wengdbIdList.contains(baseIdJavaMember.invoke(t)))
 						.as(t ->
 						{

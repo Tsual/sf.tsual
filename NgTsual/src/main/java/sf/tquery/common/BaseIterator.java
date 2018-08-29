@@ -45,7 +45,7 @@ class BaseIterator<T> implements Iterator<T>
 	{
 		if (tvTypeConverter == null) throw new NullPointerException();
 		final BaseIterator<V> objectBaseIterator = new BaseIterator<V>();
-		objectBaseIterator.tIterable = new AsIterable<V>(tIterable, (ITypeConverter<Object, V>) tvTypeConverter);
+		objectBaseIterator.tIterable = new AsIterable<V>(this, (ITypeConverter<Object, V>) tvTypeConverter);
 		return objectBaseIterator;
 	}
 
