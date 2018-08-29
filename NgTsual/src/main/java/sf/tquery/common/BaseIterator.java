@@ -23,8 +23,6 @@ import java.util.List;
 class BaseIterator<T> implements Iterator<T>
 {
 	private Iterable<T> tIterable;
-	private List<ISelector<T>> selectors;
-	private T current;
 
 	private BaseIterator()
 	{
@@ -45,7 +43,7 @@ class BaseIterator<T> implements Iterator<T>
 	{
 		if (tvTypeConverter == null) throw new NullPointerException();
 		final BaseIterator<V> objectBaseIterator = new BaseIterator<V>();
-		objectBaseIterator.tIterable = new AsIterable<V>(this, (ITypeConverter<Object, V>) tvTypeConverter);
+		objectBaseIterator.tIterable = new AsIterable<V>(tIterable, (ITypeConverter<Object, V>) tvTypeConverter);
 		return objectBaseIterator;
 	}
 
@@ -53,8 +51,7 @@ class BaseIterator<T> implements Iterator<T>
 	public Iterator<T> where(ISelector<T> tSelector)
 	{
 		if (tSelector == null) throw new NullPointerException();
-		if (selectors == null) selectors = new ArrayList<ISelector<T>>();
-		selectors.add(tSelector);
+		tIterable = WhereIterable.add(tIterable, tSelector);
 		return this;
 	}
 
@@ -114,12 +111,7 @@ class BaseIterator<T> implements Iterator<T>
 	@Override
 	public Iterator<T> settle() throws Exception
 	{
-		reset();
-		final ArrayList<T> list = new ArrayList<T>();
-		while (hasNext()) {
-			list.add(next());
-		}
-		tIterable = new JavaIterable<T>(list);
+		tIterable = new JavaIterable<T>(toList());
 		return this;
 	}
 
@@ -165,37 +157,18 @@ class BaseIterator<T> implements Iterator<T>
 	@Override
 	public boolean hasNext() throws Exception
 	{
-		if (selectors != null) {
-			while (tIterable.hasNext()) {
-				final T t = tIterable.next();
-				boolean pass = true;
-				for (ISelector<T> selector : selectors)
-					if (!selector.execute(t)) pass = false;
-				if (pass) {
-					current = t;
-					return true;
-				}
-			}
-			return false;
-		} else {
-			if (tIterable.hasNext()) {
-				current = tIterable.next();
-				return true;
-			}
-			return false;
-		}
+		return tIterable.hasNext();
 	}
 
 	@Override
-	public T next()
+	public T next() throws Exception
 	{
-		return current;
+		return tIterable.next();
 	}
 
 	@Override
 	public void reset()
 	{
-		current = null;
 		tIterable.reset();
 	}
 
