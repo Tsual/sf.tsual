@@ -72,20 +72,20 @@ public class DbmgrImpl implements IDbmgr
 				final Method wengdbIdJavaMember = (Method) wengdbEntity.getId(wengdbEntity.getIdType().getJavaType()).getJavaMember();
 				final Method baseIdJavaMember = (Method) baseEntity.getId(baseEntity.getIdType().getJavaType()).getJavaMember();
 
-				final List wengdbIdList = Iterators.get(wengdbList)
+				final List wengdbIdList = Iterators.basic(wengdbList)
 						.as(t -> wengdbIdJavaMember.invoke(t))
 						.toList();
 
-//				final List baseIdList = Iterators.get(baseList)
+//				final List baseIdList = Iterators.basic(baseList)
 //						.as(t -> baseIdJavaMember.invoke(t))
 //						.toList();
 //
-//				final List compareList = Iterators.get(baseList)
+//				final List compareList = Iterators.basic(baseList)
 //						.where(t -> !wengdbIdList.contains(baseIdJavaMember.invoke(t)))
 //						.toList();
 
 				wengdbSession.beginTransaction();
-				Iterators.get(baseList)
+				Iterators.basic(baseList)
 						.where(t -> !wengdbIdList.contains(baseIdJavaMember.invoke(t)))
 						.as(t ->
 						{

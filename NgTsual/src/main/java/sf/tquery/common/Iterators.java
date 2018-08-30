@@ -1,23 +1,18 @@
 package sf.tquery.common;
 
 import sf.tquery.interfaces.v2.Iterator;
-
-import java.util.ArrayList;
+import sf.uds.util.ObjectHelper;
 
 public class Iterators
 {
-	public static <T> Iterator<T> get(java.lang.Iterable<T> it)
+	public static <T> Iterator<T> basic(java.lang.Iterable<T> it)
 	{
-		if (it == null)
-			it=new ArrayList<T>();
-		return new BaseIterator<T>(it);
+		return new BasicIterator<T>(ObjectHelper.requireNotNull(it));
 	}
 
-	public static <T> Iterator<T> get(T[] ar)
+	public static <T> Iterator<T> basic(T[] ar)
 	{
-		if (ar == null)
-			return get(new ArrayList<T>());
-		return new BaseIterator<T>(ar);
+		return new BasicIterator<T>(ObjectHelper.requireNotNull(ar));
 	}
 
 

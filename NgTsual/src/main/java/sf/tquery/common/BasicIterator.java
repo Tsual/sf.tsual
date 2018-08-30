@@ -21,25 +21,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-class BaseIterator<T> implements Iterator<T>
+class BasicIterator<T> implements Iterator<T>
 {
 	private Iterable<T> tIterable;
 
-	private BaseIterator()
+	private BasicIterator()
 	{
 	}
 
-	BaseIterator(T[] arr)
+	BasicIterator(T[] arr)
 	{
 		tIterable = new ArrayIterable<T>(arr);
 	}
 
-	BaseIterator(java.lang.Iterable<T> it)
+	BasicIterator(java.lang.Iterable<T> it)
 	{
 		tIterable = new JavaIterable<T>(it);
 	}
 
-	private BaseIterator(Iterable<T> it)
+	private BasicIterator(Iterable<T> it)
 	{
 		tIterable = it;
 	}
@@ -47,7 +47,7 @@ class BaseIterator<T> implements Iterator<T>
 	@Override
 	public <V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter)
 	{
-		return new BaseIterator<V>(new AsIterable<V>(tIterable, (ITypeConverter<Object, V>) ObjectHelper.requireNotNull(tvTypeConverter)));
+		return new BasicIterator<V>(new AsIterable<V>(tIterable, (ITypeConverter<Object, V>) ObjectHelper.requireNotNull(tvTypeConverter)));
 	}
 
 	@Override
