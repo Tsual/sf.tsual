@@ -1,7 +1,6 @@
 package sf.tquery.common;
 
 import sf.tquery.interfaces.exec.ISelector;
-import sf.tquery.interfaces.v2.Iterable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,7 @@ class WhereIterable<T> implements Iterable<T>
 	}
 
 	@Override
-	public void reset()
+	public void reset() throws Exception
 	{
 		current = null;
 		ori.reset();

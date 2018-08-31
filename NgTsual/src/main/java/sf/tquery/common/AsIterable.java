@@ -1,6 +1,5 @@
 package sf.tquery.common;
 
-import sf.tquery.interfaces.v2.Iterable;
 import sf.tquery.interfaces.exec.ITypeConverter;
 
 class AsIterable<T> implements Iterable<T>
@@ -27,7 +26,7 @@ class AsIterable<T> implements Iterable<T>
 	}
 
 	@Override
-	public void reset()
+	public void reset() throws Exception
 	{
 		it.reset();
 	}

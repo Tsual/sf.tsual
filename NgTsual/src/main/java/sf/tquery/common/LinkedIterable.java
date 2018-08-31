@@ -1,7 +1,5 @@
 package sf.tquery.common;
 
-import sf.tquery.interfaces.v2.Iterable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +61,7 @@ class LinkedIterable<T> implements Iterable<T>
 	}
 
 	@Override
-	public void reset()
+	public void reset() throws Exception
 	{
 		index = 0;
 		for (Iterable t : iterables)

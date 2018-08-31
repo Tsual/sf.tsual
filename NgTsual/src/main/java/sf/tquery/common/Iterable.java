@@ -1,4 +1,4 @@
-package sf.tquery.interfaces.v2;
+package sf.tquery.common;
 
 public interface Iterable<T>
 {
@@ -6,5 +6,5 @@ public interface Iterable<T>
 
 	T next() throws Exception;
 
-	void reset();
+	void reset() throws Exception;
 }

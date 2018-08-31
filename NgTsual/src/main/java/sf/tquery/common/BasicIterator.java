@@ -9,8 +9,6 @@
 package sf.tquery.common;
 
 
-import sf.tquery.interfaces.v2.Iterable;
-import sf.tquery.interfaces.v2.Iterator;
 import sf.tquery.interfaces.exec.IAction;
 import sf.tquery.interfaces.exec.IRunnable;
 import sf.tquery.interfaces.exec.ISelector;
@@ -162,7 +160,7 @@ class BasicIterator<T> implements Iterator<T>
 	}
 
 	@Override
-	public void reset()
+	public void reset() throws Exception
 	{
 		tIterable.reset();
 	}

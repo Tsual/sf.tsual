@@ -1,7 +1,5 @@
 package sf.tquery.common;
 
-import sf.tquery.interfaces.v2.Iterable;
-
 class ArrayIterable<T> implements Iterable<T>
 {
 	private T[] arr;
