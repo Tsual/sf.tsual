@@ -42,7 +42,7 @@ public class JarHelper
 							loadJar(path + "." + classFile.getName());
 						else if (classFile.isFile()) {
 							try {
-								delLoadUrl.run(classFile.toURL());
+								delLoadUrl.run(classFile.toURI().toURL());
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
