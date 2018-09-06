@@ -7,10 +7,15 @@ class LinkedIterable<T> implements Iterable<T>
 {
 	static <T> Iterable<T> link(Iterable<T> pit, Iterable<T> ait)
 	{
-		if (pit instanceof LinkedIterable) {
+		final boolean ait_b = ait instanceof LinkedIterable,
+				pit_b = pit instanceof LinkedIterable;
+		if (ait_b & pit_b) {
+			((LinkedIterable) pit).iterables.addAll(((LinkedIterable) ait).iterables);
+			return pit;
+		} else if (pit_b) {
 			((LinkedIterable) pit).iterables.add(ait);
 			return pit;
-		} else if (ait instanceof LinkedIterable) {
+		} else if (ait_b) {
 			((LinkedIterable) ait).iterables.add(pit);
 			return ait;
 		} else {
