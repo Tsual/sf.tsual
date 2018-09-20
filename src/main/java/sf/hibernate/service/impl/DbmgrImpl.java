@@ -8,14 +8,9 @@ import sf.hibernate.service.interfaces.IDbmgr;
 import sf.tquery.common.Iterators;
 import sf.uds.util.StringHelper;
 
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
-import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.*;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DbmgrImpl implements IDbmgr
@@ -114,6 +109,17 @@ public class DbmgrImpl implements IDbmgr
 	@Override
 	public void test() throws Exception
 	{
+		try (Session wengdbSession = wengdbSessionFactory.openSession()) {
+			final Metamodel wengdbSessionMetamodel = wengdbSession.getMetamodel();
 
+			final Set<EmbeddableType<?>> embeddables = wengdbSessionMetamodel.getEmbeddables();
+			final Set<ManagedType<?>> managedTypes = wengdbSessionMetamodel.getManagedTypes();
+			final Set<EntityType<?>> entities = wengdbSessionMetamodel.getEntities();
+
+			final EntityType wengdbEntity = wengdbSessionMetamodel.entity(sf.hibernate.beans.wengdb.RuleAttrEntity.class);
+			wengdbSession.createQuery("from "+wengdbEntity.getName()+" where attrId=1");
+
+			int a = 0;
+		}
 	}
 }
