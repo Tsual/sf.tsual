@@ -8,7 +8,7 @@ class SimpleTaskQueue
 	private Queue<Task> queue_0 = new LinkedList<>();
 	private Queue<Task> queue_1 = new LinkedList<>();
 
-	private final Object lock_queue_1 = new Object();
+	private final Object lock_queue_1 = "(*^ω^*)";
 
 	Task get()
 	{
@@ -31,6 +31,7 @@ class SimpleTaskQueue
 				return true;
 			else {
 				synchronized (lock_queue_1) {
+					if (queue_1.size() == 0) return false;
 					Queue<Task> queue = queue_0;
 					queue_0.clear();
 					queue_0 = queue_1;

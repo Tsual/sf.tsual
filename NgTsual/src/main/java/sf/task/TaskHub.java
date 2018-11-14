@@ -10,7 +10,7 @@ public class TaskHub
 	private TaskHost host;
 	private List<Task> tasks = new ArrayList<>();
 
-	final Object any_complete_notify_object = new Object();
+	final Object any_complete_notify_object = "(*˘︶˘*).。.:*♡";
 	private boolean anyComplete = false;
 
 

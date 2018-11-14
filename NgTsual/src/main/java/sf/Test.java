@@ -12,7 +12,7 @@ public class Test
 	{
 		try (TaskHost taskHost = new TaskHost(5)) {
 			final TaskHub taskHub = taskHost.newTaskHub();
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < 500; i++)
 				taskHub.execute(() ->
 				{
 					Thread.sleep(Math.abs(new Random().nextLong()) % 300 + 1);

@@ -7,7 +7,7 @@ import java.util.List;
 public class TaskHost implements AutoCloseable
 {
 	private static final ThreadGroup THREAD_GROUP = new ThreadGroup("TaskHost");
-	private final Object lock = new Object();
+	private final Object lock = "ヾ(^▽^*)))";
 	private final boolean[] thread_close = {false};
 
 	private List<Thread> workers = new ArrayList<>();
