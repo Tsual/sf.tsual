@@ -10,6 +10,7 @@ public class Test
 {
 	public static void main(String[] args) throws Exception
 	{
+		final Object lock = new Object();
 		final List<IExec_0> ex_list = Collections.synchronizedList(new ArrayList());
 		final int[] ia = {0};
 		IExec_0 it = new IExec_0<Void>()
@@ -18,14 +19,15 @@ public class Test
 			public Void execute() throws Exception
 			{
 				System.out.println(ia[0]++);
-				Thread.sleep(50);
+				Thread.sleep(800);
+				lock.notifyAll();
 				return null;
 			}
 		};
 		for (int i = 0; i < 1; i++) {
 			ex_list.add(it);
 		}
-		final Object lock = new Object();
+
 
 		final Runnable runnable1 = new Runnable()
 		{
@@ -34,7 +36,6 @@ public class Test
 			{
 				while (true) {
 					synchronized (lock) {
-						lock.notify();
 						for (IExec_0 exec : ex_list) {
 							try {
 								System.out.print("exec-1<<");
@@ -61,7 +62,6 @@ public class Test
 			{
 				while (true) {
 					synchronized (lock) {
-						lock.notify();
 						for (IExec_0 exec : ex_list) {
 							try {
 								System.out.print("exec-2<<");
@@ -86,8 +86,8 @@ public class Test
 		thread1.start();
 		thread2.start();
 
-		thread1.join(1000);
-		thread2.join(1000);
+		thread1.join(3000);
+		thread2.join(3000);
 
 	}
 }
