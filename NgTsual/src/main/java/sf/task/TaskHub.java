@@ -7,21 +7,46 @@ import java.util.List;
 
 public class TaskHub
 {
+	private final static int size = 10;
+	private final static int size_m1 = size - 1;
+
 	private TaskHost host;
 	private List<Task> tasks = new ArrayList<>();
 
 	final Object any_complete_notify_object = "(*˘︶˘*).。.:*♡";
 	private boolean anyComplete = false;
 
+	private final Long allow_delay;
+	final Long[] delays = new Long[size_m1];
+	int index = 0;
 
-	TaskHub(TaskHost host)
+
+	TaskHub(TaskHost host, Long allow_delay)
 	{
 		this.host = host;
+		this.allow_delay = allow_delay * size;
 	}
 
 	void finishTask(Task task)
 	{
-		anyComplete = true;
+		if (!anyComplete)
+			anyComplete = true;
+		long all = task.finishTime - task.startTime;
+		synchronized (delays) {
+			if (index < size_m1)
+				delays[index++] = all;
+			else {
+				index = 0;
+				for (int i = 0; i < size_m1; i++) {
+					all += delays[i];
+					delays[i] = 0L;
+				}
+			}
+		}
+		if (all > allow_delay)
+			synchronized (host.daemon_lock) {
+				host.daemon_lock.notifyAll();
+			}
 	}
 
 	public <T> Task<T> execute(IExec_0<T> executable)
@@ -34,12 +59,14 @@ public class TaskHub
 
 	public void waitAll()
 	{
-		for (Task task : tasks) {
-			synchronized (task) {
-				if (!task.isProduced()) {
+		int size = tasks.size();
+		for (int i = 0; i < size; i++) {
+			synchronized (tasks.get(i)) {
+				if (!tasks.get(i).isProduced()) {
 					try {
-						task.wait();
-					} catch (InterruptedException ignored) {
+						tasks.get(i).wait();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
 					}
 				}
 			}

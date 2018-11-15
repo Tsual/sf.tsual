@@ -5,16 +5,21 @@ import sf.uds.interfaces.del.executable.IExec_0;
 public class Task<T>
 {
 	private TaskHub hub;
+	private boolean isProduced = false;
+	Long startTime;
+	Long executeTime;
+	Long finishTime;
 
 	IExec_0<T> executable;
-
-	private boolean isProduced = false;
 	T result = null;
 	Exception ex = null;
+
 
 	void finishTask()
 	{
 		isProduced = true;
+		finishTime = System.currentTimeMillis();
+
 		hub.finishTask(this);
 		synchronized (this) {
 			notifyAll();
@@ -28,6 +33,7 @@ public class Task<T>
 	{
 		this.hub = hub;
 		this.executable = executable;
+		startTime = System.currentTimeMillis();
 	}
 
 	public boolean isProduced()
@@ -49,5 +55,15 @@ public class Task<T>
 			}
 		} catch (InterruptedException ignored) {
 		}
+	}
+
+	public Long getStartTime()
+	{
+		return startTime;
+	}
+
+	public Long getFinishTime()
+	{
+		return finishTime;
 	}
 }
