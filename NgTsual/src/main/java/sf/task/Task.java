@@ -13,6 +13,7 @@ public class Task<T>
 	IExec_0<T> executable;
 	T result = null;
 	Exception ex = null;
+	Thread call_thread;
 
 
 	void finishTask()
@@ -34,6 +35,7 @@ public class Task<T>
 		this.hub = hub;
 		this.executable = executable;
 		startTime = System.currentTimeMillis();
+		call_thread = Thread.currentThread();
 	}
 
 	public boolean isProduced()

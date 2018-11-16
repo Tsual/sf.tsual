@@ -1,6 +1,7 @@
 package sf.task;
 
 
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -18,7 +19,7 @@ public class TaskHost implements AutoCloseable
 	//endregion
 
 	private final SimpleTaskQueue simpleTaskQueue = new SimpleTaskQueue();
-	private Thread[] workers;
+	//private Thread[] workers;
 
 	private final Runnable thread_exec_shell = () ->
 	{
@@ -39,6 +40,11 @@ public class TaskHost implements AutoCloseable
 				}
 
 				if (exec != null) {
+					try {
+						syncThreadLocal(exec.call_thread);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
 					exec.executeTime = System.currentTimeMillis();
 					try {
 						exec.result = exec.executable.execute();
@@ -52,6 +58,13 @@ public class TaskHost implements AutoCloseable
 			}
 		}
 	};
+
+	private void syncThreadLocal(Thread caller) throws NoSuchFieldException, IllegalAccessException
+	{
+		final Field threadLocals = Thread.class.getField("threadLocals");
+		threadLocals.setAccessible(true);
+		threadLocals.set(Thread.currentThread(),threadLocals.get(caller));
+	}
 
 	public TaskHost(String name, Integer start_worker_count, Integer max_worker_count, Long allow_wait_time)
 	{
@@ -94,8 +107,8 @@ public class TaskHost implements AutoCloseable
 				throw new RuntimeException(ex);
 			});
 			worker.start();
-			workers = new Thread[thread_group.activeCount()];
-			thread_group.enumerate(workers, false);
+			//workers = new Thread[thread_group.activeCount()];
+			//thread_group.enumerate(workers, false);
 		}
 	}
 
