@@ -41,7 +41,7 @@ public class TaskHost implements AutoCloseable
 
 				if (exec != null) {
 					try {
-						syncThreadLocal(exec.call_thread);
+						syncThreadLocal(exec.caller);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
