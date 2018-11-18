@@ -2,49 +2,77 @@ package sf.task;
 
 import sf.uds.interfaces.del.executable.IExec_0;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class TaskHub
+public class TaskHub implements AutoCloseable
 {
 	private final static int report_cache_size = 10;
 	private final static int report_cache_size_m1 = report_cache_size - 1;
 
 	private TaskHost host;
 	private List<Task> tasks = new ArrayList<>();
+	private OutputStream traceOutputStream;
 
 	final Object any_finish_lock = "(*˘︶˘*).。.:*♡";
+	private final Object wait_all_lock = "(*˘︶˘*).。.:*♡1";
+	private final Object wait_any_lock = "(*˘︶˘*).。.:*♡2";
 	boolean anyFinish = false;
 
-	private int finish_count = 0, index = 0;
+	int finish_count = 0;
+	private int index = 0;
 	private final Long allow_delay;
 	private final Long[] delays = new Long[report_cache_size_m1];
 	private Timer abort_schedule;
 
+	private boolean[] close = {false};
 
-	TaskHub(TaskHost host, Long allow_delay)
+
+	TaskHub(TaskHost host, Long allow_delay, OutputStream traceOutputStream)
 	{
 		this.host = host;
 		this.allow_delay = allow_delay * report_cache_size;
-		new Thread(new Runnable()
+		this.traceOutputStream = traceOutputStream;
+		new Thread(() ->
 		{
-			@Override
-			public void run()
-			{
-				while (true) {
-					synchronized (any_finish_lock) {
-						try {
-							any_finish_lock.wait();
-						} catch (InterruptedException e) {
-							throw new RuntimeException(e);
-						}
-						finish_count++;
+			while (true) {
+				synchronized (any_finish_lock) {
+					try {
+						any_finish_lock.wait();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
 					}
+					if (close[0]) return;
 				}
+				synchronized (wait_all_lock) {
+					wait_all_lock.notifyAll();
+				}
+				synchronized (wait_any_lock) {
+					wait_any_lock.notifyAll();
+				}
+
 			}
 		}).start();
+	}
+
+	boolean needTrace()
+	{
+		return traceOutputStream != null;
+	}
+
+	void trace(Task task, String msg)
+	{
+		try {
+			if (traceOutputStream != null)
+				traceOutputStream.write((task.toString() + "<<" + new Timestamp(System.currentTimeMillis()) + "<<" + msg + "\n").getBytes());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	void taskFinishReport(Task task)
@@ -69,24 +97,38 @@ public class TaskHub
 			}
 	}
 
-	public <T> Task<T> execute(IExec_0<T> executable, ThreadLocalOperation threadLocalOperation, Long abort_time)
+	public <T> Task<T> execute(IExec_0<T> executable, ThreadLocalOperation threadLocalOperation)
 	{
-
 		Task<T> task = new Task<>(this, executable);
 		if (threadLocalOperation != null)
 			task.tlOperation = threadLocalOperation;
-		if (10 < abort_time) {
+		tasks.add(task);
+		host.addTask(task);
+		return task;
+	}
+
+	public <T> Task<T> execute(IExec_0<T> executable, ThreadLocalOperation threadLocalOperation, Long abortDuration)
+	{
+		Task<T> task = new Task<>(this, executable);
+		if (threadLocalOperation != null)
+			task.tlOperation = threadLocalOperation;
+		if (10 < abortDuration) {
 			if (abort_schedule == null)
 				abort_schedule = new Timer();
+			task.abortDuration = abortDuration;
 			TaskHub hub = this;
 			abort_schedule.schedule(new TimerTask()
 			{
 				@Override
 				public void run()
 				{
-					host.abort_task(task, hub);
+					try {
+						host.abort_task(task, hub);
+					} catch (Throwable ex) {
+						ex.printStackTrace();
+					}
 				}
-			}, abort_time);
+			}, abortDuration);
 		}
 		tasks.add(task);
 		host.addTask(task);
@@ -95,12 +137,15 @@ public class TaskHub
 
 	public void waitAll()
 	{
-		int size = tasks.size() + finish_count;
+		int size = tasks.size();
 		while (true) {
-			synchronized (any_finish_lock) {
-				if (finish_count >= size)
-					return;
-				any_finish_lock.notify();
+			synchronized (wait_all_lock) {
+				try {
+					wait_all_lock.wait();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+				if (finish_count >= size) return;
 			}
 		}
 	}
@@ -108,9 +153,9 @@ public class TaskHub
 	public void waitAny()
 	{
 		if (!anyFinish) {
-			synchronized (any_finish_lock) {
+			synchronized (wait_any_lock) {
 				try {
-					any_finish_lock.wait();
+					wait_any_lock.wait();
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
@@ -123,4 +168,12 @@ public class TaskHub
 		return tasks;
 	}
 
+	@Override
+	public void close() throws Exception
+	{
+		close[0] = true;
+		synchronized (any_finish_lock) {
+			any_finish_lock.notifyAll();
+		}
+	}
 }
