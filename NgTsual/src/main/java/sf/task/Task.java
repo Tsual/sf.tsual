@@ -27,8 +27,9 @@ public class Task<T>
 
 	void notifyFinish()
 	{
+		System.out.println("notifyFinish");
 		synchronized (hub.any_finish_lock) {
-			hub.any_finish_lock.notifyAll();
+			hub.any_finish_lock.notify();
 		}
 	}
 

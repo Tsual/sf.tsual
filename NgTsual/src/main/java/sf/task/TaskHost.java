@@ -21,8 +21,6 @@ public class TaskHost implements AutoCloseable
 
 	private final Object workers_lock = "（▼へ▼メ）";
 	private final boolean[] thread_close = {false};
-
-	private final Object reset_daemon_lock = "ffff";
 	//endregion
 
 	private final SimpleTaskQueue simpleTaskQueue = new SimpleTaskQueue();
@@ -124,22 +122,20 @@ public class TaskHost implements AutoCloseable
 
 	void abort_task(Task task, TaskHub hub)
 	{
-		System.out.println("aborting...");
+		System.out.println("aborting..." + task);
 		if (task.isProduced) return;
 		task.isProduced = true;
 		task.finishTime = System.currentTimeMillis();
 		if (!hub.anyFinish)
 			hub.anyFinish = true;
 		if (task.executor != null) {
-			System.out.println("reseting...");
+			System.out.println("reseting..." + task.executor);
 			task.executor.interrupt();
 			resetWorker(task.executor);
 		} else {
-			System.out.println("removing...");
+			System.out.println("removing..." + task);
 			simpleTaskQueue.remove(task);
 		}
-
-		System.out.println("unlocking...");
 
 		task.caller = null;
 		task.executor = null;
@@ -179,26 +175,6 @@ public class TaskHost implements AutoCloseable
 							is_add_daemon_alive = false;
 							return;
 						}
-					}
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}).start();
-	}
-
-	private void start_worker_reset_daemon()
-	{
-		new Thread(() ->
-		{
-			while (true) {
-				if (thread_close[0]) return;
-				try {
-					synchronized (reset_daemon_lock) {
-						reset_daemon_lock.wait();
-						for (Thread worker : fail_workers)
-							resetWorker(worker);
-						fail_workers.clear();
 					}
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);

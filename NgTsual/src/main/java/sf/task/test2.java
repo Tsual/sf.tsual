@@ -7,7 +7,7 @@ public class test2
 	{
 		try (TaskHost host = new TaskHost("th", 5, 25, 50L)) {
 			TaskHub hub = host.newTaskHub(50L);
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 5; i++) {
 				int finalI = i;
 				hub.execute(() ->
 						{
@@ -19,7 +19,7 @@ public class test2
 						, 50L
 				);
 			}
-			//hub.waitAll();
+			hub.waitAll();
 		}
 	}
 }
