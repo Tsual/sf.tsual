@@ -18,10 +18,9 @@ public class TaskHub
 	final Object any_finish_lock = "(*˘︶˘*).。.:*♡";
 	boolean anyFinish = false;
 
-	private int finish_count = 0;
+	private int finish_count = 0, index = 0;
 	private final Long allow_delay;
 	private final Long[] delays = new Long[report_cache_size_m1];
-	private int index = 0;
 	private Timer abort_schedule;
 
 
@@ -34,7 +33,7 @@ public class TaskHub
 			@Override
 			public void run()
 			{
-				while (true){
+				while (true) {
 					synchronized (any_finish_lock) {
 						try {
 							any_finish_lock.wait();

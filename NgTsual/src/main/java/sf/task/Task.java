@@ -5,7 +5,7 @@ import sf.uds.interfaces.del.executable.IExec_0;
 public class Task<T>
 {
 	private TaskHub hub;
-	boolean isProduced = false, isAborted = false, need_schedule_abort = false;
+	boolean isProduced = false, need_schedule_abort = false;
 	Long startTime, executeTime, finishTime;
 
 	IExec_0<T> executable;
