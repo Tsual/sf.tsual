@@ -26,7 +26,7 @@ public class TaskHost implements AutoCloseable
 		start_worker();
 	};
 
-	private final Runnable thread_exec_shell = () ->
+	private final Runnable worker_exec_shell = () ->
 	{
 		while (true) {
 			if (thread_close[0])
@@ -91,7 +91,7 @@ public class TaskHost implements AutoCloseable
 
 				final Field target = Thread.class.getDeclaredField("target");
 				target.setAccessible(true);
-				target.set(worker, thread_exec_shell);
+				target.set(worker, worker_exec_shell);
 
 				worker.setUncaughtExceptionHandler(uncaughtExceptionHandler);
 				worker.run();
@@ -180,7 +180,7 @@ public class TaskHost implements AutoCloseable
 	private void start_worker()
 	{
 		synchronized (workers_lock) {
-			final Thread worker = new Thread(thread_group, thread_exec_shell, "TaskWorker-" + thread_group.activeCount());
+			final Thread worker = new Thread(thread_group, worker_exec_shell, "TaskWorker-" + thread_group.activeCount());
 			worker.setUncaughtExceptionHandler(uncaughtExceptionHandler);
 			worker.start();
 			//workers = new Thread[thread_group.activeCount()];
