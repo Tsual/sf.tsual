@@ -8,8 +8,6 @@ import java.util.*;
 
 public class TaskHost implements AutoCloseable
 {
-	private static final Thread empty_thread = new Thread();
-
 	private final String name;
 	private final ThreadGroup thread_group;
 	private final Integer max_worker_count;
@@ -125,7 +123,17 @@ public class TaskHost implements AutoCloseable
 
 	private void resetThreadLocal()
 	{
-		copyThreadLocal(empty_thread);
+		AccessController.doPrivileged((PrivilegedAction<Object>) () ->
+		{
+			try {
+				Field threadLocals = Thread.class.getDeclaredField("threadLocals");
+				threadLocals.setAccessible(true);
+				threadLocals.set(Thread.currentThread(), null);
+			} catch (Exception ex) {
+				throw new RuntimeException(ex);
+			}
+			return null;
+		});
 	}
 
 	void abort_task(Task task, TaskHub hub)
@@ -211,11 +219,6 @@ public class TaskHost implements AutoCloseable
 	public TaskHub newTaskHub(Long allow_delay)
 	{
 		return new TaskHub(this, allow_delay);
-	}
-
-	ThreadGroup getThreadGroup()
-	{
-		return thread_group;
 	}
 
 	@Override
