@@ -1,9 +1,13 @@
 package sf.task;
 
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.sql.Timestamp;
 import java.util.*;
 
 public class TaskHost implements AutoCloseable
@@ -29,13 +33,12 @@ public class TaskHost implements AutoCloseable
 	private final Runnable worker_exec_shell = () ->
 	{
 		while (true) {
-			if (thread_close[0])
-				break;
+			if (thread_close[0]) break;
+			Task task = null;
 			try {
-				Task exec = null;
 				synchronized (host_lock) {
 					if (simpleTaskQueue.remain()) {
-						exec = simpleTaskQueue.get();
+						task = simpleTaskQueue.get();
 						host_lock.notify();
 					} else {
 						host_lock.wait();
@@ -43,64 +46,62 @@ public class TaskHost implements AutoCloseable
 							break;
 					}
 				}
-
-				if (exec != null) {
-					switch (exec.tlOperation) {
-						case Copy:
-							copyThreadLocal(exec.caller);
-							break;
-						case None:
-							break;
-						case Reset:
-							resetThreadLocal();
-							break;
-					}
-
-					exec.executeTime = System.currentTimeMillis();
-					exec.executor = Thread.currentThread();
-					exec.status = TaskStatus.Executing;
-					try {
-						exec.produceResult = exec.executable.execute();
-						exec.status = TaskStatus.Finished;
-					} catch (Exception ex) {
-						exec.produceException = ex;
-						exec.status = TaskStatus.Error;
-					} finally {
-						exec.finishTask();
-					}
-				}
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
+			}
+
+			if (task == null) continue;
+
+			switch (task.tlOperation) {
+				case Copy:
+					copyThreadLocal(task.caller);
+					break;
+				case None:
+					break;
+				case Reset:
+					resetThreadLocal();
+					break;
+			}
+
+			task.executeTime = System.currentTimeMillis();
+			task.executor = Thread.currentThread();
+			task.status = TaskStatus.Executing;
+			if (task.hub.needTrace())
+				task.hub.trace(task, task.executor.getName() + "<<Begin executing");
+
+			try {
+				task.produceResult = task.executable.execute();
+				task.status = TaskStatus.Finished;
+				if (task.hub.needTrace())
+					task.hub.trace(task, "Finish executing,result:" + task.produceResult);
+				task.finishTask();
+				task.notifyFinish();
+			} catch (InterruptedException ignored) {
+			} catch (Exception ex) {
+				task.produceException = ex;
+				task.status = TaskStatus.Error;
+				if (task.hub.needTrace())
+					task.hub.trace(task, "Caught Exception:" + ex.toString());
+				task.finishTask();
+				task.notifyFinish();
 			}
 		}
 	};
 
 
-	private void resetWorker(Thread worker)
+	private void resetWorker(final Thread worker)
 	{
+		final Thread thread = new Thread(thread_group, worker_exec_shell, worker.getName());
+		thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
+		thread.start();
 		AccessController.doPrivileged((PrivilegedAction<Object>) () ->
 		{
 			try {
-				final Field threadStatus = Thread.class.getDeclaredField("threadStatus");
-				threadStatus.setAccessible(true);
-				threadStatus.set(worker, 0);
-
-				final Field group = Thread.class.getDeclaredField("group");
-				group.setAccessible(true);
-				group.set(worker, thread_group);
-
-				final Field eetop = Thread.class.getDeclaredField("eetop");
-				eetop.setAccessible(true);
-				eetop.set(worker, 0L);
-
-				final Field target = Thread.class.getDeclaredField("target");
-				target.setAccessible(true);
-				target.set(worker, worker_exec_shell);
-
-				worker.setUncaughtExceptionHandler(uncaughtExceptionHandler);
-				worker.run();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+				worker.interrupt();
+			} catch (Throwable e) {
+				//throw new RuntimeException(e);
+				worker.stop();
+				return null;
 			}
 			return null;
 		});
@@ -138,18 +139,23 @@ public class TaskHost implements AutoCloseable
 
 	void abort_task(Task task, TaskHub hub)
 	{
+		if (task.isProduced)
+			return;
+
 		task.status = TaskStatus.Overtime;
-		if (task.isProduced) return;
+		if (task.hub.needTrace())
+			task.hub.trace(task, "Task overtime:" + task.abortDuration);
 		task.isProduced = true;
 		task.finishTime = System.currentTimeMillis();
 		if (!hub.anyFinish)
 			hub.anyFinish = true;
+
 		if (task.executor != null) {
-			task.executor.interrupt();
 			resetWorker(task.executor);
 		} else {
 			simpleTaskQueue.remove(task);
 		}
+
 		task.caller = null;
 		task.executor = null;
 		task.notifyFinish();
@@ -182,6 +188,7 @@ public class TaskHost implements AutoCloseable
 				try {
 					synchronized (add_daemon_lock) {
 						add_daemon_lock.wait();
+						if (thread_close[0]) return;
 						if (thread_group.activeCount() < this.max_worker_count)
 							start_worker();
 						else {
@@ -211,14 +218,16 @@ public class TaskHost implements AutoCloseable
 	{
 		simpleTaskQueue.add(task);
 		task.status = TaskStatus.Queueing;
+		if (task.hub.needTrace())
+			task.hub.trace(task, "Begin Queueing");
 		synchronized (host_lock) {
 			host_lock.notify();
 		}
 	}
 
-	public TaskHub newTaskHub(Long allow_delay)
+	public TaskHub newTaskHub(Long allow_delay, OutputStream traceOutputStream)
 	{
-		return new TaskHub(this, allow_delay);
+		return new TaskHub(this, allow_delay, traceOutputStream);
 	}
 
 	@Override
@@ -227,6 +236,9 @@ public class TaskHost implements AutoCloseable
 		thread_close[0] = true;
 		synchronized (host_lock) {
 			host_lock.notifyAll();
+		}
+		synchronized (add_daemon_lock) {
+			add_daemon_lock.notifyAll();
 		}
 	}
 

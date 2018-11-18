@@ -2,11 +2,13 @@ package sf.task;
 
 import sf.uds.interfaces.del.executable.IExec_0;
 
+import java.sql.Timestamp;
+
 public class Task<T>
 {
-	private TaskHub hub;
-	boolean isProduced = false;
-	Long startTime, executeTime, finishTime;
+	TaskHub hub;
+	volatile boolean isProduced = false;
+	Long startTime, executeTime, finishTime, abortDuration;
 
 	IExec_0<T> executable;
 	T produceResult = null;
@@ -23,14 +25,13 @@ public class Task<T>
 			hub.taskFinishReport(this);
 			caller = null;
 			executor = null;
-			notifyFinish();
 		}
 	}
 
 	void notifyFinish()
 	{
-		System.out.println("notifyFinish");
 		synchronized (hub.any_finish_lock) {
+			hub.finish_count++;
 			hub.any_finish_lock.notify();
 		}
 	}
@@ -39,8 +40,8 @@ public class Task<T>
 	{
 		this.hub = hub;
 		this.executable = executable;
-		startTime = System.currentTimeMillis();
-		caller = Thread.currentThread();
+		this.startTime = System.currentTimeMillis();
+		this.caller = Thread.currentThread();
 	}
 
 	public T getResult() throws Exception
