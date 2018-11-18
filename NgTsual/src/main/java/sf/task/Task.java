@@ -5,7 +5,7 @@ import sf.uds.interfaces.del.executable.IExec_0;
 public class Task<T>
 {
 	private TaskHub hub;
-	boolean isProduced = false, need_schedule_abort = false;
+	boolean isProduced = false;
 	Long startTime, executeTime, finishTime;
 
 	IExec_0<T> executable;
@@ -13,6 +13,7 @@ public class Task<T>
 	Exception produceException = null;
 	Thread caller, executor;
 	TaskStatus status = TaskStatus.Created;
+	ThreadLocalOperation tlOperation = ThreadLocalOperation.None;
 
 	void finishTask()
 	{

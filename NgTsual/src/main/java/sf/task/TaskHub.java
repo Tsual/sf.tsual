@@ -69,29 +69,25 @@ public class TaskHub
 			}
 	}
 
-	public <T> Task<T> execute(IExec_0<T> executable)
+	public <T> Task<T> execute(IExec_0<T> executable, ThreadLocalOperation threadLocalOperation, Long abort_time)
 	{
-		Task<T> task = new Task<>(this, executable);
-		tasks.add(task);
-		host.addTask(task);
-		return task;
-	}
 
-	public <T> Task<T> execute(IExec_0<T> executable, Long abort_time)
-	{
-		TaskHub hub = this;
 		Task<T> task = new Task<>(this, executable);
-		task.need_schedule_abort = true;
-		if (abort_schedule == null)
-			abort_schedule = new Timer();
-		abort_schedule.schedule(new TimerTask()
-		{
-			@Override
-			public void run()
+		if (threadLocalOperation != null)
+			task.tlOperation = threadLocalOperation;
+		if (10 < abort_time) {
+			if (abort_schedule == null)
+				abort_schedule = new Timer();
+			TaskHub hub = this;
+			abort_schedule.schedule(new TimerTask()
 			{
-				host.abort_task(task, hub);
-			}
-		}, abort_time);
+				@Override
+				public void run()
+				{
+					host.abort_task(task, hub);
+				}
+			}, abort_time);
+		}
 		tasks.add(task);
 		host.addTask(task);
 		return task;

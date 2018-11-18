@@ -8,6 +8,8 @@ import java.util.*;
 
 public class TaskHost implements AutoCloseable
 {
+	private static final Thread empty_thread = new Thread();
+
 	private final String name;
 	private final ThreadGroup thread_group;
 	private final Integer max_worker_count;
@@ -45,25 +47,29 @@ public class TaskHost implements AutoCloseable
 				}
 
 				if (exec != null) {
-					exec.status = TaskStatus.Executing;
-					syncThreadLocal(exec.caller);
+					switch (exec.tlOperation) {
+						case Copy:
+							copyThreadLocal(exec.caller);
+							break;
+						case None:
+							break;
+						case Reset:
+							resetThreadLocal();
+							break;
+					}
+
 					exec.executeTime = System.currentTimeMillis();
+					exec.executor = Thread.currentThread();
+					exec.status = TaskStatus.Executing;
 					try {
-						if (exec.need_schedule_abort) {
-							exec.executor = Thread.currentThread();
-							exec.produceResult = exec.executable.execute();
-						} else {
-							exec.produceResult = exec.executable.execute();
-						}
+						exec.produceResult = exec.executable.execute();
 						exec.status = TaskStatus.Finished;
 					} catch (Exception ex) {
 						exec.produceException = ex;
 						exec.status = TaskStatus.Error;
 					} finally {
-
 						exec.finishTask();
 					}
-
 				}
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
@@ -102,7 +108,7 @@ public class TaskHost implements AutoCloseable
 		});
 	}
 
-	private void syncThreadLocal(Thread caller)
+	private void copyThreadLocal(Thread caller)
 	{
 		AccessController.doPrivileged((PrivilegedAction<Object>) () ->
 		{
@@ -115,6 +121,11 @@ public class TaskHost implements AutoCloseable
 			}
 			return null;
 		});
+	}
+
+	private void resetThreadLocal()
+	{
+		copyThreadLocal(empty_thread);
 	}
 
 	void abort_task(Task task, TaskHub hub)
