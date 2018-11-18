@@ -4,7 +4,7 @@ import sf.uds.interfaces.del.executable.IExec_0;
 
 public class Task<T>
 {
-	TaskHub hub;
+	private TaskHub hub;
 	boolean isProduced = false, isAborted = false, need_schedule_abort = false;
 	Long startTime, executeTime, finishTime;
 
@@ -12,6 +12,7 @@ public class Task<T>
 	T produceResult = null;
 	Exception produceException = null;
 	Thread caller, executor;
+	TaskStatus status = TaskStatus.Created;
 
 	void finishTask()
 	{
@@ -41,12 +42,7 @@ public class Task<T>
 		caller = Thread.currentThread();
 	}
 
-	public boolean isProduced()
-	{
-		return isProduced;
-	}
-
-	public T getProduceResult() throws Exception
+	public T getResult() throws Exception
 	{
 		if (produceException != null) throw produceException;
 		return produceResult;
@@ -70,5 +66,15 @@ public class Task<T>
 	public Long getFinishTime()
 	{
 		return finishTime;
+	}
+
+	public TaskStatus getStatus()
+	{
+		return status;
+	}
+
+	public boolean isProduced()
+	{
+		return isProduced;
 	}
 }

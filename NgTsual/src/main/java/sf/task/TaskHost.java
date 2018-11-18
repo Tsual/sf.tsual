@@ -11,21 +11,14 @@ public class TaskHost implements AutoCloseable
 	private final String name;
 	private final ThreadGroup thread_group;
 	private final Integer max_worker_count;
+	private final SimpleTaskQueue simpleTaskQueue = new SimpleTaskQueue();
 
-	//region locks
 	volatile boolean is_add_daemon_alive = true;
 	final Object add_daemon_lock = "ヾ(^▽^*)))";
-
 	private final Object host_lock = "(இωஇ )";
-
-
 	private final Object workers_lock = "（▼へ▼メ）";
 	private final boolean[] thread_close = {false};
-	//endregion
 
-	private final SimpleTaskQueue simpleTaskQueue = new SimpleTaskQueue();
-	private final List<Thread> fail_workers = new ArrayList<>();
-	//private Thread[] workers;
 
 	private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (thread, ex) ->
 	{
@@ -52,6 +45,7 @@ public class TaskHost implements AutoCloseable
 				}
 
 				if (exec != null) {
+					exec.status = TaskStatus.Executing;
 					syncThreadLocal(exec.caller);
 					exec.executeTime = System.currentTimeMillis();
 					try {
@@ -61,9 +55,12 @@ public class TaskHost implements AutoCloseable
 						} else {
 							exec.produceResult = exec.executable.execute();
 						}
+						exec.status = TaskStatus.Finished;
 					} catch (Exception ex) {
 						exec.produceException = ex;
+						exec.status = TaskStatus.Error;
 					} finally {
+
 						exec.finishTask();
 					}
 
@@ -122,21 +119,18 @@ public class TaskHost implements AutoCloseable
 
 	void abort_task(Task task, TaskHub hub)
 	{
-		System.out.println("aborting..." + task);
+		task.status = TaskStatus.Overtime;
 		if (task.isProduced) return;
 		task.isProduced = true;
 		task.finishTime = System.currentTimeMillis();
 		if (!hub.anyFinish)
 			hub.anyFinish = true;
 		if (task.executor != null) {
-			System.out.println("reseting..." + task.executor);
 			task.executor.interrupt();
 			resetWorker(task.executor);
 		} else {
-			System.out.println("removing..." + task);
 			simpleTaskQueue.remove(task);
 		}
-
 		task.caller = null;
 		task.executor = null;
 		task.notifyFinish();
@@ -197,6 +191,7 @@ public class TaskHost implements AutoCloseable
 	void addTask(Task task)
 	{
 		simpleTaskQueue.add(task);
+		task.status = TaskStatus.Queueing;
 		synchronized (host_lock) {
 			host_lock.notify();
 		}
