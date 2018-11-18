@@ -13,17 +13,16 @@ public class TaskHub
 	private final static int report_cache_size_m1 = report_cache_size - 1;
 
 	private TaskHost host;
-	List<Task> tasks = new ArrayList<>();
+	private List<Task> tasks = new ArrayList<>();
 
 	final Object any_finish_lock = "(*˘︶˘*).。.:*♡";
 	boolean anyFinish = false;
-	int finish_count = 0;
 
+	private int finish_count = 0;
 	private final Long allow_delay;
-	final Long[] delays = new Long[report_cache_size_m1];
-	int index = 0;
-
-	Timer abort_schedule;
+	private final Long[] delays = new Long[report_cache_size_m1];
+	private int index = 0;
+	private Timer abort_schedule;
 
 
 	TaskHub(TaskHost host, Long allow_delay)
@@ -35,16 +34,18 @@ public class TaskHub
 			@Override
 			public void run()
 			{
-				synchronized (any_finish_lock) {
-					try {
-						any_finish_lock.wait();
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
+				while (true){
+					synchronized (any_finish_lock) {
+						try {
+							any_finish_lock.wait();
+						} catch (InterruptedException e) {
+							throw new RuntimeException(e);
+						}
+						finish_count++;
 					}
-					finish_count++;
 				}
 			}
-		});
+		}).start();
 	}
 
 	void taskFinishReport(Task task)
@@ -104,6 +105,7 @@ public class TaskHub
 			synchronized (any_finish_lock) {
 				if (finish_count >= size)
 					return;
+				any_finish_lock.notify();
 			}
 		}
 	}
