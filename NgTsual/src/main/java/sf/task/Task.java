@@ -4,29 +4,31 @@ import sf.uds.interfaces.del.executable.IExec_0;
 
 public class Task<T>
 {
-	private TaskHub hub;
-	private boolean isProduced = false;
-	Long startTime;
-	Long executeTime;
-	Long finishTime;
+	TaskHub hub;
+	boolean isProduced = false, isAborted = false, need_schedule_abort = false;
+	Long startTime, executeTime, finishTime;
 
 	IExec_0<T> executable;
-	T result = null;
-	Exception ex = null;
-	Thread caller;
-
+	T produceResult = null;
+	Exception produceException = null;
+	Thread caller, executor;
 
 	void finishTask()
 	{
-		isProduced = true;
-		finishTime = System.currentTimeMillis();
-
-		hub.finishTask(this);
-		synchronized (this) {
-			notifyAll();
+		if (!isProduced) {
+			isProduced = true;
+			finishTime = System.currentTimeMillis();
+			hub.taskFinishReport(this);
+			caller = null;
+			executor = null;
+			notifyFinish();
 		}
-		synchronized (hub.any_complete_notify_object) {
-			hub.any_complete_notify_object.notifyAll();
+	}
+
+	void notifyFinish()
+	{
+		synchronized (hub.any_finish_lock) {
+			hub.any_finish_lock.notifyAll();
 		}
 	}
 
@@ -43,10 +45,10 @@ public class Task<T>
 		return isProduced;
 	}
 
-	public T getResult() throws Exception
+	public T getProduceResult() throws Exception
 	{
-		if (ex != null) throw ex;
-		return result;
+		if (produceException != null) throw produceException;
+		return produceResult;
 	}
 
 	public void await()
