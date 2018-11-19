@@ -18,13 +18,11 @@ public class Bootstrapper
 
 	}
 
-	public static void main(String[] args) throws IllegalAccessException, InstantiationException, ClassNotFoundException
+	public Bootstrapper() throws ClassNotFoundException, InstantiationException, IllegalAccessException
 	{
-		TBootClassLoader.newInstance().bootClass("sf.tboot.TbootTest");
 		check(TbootTest.class, Class.forName("sf.tboot.TbootTest"));
 		final Class<?> load = TBootstrapper.load("sf.tboot.TbootTest", str);
 		check(TbootTest.class, load, Class.forName("sf.tboot.TbootTest"));
-		int a = 0;
 	}
 
 	public static void check(Class... classes) throws IllegalAccessException, InstantiationException

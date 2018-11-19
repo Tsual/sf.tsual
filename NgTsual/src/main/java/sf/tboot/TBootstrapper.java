@@ -57,7 +57,7 @@ public class TBootstrapper
 		}
 	}
 
-	private static Class<?> loadCode0(String fullClassName, final String javaCode, List<String> ext_classes, ClassLoader loader)
+	static Class<?> loadCode0(String fullClassName, final String javaCode, List<String> ext_classes, ClassLoader loader)
 	{
 		final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -134,7 +134,11 @@ public class TBootstrapper
 	private static Class<?> load0(final String name, final byte[] buffer, final ClassLoader callerClassLoader)
 	{
 		if (buffer != null) {
-			return ClassLoaderHelper.defineClass(callerClassLoader, name, buffer, 0, buffer.length);
+			if (callerClassLoader instanceof TBootClassLoader) {
+				return ((TBootClassLoader) callerClassLoader).bootClass(name, buffer);
+			} else {
+				return ClassLoaderHelper.defineClass(callerClassLoader, name, buffer, 0, buffer.length);
+			}
 		} else {
 			return null;
 		}
@@ -143,7 +147,11 @@ public class TBootstrapper
 	private static Class<?> load0(final String name, final java.nio.ByteBuffer buffer, final ClassLoader callerClassLoader)
 	{
 		if (buffer != null) {
-			return ClassLoaderHelper.defineClass(callerClassLoader, name, buffer);
+			if (callerClassLoader instanceof TBootClassLoader) {
+				return ((TBootClassLoader) callerClassLoader).bootClass(name, buffer);
+			} else {
+				return ClassLoaderHelper.defineClass(callerClassLoader, name, buffer);
+			}
 		} else {
 			return null;
 		}
@@ -155,10 +163,10 @@ public class TBootstrapper
 		Class clazz = ClassLoaderHelper.findLoadedClass(loader, fullClassName);
 		if (clazz == null || loader instanceof TBootClassLoader) {
 			return loader;
+		} else if (loader instanceof TBootURLClassLoader) {
+			return loader.getParent();
 		} else {
-			TBootClassLoader bootClassLoader = TBootClassLoader.newInstance();
-			Thread.currentThread().setContextClassLoader(bootClassLoader);
-			return bootClassLoader;
+			return new TBootClassLoader();
 		}
 	}
 
