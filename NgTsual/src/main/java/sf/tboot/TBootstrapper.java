@@ -41,33 +41,13 @@ public class TBootstrapper
 					for (int i = 0; i < list.size(); i++)
 						System.arraycopy(list.get(i), 0, data, BUFFER_SIZE * i, BUFFER_SIZE);
 					if (read_count >= 0) System.arraycopy(buffer, 0, data, BUFFER_SIZE * list.size(), read_count);
-					return load(fullClassName, data);
+					return load0(fullClassName, data);
 				}
 			} else {
 				return null;
 			}
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-
-	private static Class<?> load(String fullClassName, byte[] javaClassByteArray)
-	{
-		if (javaClassByteArray != null) {
-			final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-			return AccessController.doPrivileged((PrivilegedAction<Class>) () ->
-			{
-				try {
-					final Method defineClass = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
-					defineClass.setAccessible(true);
-					return (Class) defineClass.invoke(systemClassLoader, fullClassName, javaClassByteArray, 0, javaClassByteArray.length);
-				} catch (Throwable e) {
-					throw new RuntimeException(e);
-				}
-			});
-		} else {
-			return null;
 		}
 	}
 
@@ -109,7 +89,7 @@ public class TBootstrapper
 			};
 
 			if (compiler.getTask(null, file_manager, null, compile_param, null, Collections.singletonList(source)).call()) {
-				return load(fullClassName, bos.toByteArray());
+				return load0(fullClassName, bos.toByteArray());
 			} else {
 				return null;
 			}
@@ -118,12 +98,12 @@ public class TBootstrapper
 		}
 	}
 
-	public static Class<?> load(String fullClassName, Buffer javaCodeNioBuffer)
+	public static Class<?> load(String fullClassName, Buffer javaClassNioBuffer)
 	{
 		Class clazz = getLoadedClass(fullClassName);
 		if (clazz != null) return clazz;
-		if (javaCodeNioBuffer.hasArray())
-			return load(fullClassName, (byte[]) javaCodeNioBuffer.array());
+		if (javaClassNioBuffer.hasArray())
+			return load0(fullClassName, (byte[]) javaClassNioBuffer.array());
 		else return null;
 	}
 
@@ -147,5 +127,24 @@ public class TBootstrapper
 				throw new RuntimeException(e);
 			}
 		});
+	}
+
+	private static Class<?> load0(String fullClassName, byte[] javaClassByteArray)
+	{
+		if (javaClassByteArray != null) {
+			final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+			return AccessController.doPrivileged((PrivilegedAction<Class>) () ->
+			{
+				try {
+					final Method defineClass = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
+					defineClass.setAccessible(true);
+					return (Class) defineClass.invoke(systemClassLoader, fullClassName, javaClassByteArray, 0, javaClassByteArray.length);
+				} catch (Throwable e) {
+					throw new RuntimeException(e);
+				}
+			});
+		} else {
+			return null;
+		}
 	}
 }
