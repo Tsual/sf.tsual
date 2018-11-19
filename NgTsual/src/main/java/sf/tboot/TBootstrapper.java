@@ -98,13 +98,17 @@ public class TBootstrapper
 		}
 	}
 
+	public static Class<?> load(String fullClassName, byte[] javaClassByteArray)
+	{
+		Class clazz = getLoadedClass(fullClassName);
+		return clazz == null ? load0(fullClassName, javaClassByteArray) : clazz;
+	}
+
 	public static Class<?> load(String fullClassName, Buffer javaClassNioBuffer)
 	{
 		Class clazz = getLoadedClass(fullClassName);
-		if (clazz != null) return clazz;
-		if (javaClassNioBuffer.hasArray())
-			return load0(fullClassName, (byte[]) javaClassNioBuffer.array());
-		else return null;
+		return clazz != null ? clazz :
+				javaClassNioBuffer.hasArray() ? load0(fullClassName, (byte[]) javaClassNioBuffer.array()) : null;
 	}
 
 	private static Class getLoadedClass(String fullClassName)
@@ -129,16 +133,16 @@ public class TBootstrapper
 		});
 	}
 
-	private static Class<?> load0(String fullClassName, byte[] javaClassByteArray)
+	private static Class<?> load0(String name, byte[] buffer)
 	{
-		if (javaClassByteArray != null) {
+		if (buffer != null) {
 			final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 			return AccessController.doPrivileged((PrivilegedAction<Class>) () ->
 			{
 				try {
 					final Method defineClass = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
 					defineClass.setAccessible(true);
-					return (Class) defineClass.invoke(systemClassLoader, fullClassName, javaClassByteArray, 0, javaClassByteArray.length);
+					return (Class) defineClass.invoke(systemClassLoader, name, buffer, 0, buffer.length);
 				} catch (Throwable e) {
 					throw new RuntimeException(e);
 				}
