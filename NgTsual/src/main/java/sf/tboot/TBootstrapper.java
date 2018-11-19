@@ -1,5 +1,7 @@
 package sf.tboot;
 
+import sun.reflect.Reflection;
+
 import javax.tools.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,9 +19,13 @@ import java.util.List;
 
 public class TBootstrapper
 {
+	private final static int BUFFER_SIZE = 1024;
+
 	public static Class<?> load(String fullClassName, File javaClassFile)
 	{
-		final int BUFFER_SIZE = 1024;
+		Class clazz = getLoadedClass(fullClassName);
+		if (clazz != null) return clazz;
+
 		try {
 			if (javaClassFile != null && javaClassFile.isFile()) {
 				final ArrayList<byte[]> list = new ArrayList<>();
@@ -46,7 +52,7 @@ public class TBootstrapper
 	}
 
 
-	public static Class<?> load(String fullClassName, byte[] javaClassByteArray)
+	private static Class<?> load(String fullClassName, byte[] javaClassByteArray)
 	{
 		if (javaClassByteArray != null) {
 			final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
@@ -67,6 +73,9 @@ public class TBootstrapper
 
 	public static Class<?> load(String fullClassName, String javaCode)
 	{
+		Class clazz = getLoadedClass(fullClassName);
+		if (clazz != null) return clazz;
+
 		try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 			final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
@@ -111,10 +120,32 @@ public class TBootstrapper
 
 	public static Class<?> load(String fullClassName, Buffer javaCodeNioBuffer)
 	{
+		Class clazz = getLoadedClass(fullClassName);
+		if (clazz != null) return clazz;
 		if (javaCodeNioBuffer.hasArray())
 			return load(fullClassName, (byte[]) javaCodeNioBuffer.array());
 		else return null;
 	}
 
+	private static Class getLoadedClass(String fullClassName)
+	{
+		return AccessController.doPrivileged((PrivilegedAction<Class>) () ->
+		{
+			Class clazz;
+			try {
+				final Method findLoadedClass = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
+				findLoadedClass.setAccessible(true);
 
+				clazz = (Class) findLoadedClass.invoke(ClassLoader.getSystemClassLoader(), fullClassName);
+				if (clazz != null) return clazz;
+
+				final Method getClassLoader = ClassLoader.class.getDeclaredMethod("getClassLoader", Class.class);
+				getClassLoader.setAccessible(true);
+
+				return (Class) findLoadedClass.invoke(getClassLoader.invoke(null, Reflection.getCallerClass(2)), fullClassName);
+			} catch (Throwable e) {
+				throw new RuntimeException(e);
+			}
+		});
+	}
 }
