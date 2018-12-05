@@ -6,7 +6,7 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu. 
  */
 
-package sf.uds.interfaces.util.array;
+package sf.uds.interfaces.common;
 
 public interface ArrayFormat<T>
 {

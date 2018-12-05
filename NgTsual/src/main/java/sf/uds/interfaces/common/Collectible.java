@@ -6,10 +6,11 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.util.array;
+package sf.uds.interfaces.common;
 
-public interface ArrayInfo<T>
+import java.util.Collection;
+
+public interface Collectible<T>
 {
-	public Class<T> getInstanceClass();
-	public Iterable<T> getIterable();
+	public Collection<T> toCollection();
 }

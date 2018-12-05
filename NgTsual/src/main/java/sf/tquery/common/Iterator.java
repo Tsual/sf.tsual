@@ -4,7 +4,7 @@ import sf.tquery.interfaces.exec.IAction;
 import sf.tquery.interfaces.exec.IRunnable;
 import sf.tquery.interfaces.exec.ISelector;
 import sf.tquery.interfaces.exec.ITypeConverter;
-import sf.uds.interfaces.util.list.Listable;
+import sf.uds.interfaces.common.Listable;
 
 public interface Iterator<T> extends Iterable<T>, Listable<T>
 {

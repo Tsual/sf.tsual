@@ -8,35 +8,36 @@
 
 package sf.uds.tree;
 
+import sf.uds.interfaces.common.INodeTree;
 import sf.uds.util.ObjectHelper;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class Node implements INode
+public class Node implements INodeTree.INode
 {
-	private List<INode> _parents;
-	private List<INode> _children;
+	private List<INodeTree.INode> _parents;
+	private List<INodeTree.INode> _children;
 	private Object _value;
 
-	Node(Object value, Map<Object, INode> reverseMap)
+	Node(Object value, Map<Object, INodeTree.INode> reverseMap)
 	{
 		_value = value;
 		reverseMap.put(value, this);
 	}
 
 	@Override
-	public List<INode> parents()
+	public List<INodeTree.INode> parents()
 	{
-		if (_parents == null) _parents = new NodeTree.IzList<INode>();
+		if (_parents == null) _parents = new NodeTree.IzList<INodeTree.INode>();
 		return _parents;
 	}
 
 	@Override
-	public Collection<INode> children()
+	public Collection<INodeTree.INode> children()
 	{
-		if (_children == null) _children = new NodeTree.IzList<INode>();
+		if (_children == null) _children = new NodeTree.IzList<INodeTree.INode>();
 		return _children;
 	}
 
@@ -47,10 +48,10 @@ public class Node implements INode
 	}
 
 	@Override
-	public INode findChild(Object value)
+	public INodeTree.INode findChild(Object value)
 	{
 		if (_children == null) return null;
-		for (INode node : _children)
+		for (INodeTree.INode node : _children)
 			if (ObjectHelper.requireNotNull(value).equals(node.value()))
 				return node;
 		return null;

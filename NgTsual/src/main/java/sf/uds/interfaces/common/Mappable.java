@@ -6,21 +6,11 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.ctx;
+package sf.uds.interfaces.common;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
-public interface IBaseContext
+public interface Mappable<K,V>
 {
-	public Map getContext();
-
-	public void setContext(Map Context);
-
-	public void clearContext();
-
-	public <T> T getParam(Class<T> clazz, Object key);
-
-	public <T> T getParam(Class<T> clazz, Object key, T defaultValue);
+	public Map<K,V> toMap();
 }

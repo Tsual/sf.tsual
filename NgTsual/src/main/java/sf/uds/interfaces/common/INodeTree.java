@@ -6,12 +6,14 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.tree;
+package sf.uds.interfaces.common;
 
 import org.json.JSONObject;
 import sf.uds.interfaces.del.runnable.IRun_1;
 
-public interface INodeTree extends Iterable<INode>
+import java.util.Collection;
+
+public interface INodeTree extends Iterable<INodeTree.INode>
 {
 	INode head();
 
@@ -23,5 +25,18 @@ public interface INodeTree extends Iterable<INode>
 	                   IRun_1<INode> goDeep,
 	                   IRun_1<INode> goUp,
 	                   IRun_1<INode> firstRecursionFound) throws Exception;
+
+	interface INode
+	{
+		Collection<INode> parents();
+
+		Collection<INode> children();
+
+		Object value();
+
+		INode findChild(Object value);
+
+		boolean hasChild();
+	}
 }
 

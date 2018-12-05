@@ -9,6 +9,7 @@
 package sf.uds.tree;
 
 import org.json.JSONObject;
+import sf.uds.interfaces.common.INodeTree;
 
 import java.util.List;
 

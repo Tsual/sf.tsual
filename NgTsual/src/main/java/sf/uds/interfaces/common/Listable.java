@@ -6,19 +6,11 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.tree;
+package sf.uds.interfaces.common;
 
-import java.util.Collection;
+import java.util.List;
 
-public interface INode
+public interface Listable<T>
 {
-	Collection<INode> parents();
-
-	Collection<INode> children();
-
-	Object value();
-
-	INode findChild(Object value);
-
-	boolean hasChild();
+	public List<T> toList() throws Exception;
 }

@@ -1,4 +1,4 @@
-package sf.uds.util.encrypt;
+package sf.uds.util;
 
 import sf.uds.interfaces.encrypt.Interchanger;
 
@@ -7,11 +7,11 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
 
-public class SimpleAes implements Interchanger
+public class SimpleAesHelper implements Interchanger
 {
-	byte[] key;
+	private byte[] key;
 
-	public SimpleAes(byte[] key)
+	public SimpleAesHelper(byte[] key)
 	{
 		this.key = key;
 	}
