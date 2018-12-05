@@ -8,24 +8,15 @@
 
 package sf.tquery;
 
-
-import sf.tquery.interfaces.IAction;
-import sf.tquery.interfaces.IRunnable;
-import sf.tquery.interfaces.ISelector;
-import sf.tquery.interfaces.ITypeConverter;
 import sf.uds.util.ObjectHelper;
 
-import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
-
 
 class BasicIterator<T> implements Iterator<T>
 {
 	private Iterable<T> tIterable;
-
-	private BasicIterator()
-	{
-	}
 
 	BasicIterator(T[] arr)
 	{
@@ -37,7 +28,7 @@ class BasicIterator<T> implements Iterator<T>
 		tIterable = new JavaIterable<T>(it);
 	}
 
-	private BasicIterator(Iterable<T> it)
+	BasicIterator(Iterable<T> it)
 	{
 		tIterable = it;
 	}
@@ -46,6 +37,19 @@ class BasicIterator<T> implements Iterator<T>
 	public <V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter)
 	{
 		return new BasicIterator<V>(new AsIterable<V>(tIterable, (ITypeConverter<Object, V>) ObjectHelper.requireNotNull(tvTypeConverter)));
+	}
+
+	@Override
+	public <V> V execute(IAction<V> action) throws Exception
+	{
+		return ObjectHelper.requireNotNull(action).execute();
+	}
+
+	@Override
+	public Iterator<T> sort(Comparator<? super T> comparator)
+	{
+		tIterable = new SortIterable<>(this, comparator);
+		return this;
 	}
 
 	@Override
@@ -63,6 +67,21 @@ class BasicIterator<T> implements Iterator<T>
 		while (hasNext())
 			runnable.run(next());
 		return this;
+	}
+
+	@Override
+	public Iterator<T> settle() throws Exception
+	{
+		tIterable = new JavaIterable<T>(toList());
+		return this;
+	}
+
+	//region first
+	@Override
+	public T first() throws Exception
+	{
+		reset();
+		return hasNext() ? next() : null;
 	}
 
 	@Override
@@ -84,19 +103,21 @@ class BasicIterator<T> implements Iterator<T>
 		ObjectHelper.requireNotNull(runnable).run(first(tSelector));
 		return this;
 	}
+	//endregion
+
+	//region last
+	@Override
+	public T last() throws Exception
+	{
+		return last_inner(null, null);
+	}
 
 	@Override
 	public T last(ISelector<T> tSelector) throws Exception
 	{
 		ObjectHelper.requireNotNull(tSelector);
 		reset();
-		T t = null;
-		while (hasNext()) {
-			T t1 = next();
-			if (tSelector.execute(t1))
-				t = t1;
-		}
-		return t;
+		return last_inner(tSelector, null);
 	}
 
 	@Override
@@ -106,13 +127,21 @@ class BasicIterator<T> implements Iterator<T>
 		return this;
 	}
 
-	@Override
-	public Iterator<T> settle() throws Exception
+	private T last_inner(ISelector<T> tSelector, T pre_t) throws Exception
 	{
-		tIterable = new JavaIterable<T>(toList());
-		return this;
+		if (hasNext()) {
+			final T next = next();
+			if (tSelector != null && !tSelector.execute(next))
+				return last_inner(tSelector, pre_t);
+			else
+				return last_inner(tSelector, next);
+		} else {
+			return pre_t;
+		}
 	}
+	//endregion
 
+	//region add
 	@Override
 	public Iterator<T> add(T item)
 	{
@@ -140,13 +169,9 @@ class BasicIterator<T> implements Iterator<T>
 		tIterable = LinkedIterable.link(tIterable, ObjectHelper.requireNotNull(it));
 		return this;
 	}
+	//endregion
 
-	@Override
-	public <V> V execute(IAction<V> action) throws Exception
-	{
-		return ObjectHelper.requireNotNull(action).execute();
-	}
-
+	//region Iterable
 	@Override
 	public boolean hasNext() throws Exception
 	{
@@ -164,11 +189,12 @@ class BasicIterator<T> implements Iterator<T>
 	{
 		tIterable.reset();
 	}
+	//endregion
 
 	@Override
 	public List<T> toList() throws Exception
 	{
-		List<T> tList = new ArrayList<T>();
+		List<T> tList = new LinkedList<>();
 		reset();
 		while (hasNext())
 			tList.add(next());

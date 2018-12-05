@@ -6,7 +6,7 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery.interfaces;
+package sf.tquery;
 
 import sf.uds.interfaces.del.runnable.IRun_1;
 

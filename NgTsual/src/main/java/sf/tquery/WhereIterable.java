@@ -1,7 +1,5 @@
 package sf.tquery;
 
-import sf.tquery.interfaces.ISelector;
-
 import java.util.ArrayList;
 import java.util.List;
 

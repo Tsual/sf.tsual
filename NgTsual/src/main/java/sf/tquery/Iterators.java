@@ -2,7 +2,7 @@ package sf.tquery;
 
 import sf.uds.util.ObjectHelper;
 
-public class Iterators
+public final class Iterators
 {
 	public static <T> Iterator<T> get(java.lang.Iterable<T> it)
 	{
@@ -13,6 +13,4 @@ public class Iterators
 	{
 		return new BasicIterator<T>(ObjectHelper.requireNotNull(ar));
 	}
-
-
 }

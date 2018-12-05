@@ -6,10 +6,10 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery.interfaces;
+package sf.tquery;
 
 import sf.uds.interfaces.del.executable.IExec_1;
 
-public interface ITypeConverter<T, V> extends IExec_1<V, T>
+public interface ISelector<T> extends IExec_1<Boolean,T>
 {
 }

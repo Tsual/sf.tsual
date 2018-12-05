@@ -1,7 +1,5 @@
 package sf.tquery;
 
-import sf.tquery.interfaces.ITypeConverter;
-
 class AsIterable<T> implements Iterable<T>
 {
 	private Iterable it;
