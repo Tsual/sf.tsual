@@ -145,8 +145,7 @@ public class TaskHub
 		return tasks;
 	}
 
-	//region track
-	public String trackWorker()
+	public String trackWorker() throws Exception
 	{
 		NodeTreeHub trees = new NodeTreeHub();
 		for (Task task : tasks)
@@ -154,5 +153,4 @@ public class TaskHub
 				trees.push(task.caller, task.executor);
 		return trees.toJson();
 	}
-	//endregion
 }
