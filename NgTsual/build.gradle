@@ -12,7 +12,12 @@ repositories {
     mavenCentral()
 }
 
-dependencies{
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+    options.deprecation = false
+}
+
+dependencies {
     // https://mvnrepository.com/artifact/org.json/json
     compile group: 'org.json', name: 'json', version: '20180813'
 }
