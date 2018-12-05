@@ -4,22 +4,12 @@ version '1.0-SNAPSHOT'
 apply plugin: 'groovy'
 apply plugin: 'java'
 apply plugin: 'maven'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-    mavenLocal()
     mavenCentral()
-}
-
-
-jar {
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
 }
 
 dependencies{
