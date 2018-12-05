@@ -15,7 +15,7 @@ import java.util.List;
 
 public class NodeTreeHub
 {
-	private List<INodeTree> nodeTrees = new NodeTree.IzList<INodeTree>();
+	private List<INodeTree> nodeTrees = new NodeTree.IzList<>();
 
 	public void push(Object key, Object value)
 	{
@@ -25,8 +25,9 @@ public class NodeTreeHub
 		nodeTrees.add(new NodeTree(key, value));
 	}
 
-	public String toJson()
+	public String toJson() throws Exception
 	{
+		relink();
 		JSONObject root = new JSONObject();
 		for (INodeTree nodeTree : nodeTrees) {
 			final JSONObject jsonObject_t = nodeTree.toJson();
@@ -36,9 +37,25 @@ public class NodeTreeHub
 		return root.toString();
 	}
 
+	private void relink() throws Exception
+	{
+		final NodeTreeHub hub = new NodeTreeHub();
+		for (INodeTree tree : nodeTrees)
+			tree.leftTraversal((node) ->
+			{
+				for (INodeTree.INode child : node.children())
+					hub.push(node.value(), child.value());
+			}, null, null, null);
+		nodeTrees = hub.nodeTrees;
+	}
+
 	@Override
 	public String toString()
 	{
-		return toJson();
+		try {
+			return toJson();
+		} catch (Exception e) {
+			return e.toString();
+		}
 	}
 }

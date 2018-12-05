@@ -1,5 +1,5 @@
-group 'NgTsual'
-version '1.0-SNAPSHOT'
+group 'sf.commons'
+version '1.2.1'
 
 apply plugin: 'groovy'
 apply plugin: 'java'
@@ -7,6 +7,8 @@ apply plugin: 'maven'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+archivesBaseName = "sf.commons"
 
 repositories {
     mavenCentral()

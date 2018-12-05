@@ -18,7 +18,7 @@ import java.util.*;
 public class NodeTree implements INodeTree
 {
 	private INode _head;
-	private Map<Object, INode> reverseMap = new HashMap<Object, INode>();
+	private Map<Object, INode> reverseMap = new HashMap<>();
 
 	NodeTree(Object key, Object value)
 	{
@@ -100,7 +100,7 @@ public class NodeTree implements INodeTree
 	                          IRun_1<INode> firstRecursionFound) throws Exception
 	{
 		if (_head != null)
-			leftTraversal(delegate, _head, new ArrayList<INode>(), new ArrayList<INode>(),
+			leftTraversal(delegate, _head, new ArrayList<>(), new ArrayList<>(),
 					goDeep, goUp, firstRecursionFound);
 	}
 
