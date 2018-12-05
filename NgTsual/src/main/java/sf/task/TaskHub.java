@@ -1,57 +1,124 @@
 package sf.task;
 
 import sf.uds.interfaces.del.executable.IExec_0;
+import sf.uds.tree.NodeTreeHub;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class TaskHub
 {
-	private final static int size = 10;
-	private final static int size_m1 = size - 1;
+	private final static int report_cache_size = 10;
+	private final static int report_cache_size_m1 = report_cache_size - 1;
 
 	private TaskHost host;
-	private List<Task> tasks = new ArrayList<>();
+	private List<Task> tasks = new ArrayList<Task>();
+	private OutputStream traceOutputStream;
 
-	final Object any_complete_notify_object = "(*˘︶˘*).。.:*♡";
-	private boolean anyComplete = false;
-
+	final Object wait_lock = "(*˘︶˘*).。.:*♡";
+	boolean anyFinish = false;
+	volatile int finish_count = 0;
+	private int index = 0;
 	private final Long allow_delay;
-	final Long[] delays = new Long[size_m1];
-	int index = 0;
+	private final Long[] delays = new Long[report_cache_size_m1];
+	private Timer abort_schedule;
 
 
-	TaskHub(TaskHost host, Long allow_delay)
+	TaskHub(TaskHost host, Long allow_delay, OutputStream traceOutputStream)
 	{
 		this.host = host;
-		this.allow_delay = allow_delay * size;
+		this.allow_delay = allow_delay * report_cache_size;
+		this.traceOutputStream = traceOutputStream;
 	}
 
-	void finishTask(Task task)
+	boolean needTrace()
 	{
-		if (!anyComplete)
-			anyComplete = true;
+		return traceOutputStream != null;
+	}
+
+	void trace(Task task, String msg)
+	{
+		try {
+			if (traceOutputStream != null) {
+				traceOutputStream.write(new StringBuilder("[")
+						.append(new Timestamp(System.currentTimeMillis()))
+						.append("] [")
+						.append(Thread.currentThread().getName())
+						.append("] () (")
+						.append(task.toString())
+						.append(") ASYNC_TRACE ")
+						.append(msg)
+						.append("##")
+						.append(task.getTraceInfo())
+						.append("\n")
+						.toString()
+						.getBytes());
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	void taskFinishReport(Task task)
+	{
+		if (!anyFinish)
+			anyFinish = true;
 		long all = task.finishTime - task.startTime;
 		synchronized (delays) {
-			if (index < size_m1)
+			if (index < report_cache_size_m1)
 				delays[index++] = all;
 			else {
 				index = 0;
-				for (int i = 0; i < size_m1; i++) {
+				for (int i = 0; i < report_cache_size_m1; i++) {
 					all += delays[i];
 					delays[i] = 0L;
 				}
 			}
 		}
-		if (all > allow_delay)
-			synchronized (host.daemon_lock) {
-				host.daemon_lock.notifyAll();
+		if (all > allow_delay && host.is_add_daemon_alive)
+			synchronized (host.add_daemon_lock) {
+				host.add_daemon_lock.notifyAll();
 			}
 	}
 
-	public <T> Task<T> execute(IExec_0<T> executable)
+	public <T> Task<T> execute(IExec_0<T> executable, ThreadLocalOperation threadLocalOperation)
 	{
-		Task<T> task = new Task<>(this, executable);
+		Task<T> task = new Task<T>(this, executable);
+		if (threadLocalOperation != null)
+			task.tlOperation = threadLocalOperation;
+		tasks.add(task);
+		host.addTask(task);
+		return task;
+	}
+
+	public <T> Task<T> execute(IExec_0<T> executable, ThreadLocalOperation threadLocalOperation, Long abortDuration)
+	{
+		final Task<T> task = new Task<T>(this, executable);
+		if (threadLocalOperation != null)
+			task.tlOperation = threadLocalOperation;
+		if (10 < abortDuration) {
+			if (abort_schedule == null)
+				abort_schedule = new Timer();
+			task.abortDuration = abortDuration;
+			final TaskHub hub = this;
+			abort_schedule.schedule(new TimerTask()
+			{
+				@Override
+				public void run()
+				{
+					try {
+						host.abort_task(task, hub);
+					} catch (Throwable ex) {
+						ex.printStackTrace();
+					}
+				}
+			}, abortDuration);
+		}
 		tasks.add(task);
 		host.addTask(task);
 		return task;
@@ -60,25 +127,11 @@ public class TaskHub
 	public void waitAll()
 	{
 		int size = tasks.size();
-		for (int i = 0; i < size; i++) {
-			synchronized (tasks.get(i)) {
-				if (!tasks.get(i).isProduced()) {
-					try {
-						tasks.get(i).wait();
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
-		}
-	}
-
-	public void waitAny()
-	{
-		if (!anyComplete) {
-			synchronized (any_complete_notify_object) {
+		while (true) {
+			if (finish_count >= size) return;
+			synchronized (wait_lock) {
 				try {
-					any_complete_notify_object.wait();
+					wait_lock.wait();
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
@@ -86,9 +139,20 @@ public class TaskHub
 		}
 	}
 
+
 	public List<Task> getTasks()
 	{
 		return tasks;
 	}
 
+	//region track
+	public String trackWorker()
+	{
+		NodeTreeHub trees = new NodeTreeHub();
+		for (Task task : tasks)
+			if (!task.isProduced())
+				trees.push(task.caller, task.executor);
+		return trees.toJson();
+	}
+	//endregion
 }

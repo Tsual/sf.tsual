@@ -1,69 +1,187 @@
 package sf.task;
 
 
+import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class TaskHost implements AutoCloseable
+public class TaskHost
 {
 	private final String name;
 	private final ThreadGroup thread_group;
 	private final Integer max_worker_count;
+	private final SimpleTaskQueue simpleTaskQueue = new SimpleTaskQueue();
+	private final TaskWorkerDaemonHub daemons;
 
-	//region locks
-	final Object daemon_lock = "ヾ(^▽^*)))";
+	volatile boolean is_add_daemon_alive = true;
+	final Object add_daemon_lock = "ヾ(^▽^*)))";
 	private final Object host_lock = "(இωஇ )";
 	private final Object workers_lock = "（▼へ▼メ）";
 	private final boolean[] thread_close = {false};
-	//endregion
 
-	private final SimpleTaskQueue simpleTaskQueue = new SimpleTaskQueue();
-	//private Thread[] workers;
 
-	private final Runnable thread_exec_shell = () ->
+	private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = new Thread.UncaughtExceptionHandler()
 	{
-		while (true) {
-			if (thread_close[0])
-				break;
-			try {
-				Task exec = null;
-				synchronized (host_lock) {
-					if (simpleTaskQueue.remain()) {
-						exec = simpleTaskQueue.get();
-						host_lock.notify();
-					} else {
-						host_lock.wait();
-						if (thread_close[0])
-							break;
+		@Override
+		public void uncaughtException(Thread t, Throwable e)
+		{
+			start_worker();
+		}
+	};
+
+	private final Runnable worker_exec_shell = new Runnable()
+	{
+		@Override
+		public void run()
+		{
+			while (true) {
+				if (thread_close[0]) break;
+				Task task = null;
+				try {
+					synchronized (host_lock) {
+						if (simpleTaskQueue.remain()) {
+							task = simpleTaskQueue.get();
+							host_lock.notify();
+						} else {
+							host_lock.wait();
+							if (thread_close[0])
+								break;
+						}
 					}
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
 				}
 
-				if (exec != null) {
-					try {
-						syncThreadLocal(exec.caller);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-					exec.executeTime = System.currentTimeMillis();
-					try {
-						exec.result = exec.executable.execute();
-					} catch (Exception ex) {
-						exec.ex = ex;
-					}
-					exec.finishTask();
+				if (task == null) continue;
+				final TaskWorker curThread = (TaskWorker) Thread.currentThread();
+
+				switch (task.tlOperation) {
+					case Copy:
+						copyThreadLocal(task.caller);
+						break;
+					case None:
+						break;
+					case Reset:
+						resetThreadLocal();
+						break;
 				}
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+
+				task.executeTime = System.currentTimeMillis();
+				task.executor = curThread;
+				task.status = TaskStatus.Executing;
+				if (task.hub.needTrace())
+					task.hub.trace(task, task.executor.getName() + "<<Begin executing");
+
+				try {
+					curThread.task = task;
+					task.produceResult = task.executable.execute();
+					task.status = TaskStatus.Finished;
+					if (task.hub.needTrace())
+						task.hub.trace(task, "Finish executing,result:" + task.produceResult);
+					task.finishTask();
+					task.notifyFinish();
+				} catch (InterruptedException ignored) {
+				} catch (Exception ex) {
+					task.produceException = ex;
+					task.status = TaskStatus.Error;
+					if (task.hub.needTrace())
+						task.hub.trace(task, "Caught Exception:" + ex.toString());
+					task.finishTask();
+					task.notifyFinish();
+				} finally {
+					curThread.task = null;
+				}
 			}
 		}
 	};
 
-	private void syncThreadLocal(Thread caller) throws NoSuchFieldException, IllegalAccessException
+
+	private void resetWorker(final Thread worker)
 	{
-		final Field threadLocals = Thread.class.getField("threadLocals");
-		threadLocals.setAccessible(true);
-		threadLocals.set(Thread.currentThread(),threadLocals.get(caller));
+		final Thread thread = new TaskWorker(thread_group, worker_exec_shell, worker.getName());
+		thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
+		thread.setPriority(worker.getPriority());
+		thread.start();
+		AccessController.doPrivileged(new PrivilegedAction()
+		{
+			@Override
+			public Object run()
+			{
+				try {
+					worker.interrupt();
+				} catch (Throwable e) {
+					//throw new RuntimeException(e);
+					worker.stop();
+					return null;
+				}
+				return null;
+			}
+		});
+	}
+
+	private void copyThreadLocal(final Thread caller)
+	{
+		AccessController.doPrivileged(new PrivilegedAction()
+		{
+			@Override
+			public Object run()
+			{
+				try {
+					Field threadLocals = Thread.class.getDeclaredField("threadLocals");
+					threadLocals.setAccessible(true);
+					threadLocals.set(Thread.currentThread(), threadLocals.get(caller));
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+				return null;
+			}
+		});
+	}
+
+	private void resetThreadLocal()
+	{
+		AccessController.doPrivileged(new PrivilegedAction()
+		{
+			@Override
+			public Object run()
+			{
+				try {
+					Field threadLocals = Thread.class.getDeclaredField("threadLocals");
+					threadLocals.setAccessible(true);
+					threadLocals.set(Thread.currentThread(), null);
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+				return null;
+			}
+		});
+	}
+
+	void abort_task(Task task, TaskHub hub)
+	{
+		if (task.isProduced)
+			return;
+
+		task.status = TaskStatus.Overtime;
+		if (task.hub.needTrace())
+			task.hub.trace(task, "Task overtime:" + task.abortDuration);
+		task.isProduced = true;
+		task.finishTime = System.currentTimeMillis();
+		if (!hub.anyFinish)
+			hub.anyFinish = true;
+
+		if (task.executor != null) {
+			resetWorker(task.executor);
+		} else {
+			simpleTaskQueue.remove(task);
+		}
+
+		task.caller = null;
+		task.executor = null;
+		task.notifyFinish();
 	}
 
 	public TaskHost(String name, Integer start_worker_count, Integer max_worker_count, Long allow_wait_time)
@@ -79,63 +197,45 @@ public class TaskHost implements AutoCloseable
 		this.max_worker_count = max_worker_count;
 		while (start_worker_count-- > 0)
 			start_worker();
-		new Thread(() ->
-		{
-			while (true) {
-				if (thread_close[0]) return;
-				try {
-					synchronized (daemon_lock) {
-						daemon_lock.wait();
-						if (thread_group.activeCount() < this.max_worker_count)
-							start_worker();
-					}
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}).start();
+
+		daemons = new TaskWorkerDaemonHub();
+		daemons.start_add_daemon();
 	}
 
 	private void start_worker()
 	{
 		synchronized (workers_lock) {
-			final Thread worker = new Thread(thread_group, thread_exec_shell, "TaskWorker-" + thread_group.activeCount());
-			worker.setUncaughtExceptionHandler((thread, ex) ->
-			{
-				ex.printStackTrace();
-				start_worker();
-				throw new RuntimeException(ex);
-			});
+			final Thread worker = new TaskWorker(thread_group, worker_exec_shell, thread_group.getName() + ":TaskWorker@" + thread_group.activeCount());
+			worker.setUncaughtExceptionHandler(uncaughtExceptionHandler);
+			worker.setPriority(8);
 			worker.start();
-			//workers = new Thread[thread_group.activeCount()];
-			//thread_group.enumerate(workers, false);
 		}
 	}
 
 	void addTask(Task task)
 	{
 		simpleTaskQueue.add(task);
+		task.status = TaskStatus.Queueing;
+		if (task.hub.needTrace())
+			task.hub.trace(task, "Begin Queueing");
 		synchronized (host_lock) {
 			host_lock.notify();
 		}
 	}
 
-	public TaskHub newTaskHub(Long allow_delay)
+	public TaskHub newTaskHub(Long allow_delay, OutputStream traceOutputStream)
 	{
-		return new TaskHub(this, allow_delay);
+		return new TaskHub(this, allow_delay, traceOutputStream);
 	}
 
-	ThreadGroup getThreadGroup()
-	{
-		return thread_group;
-	}
-
-	@Override
 	public void close() throws Exception
 	{
 		thread_close[0] = true;
 		synchronized (host_lock) {
 			host_lock.notifyAll();
+		}
+		synchronized (add_daemon_lock) {
+			add_daemon_lock.notifyAll();
 		}
 	}
 
@@ -146,8 +246,8 @@ public class TaskHost implements AutoCloseable
 
 	private class SimpleTaskQueue
 	{
-		private Queue<Task> queue_0 = new LinkedList<>();
-		private Queue<Task> queue_1 = new LinkedList<>();
+		private Queue<Task> queue_0 = new LinkedList<Task>();
+		private Queue<Task> queue_1 = new LinkedList<Task>();
 
 		private final Object lock_queue_1 = "(*^ω^*)";
 
@@ -158,6 +258,19 @@ public class TaskHost implements AutoCloseable
 		{
 			synchronized (this) {
 				return queue_0.poll();
+			}
+		}
+
+		void remove(Task task)
+		{
+			synchronized (queue_1) {
+				if (queue_1.contains(task))
+					queue_1.remove(task);
+				else {
+					synchronized (this) {
+						queue_0.remove(task);
+					}
+				}
 			}
 		}
 
@@ -177,8 +290,8 @@ public class TaskHost implements AutoCloseable
 					synchronized (lock_queue_1) {
 						if (queue_1.size() == 0) return false;
 						if (System.currentTimeMillis() - queue_1.element().startTime > ptx_time)
-							synchronized (host.daemon_lock) {
-								host.daemon_lock.notify();
+							synchronized (host.add_daemon_lock) {
+								host.add_daemon_lock.notify();
 							}
 						Queue<Task> queue = queue_0;
 						queue_0 = queue_1;
@@ -189,4 +302,45 @@ public class TaskHost implements AutoCloseable
 			}
 		}
 	}
+
+	/**
+	 * 两个灾难性问题
+	 * 1.线程自引用或递归引用导致的资源枯竭
+	 * 2.调用线程状态异常而处理线程仍工作的问题导致的资源枯竭
+	 */
+	private class TaskWorkerDaemonHub
+	{
+		private ThreadGroup threadGroup = new ThreadGroup(name + "-:Daemon");
+
+		Thread start_add_daemon()
+		{
+			final Thread thread = new Thread(threadGroup, new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					while (true) {
+						if (thread_close[0]) return;
+						try {
+							synchronized (add_daemon_lock) {
+								add_daemon_lock.wait();
+								if (thread_close[0]) return;
+								if (thread_group.activeCount() < max_worker_count)
+									start_worker();
+								else {
+									is_add_daemon_alive = false;
+									return;
+								}
+							}
+						} catch (InterruptedException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}
+			});
+			thread.start();
+			return thread;
+		}
+	}
+
 }

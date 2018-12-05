@@ -4,29 +4,37 @@ import sf.uds.interfaces.del.executable.IExec_0;
 
 public class Task<T>
 {
-	private TaskHub hub;
-	private boolean isProduced = false;
-	Long startTime;
-	Long executeTime;
-	Long finishTime;
+	TaskHub hub;
+	volatile boolean isProduced = false;
+	Long startTime, executeTime, finishTime, abortDuration;
 
 	IExec_0<T> executable;
-	T result = null;
-	Exception ex = null;
-	Thread caller;
-
+	T produceResult = null;
+	Exception produceException = null;
+	Thread caller, executor;
+	TaskStatus status = TaskStatus.Created;
+	ThreadLocalOperation tlOperation = ThreadLocalOperation.None;
+	final Object sf_lock = "($_$)";
 
 	void finishTask()
 	{
-		isProduced = true;
-		finishTime = System.currentTimeMillis();
-
-		hub.finishTask(this);
-		synchronized (this) {
-			notifyAll();
+		if (!isProduced) {
+			isProduced = true;
+			finishTime = System.currentTimeMillis();
+			hub.taskFinishReport(this);
+			caller = null;
+			executor = null;
 		}
-		synchronized (hub.any_complete_notify_object) {
-			hub.any_complete_notify_object.notifyAll();
+	}
+
+	void notifyFinish()
+	{
+		hub.finish_count++;
+		synchronized (hub.wait_lock) {
+			hub.wait_lock.notifyAll();
+		}
+		synchronized (sf_lock) {
+			sf_lock.notifyAll();
 		}
 	}
 
@@ -34,29 +42,27 @@ public class Task<T>
 	{
 		this.hub = hub;
 		this.executable = executable;
-		startTime = System.currentTimeMillis();
-		caller = Thread.currentThread();
-	}
-
-	public boolean isProduced()
-	{
-		return isProduced;
+		this.startTime = System.currentTimeMillis();
+		this.caller = Thread.currentThread();
 	}
 
 	public T getResult() throws Exception
 	{
-		if (ex != null) throw ex;
-		return result;
+		await();
+		if (produceException != null) throw produceException;
+		return produceResult;
 	}
 
 	public void await()
 	{
-		try {
-			synchronized (this) {
-				wait();
+		if (!isProduced)
+			synchronized (sf_lock) {
+				try {
+					sf_lock.wait();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
 			}
-		} catch (InterruptedException ignored) {
-		}
 	}
 
 	public Long getStartTime()
@@ -67,5 +73,34 @@ public class Task<T>
 	public Long getFinishTime()
 	{
 		return finishTime;
+	}
+
+	public TaskStatus getStatus()
+	{
+		return status;
+	}
+
+	public boolean isProduced()
+	{
+		return isProduced;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "AsyncTask-" + hashCode();
+	}
+
+	String getTraceInfo()
+	{
+		return "Task{" +
+				"isProduced=" + isProduced +
+				", startTime=" + startTime +
+				", executeTime=" + executeTime +
+				", finishTime=" + finishTime +
+				", abortDuration=" + abortDuration +
+				", produceResult=" + produceResult +
+				", produceException=" + produceException +
+				'}';
 	}
 }
