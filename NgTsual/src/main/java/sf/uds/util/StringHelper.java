@@ -1,6 +1,6 @@
 package sf.uds.util;
 
-import sf.tquery.common.Iterators;
+import sf.tquery.Iterators;
 import sf.uds.interfaces.del.executable.IExec_1;
 
 public class StringHelper

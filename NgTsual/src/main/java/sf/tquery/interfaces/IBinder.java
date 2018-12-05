@@ -6,10 +6,10 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery.interfaces.exec;
+package sf.tquery.interfaces;
 
 import sf.uds.interfaces.del.executable.IExec_2;
 
-public interface IComparator<T> extends IExec_2<T, T, T>
+public interface IBinder<T,K,V> extends IExec_2<T,K,V>
 {
 }

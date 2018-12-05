@@ -1,9 +1,9 @@
-package sf.tquery.common;
+package sf.tquery;
 
-import sf.tquery.interfaces.exec.IAction;
-import sf.tquery.interfaces.exec.IRunnable;
-import sf.tquery.interfaces.exec.ISelector;
-import sf.tquery.interfaces.exec.ITypeConverter;
+import sf.tquery.interfaces.IAction;
+import sf.tquery.interfaces.IRunnable;
+import sf.tquery.interfaces.ISelector;
+import sf.tquery.interfaces.ITypeConverter;
 import sf.uds.interfaces.common.Listable;
 
 public interface Iterator<T> extends Iterable<T>, Listable<T>

@@ -1,4 +1,4 @@
-package sf.tquery.common;
+package sf.tquery;
 
 class SingleItemIterable<T> implements Iterable<T>
 {

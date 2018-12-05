@@ -1,4 +1,4 @@
-package sf.tquery.common;
+package sf.tquery;
 
 import sf.uds.util.ObjectHelper;
 

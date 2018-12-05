@@ -5,7 +5,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import sf.hibernate.service.interfaces.IDbmgr;
-import sf.tquery.common.Iterators;
+import sf.tquery.Iterators;
 import sf.uds.util.StringHelper;
 
 import javax.persistence.metamodel.*;

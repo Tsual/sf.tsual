@@ -6,7 +6,7 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery.interfaces.exec;
+package sf.tquery.interfaces;
 
 import sf.uds.interfaces.del.executable.IExec_0;
 

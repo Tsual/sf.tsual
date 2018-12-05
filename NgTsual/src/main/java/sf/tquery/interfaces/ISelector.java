@@ -6,10 +6,10 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery.interfaces.exec;
+package sf.tquery.interfaces;
 
-import sf.uds.interfaces.del.executable.IExec_2;
+import sf.uds.interfaces.del.executable.IExec_1;
 
-public interface IBinder<T,K,V> extends IExec_2<T,K,V>
+public interface ISelector<T> extends IExec_1<Boolean,T>
 {
 }

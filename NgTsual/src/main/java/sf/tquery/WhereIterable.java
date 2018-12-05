@@ -1,6 +1,6 @@
-package sf.tquery.common;
+package sf.tquery;
 
-import sf.tquery.interfaces.exec.ISelector;
+import sf.tquery.interfaces.ISelector;
 
 import java.util.ArrayList;
 import java.util.List;

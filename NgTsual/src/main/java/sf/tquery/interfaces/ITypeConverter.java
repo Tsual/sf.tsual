@@ -6,10 +6,10 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery.interfaces.exec;
+package sf.tquery.interfaces;
 
-import sf.uds.interfaces.del.runnable.IRun_1;
+import sf.uds.interfaces.del.executable.IExec_1;
 
-public interface IRunnable<T> extends IRun_1<T>
+public interface ITypeConverter<T, V> extends IExec_1<V, T>
 {
 }

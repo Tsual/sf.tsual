@@ -1,4 +1,4 @@
-package sf.tquery.common;
+package sf.tquery;
 
 import java.util.Iterator;
 

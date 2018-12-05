@@ -1,6 +1,6 @@
-package sf.tquery.common;
+package sf.tquery;
 
-import sf.tquery.interfaces.exec.ITypeConverter;
+import sf.tquery.interfaces.ITypeConverter;
 
 class AsIterable<T> implements Iterable<T>
 {
