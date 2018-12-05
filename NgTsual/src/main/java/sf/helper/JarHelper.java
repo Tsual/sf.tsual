@@ -1,6 +1,6 @@
-package sf.resource;
+package sf.helper;
 
-import sf.uds.interfaces.del.runnable.IRun_1;
+import sf.uds.interfaces.del.IRun_1;
 
 import java.io.File;
 import java.io.IOException;

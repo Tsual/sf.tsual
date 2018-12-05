@@ -1,6 +1,5 @@
-package sf.resource;
+package sf.helper;
 
-import sf.hibernate.service.HibernateServiceFactory;
 
 import java.io.File;
 import java.io.IOException;

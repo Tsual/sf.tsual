@@ -1,6 +1,6 @@
 package sf.task;
 
-import sf.uds.interfaces.del.executable.IExec_0;
+import sf.uds.interfaces.del.IExec_0;
 import sf.uds.tree.NodeTreeHub;
 
 import java.io.IOException;

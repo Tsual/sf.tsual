@@ -6,9 +6,9 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.del.runnable;
+package sf.uds.interfaces.del;
 
-public interface IRun_0 extends IRun
+public interface IRun_4<T1, T2, T3, T4> extends IRun
 {
-	public void run() throws Exception;
+	public void run(T1 arg1, T2 arg2, T3 arg3, T4 arg4) throws Exception;
 }

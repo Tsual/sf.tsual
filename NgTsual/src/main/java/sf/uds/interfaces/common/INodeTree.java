@@ -9,7 +9,7 @@
 package sf.uds.interfaces.common;
 
 import org.json.JSONObject;
-import sf.uds.interfaces.del.runnable.IRun_1;
+import sf.uds.interfaces.del.IRun_1;
 
 import java.util.Collection;
 

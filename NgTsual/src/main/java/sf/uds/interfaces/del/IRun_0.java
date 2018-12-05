@@ -6,10 +6,9 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.del.executable;
+package sf.uds.interfaces.del;
 
-import sf.uds.interfaces.del.IDelegate;
-
-public interface IExec extends IDelegate
+public interface IRun_0 extends IRun
 {
+	public void run() throws Exception;
 }

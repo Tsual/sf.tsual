@@ -6,9 +6,9 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.del.runnable;
+package sf.uds.interfaces.del;
 
-public interface IRun_1<T1> extends IRun
+public interface IExec_2<T, T1, T2> extends IExec
 {
-	public void run(T1 arg1) throws Exception;
+	public T execute(T1 arg1, T2 arg2) throws Exception;
 }

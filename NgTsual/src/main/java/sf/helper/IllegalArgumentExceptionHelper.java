@@ -1,4 +1,4 @@
-package sf.uds.util.exception;
+package sf.helper;
 
 import com.sun.istack.internal.NotNull;
 import sf.uds.util.StringHelper;

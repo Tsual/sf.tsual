@@ -1,7 +1,5 @@
 package sf.uds.util;
 
-import sf.uds.util.beans.EntryBean;
-
 import java.util.*;
 
 public class MapHelper

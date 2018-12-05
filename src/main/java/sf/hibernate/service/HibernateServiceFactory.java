@@ -1,12 +1,9 @@
 package sf.hibernate.service;
 
-import org.hibernate.cfg.Configuration;
-import sf.resource.JarHelper;
-import sf.resource.ResourceHelper;
+import sf.helper.JarHelper;
+import sf.helper.ResourceHelper;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class HibernateServiceFactory

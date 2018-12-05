@@ -6,10 +6,9 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.del.executable;
+package sf.uds.interfaces.del;
 
-public interface IExec_0<T> extends IExec
+public interface IExec_1<T, T1> extends IExec
 {
-	public T execute() throws Exception;
+	public T execute(T1 arg1) throws Exception;
 }
-

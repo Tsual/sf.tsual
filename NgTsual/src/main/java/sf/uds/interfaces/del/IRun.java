@@ -6,7 +6,7 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.del.runnable;
+package sf.uds.interfaces.del;
 
 import sf.uds.interfaces.del.IDelegate;
 

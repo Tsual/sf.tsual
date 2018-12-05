@@ -6,9 +6,10 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.del.executable;
+package sf.uds.interfaces.del;
 
-public interface IExec_2<T, T1, T2> extends IExec
+import sf.uds.interfaces.del.IDelegate;
+
+public interface IExec extends IDelegate
 {
-	public T execute(T1 arg1, T2 arg2) throws Exception;
 }

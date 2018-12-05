@@ -6,9 +6,9 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.util.beans;
+package sf.uds.util;
 
-import sf.uds.interfaces.del.executable.IExec_1;
+import sf.uds.interfaces.del.IExec_1;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

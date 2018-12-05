@@ -6,7 +6,7 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.util.beans;
+package sf.uds.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

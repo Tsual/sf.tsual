@@ -8,7 +8,7 @@
 
 package sf.tquery;
 
-import sf.uds.interfaces.del.executable.IExec_0;
+import sf.uds.interfaces.del.IExec_0;
 
 public interface IAction<T> extends IExec_0<T>
 {

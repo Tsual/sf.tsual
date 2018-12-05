@@ -6,9 +6,9 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.uds.interfaces.del.executable;
+package sf.uds.interfaces.del;
 
-public interface IExec_4<T, T1, T2, T3, T4> extends IExec
+public interface IExec_5<T, T1, T2, T3, T4, T5> extends IExec
 {
-	public T execute(T1 arg1, T2 arg2, T3 arg3, T4 arg4) throws Exception;
+	public T execute(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) throws Exception;
 }

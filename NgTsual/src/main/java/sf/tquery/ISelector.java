@@ -8,7 +8,7 @@
 
 package sf.tquery;
 
-import sf.uds.interfaces.del.executable.IExec_1;
+import sf.uds.interfaces.del.IExec_1;
 
 public interface ISelector<T> extends IExec_1<Boolean,T>
 {
