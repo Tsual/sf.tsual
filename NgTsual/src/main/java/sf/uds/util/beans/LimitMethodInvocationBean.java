@@ -13,6 +13,7 @@ import sf.uds.interfaces.del.executable.IExec_1;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+@Deprecated
 public class LimitMethodInvocationBean extends MethodInvocationBean
 {
 
