@@ -17,7 +17,7 @@ public class TaskHub
 	private final static int report_cache_size_m1 = report_cache_size - 1;
 
 	private TaskHost host;
-	private List<Task> tasks = new ArrayList<Task>();
+	private List<Task> tasks = new ArrayList<>();
 	private OutputStream traceOutputStream;
 
 	final Object wait_lock = "(*˘︶˘*).。.:*♡";
@@ -88,7 +88,7 @@ public class TaskHub
 
 	public <T> Task<T> execute(IExec_0<T> executable, ThreadLocalOperation threadLocalOperation)
 	{
-		Task<T> task = new Task<T>(this, executable);
+		Task<T> task = new Task<>(this, executable);
 		if (threadLocalOperation != null)
 			task.tlOperation = threadLocalOperation;
 		tasks.add(task);
@@ -98,7 +98,7 @@ public class TaskHub
 
 	public <T> Task<T> execute(IExec_0<T> executable, ThreadLocalOperation threadLocalOperation, Long abortDuration)
 	{
-		final Task<T> task = new Task<T>(this, executable);
+		final Task<T> task = new Task<>(this, executable);
 		if (threadLocalOperation != null)
 			task.tlOperation = threadLocalOperation;
 		if (10 < abortDuration) {

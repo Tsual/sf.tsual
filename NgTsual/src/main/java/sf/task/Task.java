@@ -14,7 +14,7 @@ public class Task<T>
 	Thread caller, executor;
 	TaskStatus status = TaskStatus.Created;
 	ThreadLocalOperation tlOperation = ThreadLocalOperation.None;
-	final Object sf_lock = "($_$)";
+	private final Object sf_lock = "($_$)";
 
 	void finishTask()
 	{

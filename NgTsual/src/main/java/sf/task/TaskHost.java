@@ -8,92 +8,80 @@ import java.security.PrivilegedAction;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class TaskHost
+public class TaskHost implements AutoCloseable
 {
 	private final String name;
 	private final ThreadGroup thread_group;
 	private final Integer max_worker_count;
 	private final SimpleTaskQueue simpleTaskQueue = new SimpleTaskQueue();
-	private final TaskWorkerDaemonHub daemons;
 
 	volatile boolean is_add_daemon_alive = true;
-	final Object add_daemon_lock = "ヾ(^▽^*)))";
-	private final Object host_lock = "(இωஇ )";
-	private final Object workers_lock = "（▼へ▼メ）";
+	final String add_daemon_lock = "ヾ(^▽^*)))";
+	private final String host_lock = "(இωஇ )";
+	private final String workers_lock = "（▼へ▼メ）";
 	private final boolean[] thread_close = {false};
 
 
-	private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = new Thread.UncaughtExceptionHandler()
-	{
-		@Override
-		public void uncaughtException(Thread t, Throwable e)
-		{
-			start_worker();
-		}
-	};
+	private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (t, e) -> start_worker();
 
-	private final Runnable worker_exec_shell = new Runnable()
+	private final Runnable worker_exec_shell = () ->
 	{
-		@Override
-		public void run()
-		{
-			while (true) {
-				if (thread_close[0]) break;
-				Task task = null;
-				try {
-					synchronized (host_lock) {
-						if (simpleTaskQueue.remain()) {
-							task = simpleTaskQueue.get();
-							host_lock.notify();
-						} else {
-							host_lock.wait();
-							if (thread_close[0])
-								break;
-						}
+		while (true) {
+			if (thread_close[0]) break;
+			Task task = null;
+			try {
+				synchronized (host_lock) {
+					if (simpleTaskQueue.remain()) {
+						task = simpleTaskQueue.get();
+						host_lock.notify();
+					} else {
+						host_lock.wait();
+						if (thread_close[0])
+							break;
 					}
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
 				}
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 
-				if (task == null) continue;
-				final TaskWorker curThread = (TaskWorker) Thread.currentThread();
+			if (task == null) continue;
+			final TaskWorker curThread = (TaskWorker) Thread.currentThread();
 
-				switch (task.tlOperation) {
-					case Copy:
-						copyThreadLocal(task.caller);
-						break;
-					case None:
-						break;
-					case Reset:
-						resetThreadLocal();
-						break;
-				}
+			switch (task.tlOperation) {
+				case Copy:
+					copyThreadLocal(task.caller);
+					break;
+				case None:
+					break;
+				case Reset:
+					resetThreadLocal();
+					break;
+			}
 
-				task.executeTime = System.currentTimeMillis();
-				task.executor = curThread;
-				task.status = TaskStatus.Executing;
+			task.executeTime = System.currentTimeMillis();
+			task.executor = curThread;
+			task.status = TaskStatus.Executing;
+			if (task.hub.needTrace())
+				task.hub.trace(task, task.executor.getName() + "<<Begin executing");
+
+			try {
+				curThread.task = task;
+				task.produceResult = task.executable.execute();
+				task.status = TaskStatus.Finished;
 				if (task.hub.needTrace())
-					task.hub.trace(task, task.executor.getName() + "<<Begin executing");
-
-				try {
-					curThread.task = task;
-					task.produceResult = task.executable.execute();
-					task.status = TaskStatus.Finished;
-					if (task.hub.needTrace())
-						task.hub.trace(task, "Finish executing,result:" + task.produceResult);
-					task.finishTask();
-					task.notifyFinish();
-				} catch (InterruptedException ignored) {
-				} catch (Exception ex) {
-					task.produceException = ex;
-					task.status = TaskStatus.Error;
-					if (task.hub.needTrace())
-						task.hub.trace(task, "Caught Exception:" + ex.toString());
-					task.finishTask();
-					task.notifyFinish();
-				} finally {
-					curThread.task = null;
-				}
+					task.hub.trace(task, "Finish executing,result:" + task.produceResult);
+				task.finishTask();
+				task.notifyFinish();
+			} catch (InterruptedException ignored) {
+			} catch (Exception ex) {
+				task.produceException = ex;
+				task.status = TaskStatus.Error;
+				if (task.hub.needTrace())
+					task.hub.trace(task, "Caught Exception:" + ex.toString());
+				task.finishTask();
+				task.notifyFinish();
+			} finally {
+				curThread.task = null;
 			}
 		}
 	};
@@ -105,58 +93,46 @@ public class TaskHost
 		thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
 		thread.setPriority(worker.getPriority());
 		thread.start();
-		AccessController.doPrivileged(new PrivilegedAction()
+		AccessController.doPrivileged((PrivilegedAction) () ->
 		{
-			@Override
-			public Object run()
-			{
-				try {
-					worker.interrupt();
-				} catch (Throwable e) {
-					//throw new RuntimeException(e);
-					worker.stop();
-					return null;
-				}
+			try {
+				worker.interrupt();
+			} catch (Throwable e) {
+				//throw new RuntimeException(e);
+				worker.stop();
 				return null;
 			}
+			return null;
 		});
 	}
 
 	private void copyThreadLocal(final Thread caller)
 	{
-		AccessController.doPrivileged(new PrivilegedAction()
+		AccessController.doPrivileged((PrivilegedAction) () ->
 		{
-			@Override
-			public Object run()
-			{
-				try {
-					Field threadLocals = Thread.class.getDeclaredField("threadLocals");
-					threadLocals.setAccessible(true);
-					threadLocals.set(Thread.currentThread(), threadLocals.get(caller));
-				} catch (Exception ex) {
-					throw new RuntimeException(ex);
-				}
-				return null;
+			try {
+				Field threadLocals = Thread.class.getDeclaredField("threadLocals");
+				threadLocals.setAccessible(true);
+				threadLocals.set(Thread.currentThread(), threadLocals.get(caller));
+			} catch (Exception ex) {
+				throw new RuntimeException(ex);
 			}
+			return null;
 		});
 	}
 
 	private void resetThreadLocal()
 	{
-		AccessController.doPrivileged(new PrivilegedAction()
+		AccessController.doPrivileged((PrivilegedAction) () ->
 		{
-			@Override
-			public Object run()
-			{
-				try {
-					Field threadLocals = Thread.class.getDeclaredField("threadLocals");
-					threadLocals.setAccessible(true);
-					threadLocals.set(Thread.currentThread(), null);
-				} catch (Exception ex) {
-					throw new RuntimeException(ex);
-				}
-				return null;
+			try {
+				Field threadLocals = Thread.class.getDeclaredField("threadLocals");
+				threadLocals.setAccessible(true);
+				threadLocals.set(Thread.currentThread(), null);
+			} catch (Exception ex) {
+				throw new RuntimeException(ex);
 			}
+			return null;
 		});
 	}
 
@@ -198,7 +174,7 @@ public class TaskHost
 		while (start_worker_count-- > 0)
 			start_worker();
 
-		daemons = new TaskWorkerDaemonHub();
+		TaskWorkerDaemonHub daemons = new TaskWorkerDaemonHub();
 		daemons.start_add_daemon();
 	}
 
@@ -228,7 +204,8 @@ public class TaskHost
 		return new TaskHub(this, allow_delay, traceOutputStream);
 	}
 
-	public void close() throws Exception
+	@Override
+	public void close()
 	{
 		thread_close[0] = true;
 		synchronized (host_lock) {
@@ -246,10 +223,10 @@ public class TaskHost
 
 	private class SimpleTaskQueue
 	{
-		private Queue<Task> queue_0 = new LinkedList<Task>();
-		private Queue<Task> queue_1 = new LinkedList<Task>();
+		private Queue<Task> queue_0 = new LinkedList<>();
+		private Queue<Task> queue_1 = new LinkedList<>();
 
-		private final Object lock_queue_1 = "(*^ω^*)";
+		private final String lock_queue_1 = "(*^ω^*)";
 
 		Long ptx_time;
 		TaskHost host;
@@ -312,34 +289,29 @@ public class TaskHost
 	{
 		private ThreadGroup threadGroup = new ThreadGroup(name + "-:Daemon");
 
-		Thread start_add_daemon()
+		void start_add_daemon()
 		{
-			final Thread thread = new Thread(threadGroup, new Runnable()
+			final Thread thread = new Thread(threadGroup, () ->
 			{
-				@Override
-				public void run()
-				{
-					while (true) {
-						if (thread_close[0]) return;
-						try {
-							synchronized (add_daemon_lock) {
-								add_daemon_lock.wait();
-								if (thread_close[0]) return;
-								if (thread_group.activeCount() < max_worker_count)
-									start_worker();
-								else {
-									is_add_daemon_alive = false;
-									return;
-								}
+				while (true) {
+					if (thread_close[0]) return;
+					try {
+						synchronized (add_daemon_lock) {
+							add_daemon_lock.wait();
+							if (thread_close[0]) return;
+							if (thread_group.activeCount() < max_worker_count)
+								start_worker();
+							else {
+								is_add_daemon_alive = false;
+								return;
 							}
-						} catch (InterruptedException e) {
-							throw new RuntimeException(e);
 						}
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
 					}
 				}
 			});
 			thread.start();
-			return thread;
 		}
 	}
 
