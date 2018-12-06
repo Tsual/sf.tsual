@@ -19,9 +19,8 @@ class SortIterable<T> implements Iterable<T>
 	private void ensureSort() throws Exception
 	{
 		if (need_sort) {
-			LinkedList<T> list = new LinkedList<>();
-			while (inner_it.hasNext())
-				list.add(inner_it.next());
+			reset();
+			List<T> list = inner_it.settle();
 			list.sort(comparator);
 			need_sort = false;
 			inner_it = new JavaIterable<>(list);

@@ -5,16 +5,30 @@ import sf.tquery.irunshell.IRunnable;
 import sf.tquery.irunshell.ISelector;
 import sf.tquery.irunshell.ITypeConverter;
 import sf.uds.interfaces.common.Listable;
+import sf.uds.util.ObjectHelper;
 
 import java.util.Comparator;
+import java.util.List;
 
 public interface Iterator<T> extends Iterable<T>, Listable<T>
 {
-	Iterator<T> foreach(IRunnable<T> runnable) throws Exception;
+	default Iterator<T> foreach(IRunnable<T> runnable) throws Exception
+	{
+		ObjectHelper.requireNotNull(runnable);
+		reset();
+		while (hasNext())
+			runnable.run(next());
+		return this;
+	}
+
 	<V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter);
 	Iterator<T> sort(Comparator<? super T> comparator);
 	Iterator<T> where(ISelector<T> tSelector);
-	<V> V execute(IAction<V> action) throws Exception;
+
+	default <V> V execute(IAction<V> action) throws Exception
+	{
+		return ObjectHelper.requireNotNull(action).execute();
+	}
 
 	//region add
 	Iterator<T> add(T item) throws Exception;
@@ -24,14 +38,58 @@ public interface Iterator<T> extends Iterable<T>, Listable<T>
 	//endregion
 
 	//region first
-	T first() throws Exception;
-	T first(ISelector<T> tSelector) throws Exception;
-	Iterator<T> first(ISelector<T> tSelector, IRunnable<T> runnable) throws Exception;
+	default T first() throws Exception
+	{
+		reset();
+		return hasNext() ? next() : null;
+	}
+
+	default T first(ISelector<T> tSelector) throws Exception
+	{
+		ObjectHelper.requireNotNull(tSelector);
+		reset();
+		while (hasNext()) {
+			T t = next();
+			if (tSelector.execute(t))
+				return t;
+		}
+		return null;
+	}
+
+	default Iterator<T> first(ISelector<T> tSelector, IRunnable<T> runnable) throws Exception
+	{
+		ObjectHelper.requireNotNull(runnable).run(first(tSelector));
+		return this;
+	}
 	//endregion
 
 	//region last
-	T last() throws Exception;
-	T last(ISelector<T> tSelector) throws Exception;
-	Iterator<T> last(ISelector<T> tSelector, IRunnable<T> runnable) throws Exception;
+	default T last() throws Exception
+	{
+		final List<T> settle = settle();
+		return settle.size() > 0 ? settle.get(settle.size() - 1) : null;
+	}
+
+	default T last(ISelector<T> tSelector) throws Exception
+	{
+		final List<T> settle = settle();
+		T find = null;
+		for (T t : settle)
+			if (tSelector.execute(t))
+				find = t;
+		return find;
+	}
+
+	default Iterator<T> last(ISelector<T> tSelector, IRunnable<T> runnable) throws Exception
+	{
+		runnable.run(last(tSelector));
+		return this;
+	}
 	//endregion
+
+	@Override
+	default List<T> toList() throws Exception
+	{
+		return settle();
+	}
 }
