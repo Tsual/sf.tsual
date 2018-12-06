@@ -13,4 +13,9 @@ public final class Iterators
 	{
 		return new BasicIterator<T>(ObjectHelper.requireNotNull(ar));
 	}
+
+	public static <T> Iterator<T> get(Iterable<T> it)
+	{
+		return new BasicIterator<T>(ObjectHelper.requireNotNull(it));
+	}
 }
