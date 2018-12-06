@@ -30,12 +30,10 @@ public interface Iterator<T> extends Iterable<T>, Listable<T>
 		return ObjectHelper.requireNotNull(action).execute();
 	}
 
-	//region add
 	Iterator<T> add(T item) throws Exception;
 	Iterator<T> add(T[] array) throws Exception;
 	Iterator<T> add(java.lang.Iterable<T> Iterable) throws Exception;
 	Iterator<T> add(Iterable<T> Iterator) throws Exception;
-	//endregion
 
 	//region first
 	default T first() throws Exception

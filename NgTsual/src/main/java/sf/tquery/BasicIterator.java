@@ -8,15 +8,11 @@
 
 package sf.tquery;
 
-import sf.tquery.irunshell.IAction;
-import sf.tquery.irunshell.IRunnable;
 import sf.tquery.irunshell.ISelector;
 import sf.tquery.irunshell.ITypeConverter;
 import sf.uds.util.ObjectHelper;
 
 import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
 
 class BasicIterator<T> implements Iterator<T>
 {
@@ -24,12 +20,12 @@ class BasicIterator<T> implements Iterator<T>
 
 	BasicIterator(T[] arr)
 	{
-		tIterable = new ArrayIterable<T>(arr);
+		tIterable = new ArrayIterable<>(arr);
 	}
 
 	BasicIterator(java.lang.Iterable<T> it)
 	{
-		tIterable = new JavaIterable<T>(it);
+		tIterable = new JavaIterable<>(it);
 	}
 
 	BasicIterator(Iterable<T> it)
