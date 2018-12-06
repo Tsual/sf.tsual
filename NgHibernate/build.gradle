@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile project(':NgTsual')
     compile files('lib/ojdbc-5.0.jar')
     compile 'org.hibernate:hibernate-agroal:5.3.4.Final'
 }
