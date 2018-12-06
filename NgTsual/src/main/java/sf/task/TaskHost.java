@@ -1,6 +1,8 @@
 package sf.task;
 
 
+import sf.uds.interfaces.del.IRun_1;
+
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.security.AccessController;
@@ -162,7 +164,7 @@ public class TaskHost implements AutoCloseable
 
 	public TaskHost(String name, Integer start_worker_count, Integer max_worker_count, Long allow_wait_time)
 	{
-		if (start_worker_count < 4 || max_worker_count < 5 || max_worker_count <= start_worker_count) {
+		if (start_worker_count < 1 || max_worker_count <= start_worker_count) {
 			start_worker_count = 5;
 			max_worker_count = 25;
 		}
@@ -199,9 +201,9 @@ public class TaskHost implements AutoCloseable
 		}
 	}
 
-	public TaskHub newTaskHub(Long allow_delay, OutputStream traceOutputStream)
+	public TaskHub newTaskHub(Long allow_delay, IRun_1<String> traceShell)
 	{
-		return new TaskHub(this, allow_delay, traceOutputStream);
+		return new TaskHub(this, allow_delay, traceShell);
 	}
 
 	@Override

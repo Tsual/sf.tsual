@@ -10,21 +10,21 @@
         <property name="dialect">org.hibernate.dialect.Oracle8iDialect</property>
         <property name="connection.username">qa_zhangzh</property>
         <property name="connection.password">qa_zhangzh</property>
-        <mapping class="sf.hibernate.beans.wengdb.RuleAttrEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleAttrRelEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleBusiRelEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleBusiRelExpireEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleInstanceEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleMsgInfoEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleObjectEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleParamValueEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleProdAttrMapingEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleRelatEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleTemplateEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleTmplParamEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleV2AccessEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleShareCfgEntity"/>
-        <mapping class="sf.hibernate.beans.wengdb.RuleShareDefEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleAttrEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleAttrRelEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleBusiRelEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleBusiRelExpireEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleInstanceEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleMsgInfoEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleObjectEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleParamValueEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleProdAttrMapingEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleRelatEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleTemplateEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleTmplParamEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleV2AccessEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleShareCfgEntity"/>
+        <mapping class="hibernate.beans.wengdb.RuleShareDefEntity"/>
 
         <!-- DB schema will be updated if needed -->
         <!-- <property name="hbm2ddl.auto">update</property> -->

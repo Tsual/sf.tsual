@@ -6,7 +6,7 @@ import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import sf.hibernate.beans.base.RuleInstanceEntity;
+import hibernate.beans.base.RuleInstanceEntity;
 
 import javax.persistence.metamodel.EntityType;
 import java.util.List;

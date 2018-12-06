@@ -1,10 +1,9 @@
 package sf.task;
 
 import sf.uds.interfaces.del.IExec_0;
+import sf.uds.interfaces.del.IRun_1;
 import sf.uds.tree.NodeTreeHub;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,7 @@ public class TaskHub
 
 	private TaskHost host;
 	private List<Task> tasks = new ArrayList<>();
-	private OutputStream traceOutputStream;
+	private IRun_1<String> traceShell;
 
 	final Object wait_lock = "(*˘︶˘*).。.:*♡";
 	boolean anyFinish = false;
@@ -29,37 +28,24 @@ public class TaskHub
 	private Timer abort_schedule;
 
 
-	TaskHub(TaskHost host, Long allow_delay, OutputStream traceOutputStream)
+	TaskHub(TaskHost host, Long allow_delay, IRun_1<String> traceShell)
 	{
 		this.host = host;
 		this.allow_delay = allow_delay * report_cache_size;
-		this.traceOutputStream = traceOutputStream;
+		this.traceShell = traceShell;
 	}
 
 	boolean needTrace()
 	{
-		return traceOutputStream != null;
+		return traceShell != null;
 	}
 
 	void trace(Task task, String msg)
 	{
 		try {
-			if (traceOutputStream != null) {
-				traceOutputStream.write(new StringBuilder("[")
-						.append(new Timestamp(System.currentTimeMillis()))
-						.append("] [")
-						.append(Thread.currentThread().getName())
-						.append("] () (")
-						.append(task.toString())
-						.append(") ASYNC_TRACE ")
-						.append(msg)
-						.append("##")
-						.append(task.getTraceInfo())
-						.append("\n")
-						.toString()
-						.getBytes());
-			}
-		} catch (IOException e) {
+			if (traceShell != null)
+				traceShell.run("(" + task.toString() + ") ASYNC_TRACE " + msg + "##" + task.getTraceInfo());
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

@@ -46,23 +46,31 @@ public class Task<T>
 		this.caller = Thread.currentThread();
 	}
 
-	public T getResult() throws Exception
+	public T awaitResult() throws Exception
 	{
 		await();
 		if (produceException != null) throw produceException;
 		return produceResult;
 	}
 
+	public T awaitResultClose() throws Exception
+	{
+		await();
+		if(hub!=null)hub.getTasks().remove(this);
+		if (produceException != null) throw produceException;
+		return produceResult;
+	}
+
 	public void await()
 	{
-		if (!isProduced)
-			synchronized (sf_lock) {
-				try {
+		synchronized (sf_lock) {
+			try {
+				if (!isProduced)
 					sf_lock.wait();
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
 			}
+		}
 	}
 
 	public Long getStartTime()

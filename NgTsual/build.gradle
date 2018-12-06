@@ -1,5 +1,4 @@
-group 'sf.commons'
-version '1.2.1'
+group 'sf.tsual'
 
 apply plugin: 'groovy'
 apply plugin: 'java'
@@ -8,10 +7,14 @@ apply plugin: 'maven'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-archivesBaseName = "sf.commons"
-
 repositories {
     mavenCentral()
+}
+
+jar {
+    baseName = 'sf.commons'
+    version =  '1.2.1'
+
 }
 
 tasks.withType(JavaCompile) {

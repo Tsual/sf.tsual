@@ -1,8 +1,8 @@
 package hibernate;
 
 
-import sf.hibernate.service.HibernateServiceFactory;
-import sf.hibernate.service.interfaces.IDbmgr;
+import hibernate.service.HibernateServiceFactory;
+import hibernate.service.interfaces.IDbmgr;
 
 public class Test2
 {
