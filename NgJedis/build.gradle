@@ -1,8 +1,11 @@
 group 'sf.tsual'
 version '1.0-SNAPSHOT'
 
+apply plugin: 'groovy'
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -12,11 +15,7 @@ repositories {
     mavenCentral()
 }
 
-jar {
-    baseName = 'sf.tsual'
-    version =  '1.0.1'
-}
-
 dependencies {
     compile project(':NgTsual')
+    compile group: 'redis.clients', name: 'jedis', version: '2.9.0'
 }

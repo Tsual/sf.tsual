@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="show_sql">true</property>
+        <property name="connection.url">jdbc:oracle:thin:@20.26.19.93:1521:CSHP93</property>
+        <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+        <property name="dialect">org.hibernate.dialect.Oracle8iDialect</property>
+        <property name="connection.username">qa_huangling</property>
+        <property name="connection.password">huangling123</property>
+        <mapping class="hibernate.beans.base.BceAttrEntity"/>
+        <mapping class="hibernate.beans.base.BceAttrFieldMapEntity"/>
+        <mapping class="hibernate.beans.base.BceBatInputFieldFormatEntity"/>
+        <mapping class="hibernate.beans.base.BceBatInputFormatEntity"/>
+        <mapping class="hibernate.beans.base.BceButtonEntity"/>
+        <mapping class="hibernate.beans.base.BceConftoolMenuEntity"/>
+        <mapping class="hibernate.beans.base.BceExtTableConfigEntity"/>
+        <mapping class="hibernate.beans.base.BceFormGroupEntity"/>
+        <mapping class="hibernate.beans.base.BceFrameEntity"/>
+        <mapping class="hibernate.beans.base.BceFrameAreaFormEntity"/>
+        <mapping class="hibernate.beans.base.BceFrameAreaPagetabEntity"/>
+        <mapping class="hibernate.beans.base.BceFrameAttrEntity"/>
+        <mapping class="hibernate.beans.base.BceFrameButtonEntity"/>
+        <mapping class="hibernate.beans.base.BceFrameJavaRulesetRelEntity"/>
+        <mapping class="hibernate.beans.base.BceFramePageRoleEntity"/>
+        <mapping class="hibernate.beans.base.BceFrameSpecialPageEntity"/>
+        <mapping class="hibernate.beans.base.BceFrameTabitemEntity"/>
+        <mapping class="hibernate.beans.base.BceModuleEntity"/>
+        <mapping class="hibernate.beans.base.BceModuleMenuRelatEntity"/>
+        <mapping class="hibernate.beans.base.BcePageEntity"/>
+        <mapping class="hibernate.beans.base.BcePageFrameEntity"/>
+        <mapping class="hibernate.beans.base.BcePageFramePageEntity"/>
+        <mapping class="hibernate.beans.base.BcePageRelConfigEntity"/>
+        <mapping class="hibernate.beans.base.BcePageRowsetRelEntity"/>
+        <mapping class="hibernate.beans.base.BceQrAttrEntity"/>
+        <mapping class="hibernate.beans.base.BceQrTemplateEntity"/>
+        <mapping class="hibernate.beans.base.BceRowsetEntity"/>
+        <mapping class="hibernate.beans.base.BceRuleEntity"/>
+        <mapping class="hibernate.beans.base.BceRulesetEntity"/>
+        <mapping class="hibernate.beans.base.BceRulesetRuleEntity"/>
+        <mapping class="hibernate.beans.base.BceSimpleFuncEntity"/>
+        <mapping class="hibernate.beans.base.BceSimpleFuncFieldMappingEntity"/>
+        <mapping class="hibernate.beans.base.BsI18NResourceEntity"/>
+        <mapping class="hibernate.beans.base.RuleAttrEntity"/>
+        <mapping class="hibernate.beans.base.RuleAttrRelEntity"/>
+        <mapping class="hibernate.beans.base.RuleBusiRelEntity"/>
+        <mapping class="hibernate.beans.base.RuleBusiRelExpireEntity"/>
+        <mapping class="hibernate.beans.base.RuleInstanceEntity"/>
+        <mapping class="hibernate.beans.base.RuleMsgInfoEntity"/>
+        <mapping class="hibernate.beans.base.RuleObjectEntity"/>
+        <mapping class="hibernate.beans.base.RuleParamValueEntity"/>
+        <mapping class="hibernate.beans.base.RuleProdAttrMapingEntity"/>
+        <mapping class="hibernate.beans.base.RuleRelatEntity"/>
+        <mapping class="hibernate.beans.base.RuleTemplateEntity"/>
+        <mapping class="hibernate.beans.base.RuleTmplParamEntity"/>
+        <mapping class="hibernate.beans.base.RuleV2AccessEntity"/>
+
+        <!-- DB schema will be updated if needed -->
+        <!-- <property name="hbm2ddl.auto">update</property> -->
+    </session-factory>
+</hibernate-configuration>
