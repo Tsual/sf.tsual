@@ -1,6 +1,7 @@
 package sf.tquery;
 
 import java.util.Iterator;
+import java.util.List;
 
 class JavaIterable<T> implements Iterable<T>
 {
@@ -20,7 +21,7 @@ class JavaIterable<T> implements Iterable<T>
 	}
 
 	@Override
-	public T next() throws Exception
+	public T next()
 	{
 		return ito.next();
 	}
@@ -28,6 +29,15 @@ class JavaIterable<T> implements Iterable<T>
 	@Override
 	public void reset()
 	{
-		ito=it.iterator();
+		ito = it.iterator();
+	}
+
+	@Override
+	public List<T> settle() throws Exception
+	{
+		if (it instanceof List)
+			return (List<T>) it;
+		else
+			return Iterable.super.settle();
 	}
 }

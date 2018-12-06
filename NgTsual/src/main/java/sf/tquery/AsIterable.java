@@ -1,5 +1,7 @@
 package sf.tquery;
 
+import sf.tquery.irunshell.ITypeConverter;
+
 class AsIterable<T> implements Iterable<T>
 {
 	private Iterable it;

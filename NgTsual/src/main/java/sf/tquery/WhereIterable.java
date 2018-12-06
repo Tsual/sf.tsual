@@ -1,6 +1,9 @@
 package sf.tquery;
 
+import sf.tquery.irunshell.ISelector;
+
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 class WhereIterable<T> implements Iterable<T>
@@ -18,7 +21,7 @@ class WhereIterable<T> implements Iterable<T>
 		}
 	}
 
-	private List<ISelector<T>> selectors = new ArrayList<ISelector<T>>();
+	private List<ISelector<T>> selectors = new LinkedList<>();
 	private Iterable<T> ori;
 	private T current;
 
@@ -51,7 +54,7 @@ class WhereIterable<T> implements Iterable<T>
 	}
 
 	@Override
-	public T next() throws Exception
+	public T next()
 	{
 		return current;
 	}

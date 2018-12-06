@@ -1,6 +1,7 @@
 package sf.tquery;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 class LinkedIterable<T> implements Iterable<T>
@@ -26,7 +27,7 @@ class LinkedIterable<T> implements Iterable<T>
 		}
 	}
 
-	private List<Iterable<T>> iterables = new ArrayList<Iterable<T>>();
+	private List<Iterable<T>> iterables = new ArrayList<>();
 	private int index = 0;
 
 	private LinkedIterable()

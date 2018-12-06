@@ -6,7 +6,7 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery;
+package sf.tquery.irunshell;
 
 import sf.uds.interfaces.del.IRun_1;
 

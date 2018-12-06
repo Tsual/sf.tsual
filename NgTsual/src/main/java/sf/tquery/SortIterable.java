@@ -2,6 +2,7 @@ package sf.tquery;
 
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 
 class SortIterable<T> implements Iterable<T>
 {
@@ -46,5 +47,12 @@ class SortIterable<T> implements Iterable<T>
 	{
 		ensureSort();
 		inner_it.reset();
+	}
+
+	@Override
+	public List<T> settle() throws Exception
+	{
+		ensureSort();
+		return inner_it.settle();
 	}
 }

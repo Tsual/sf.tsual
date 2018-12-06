@@ -17,7 +17,7 @@ class SingleItemIterable<T> implements Iterable<T>
 	}
 
 	@Override
-	public T next() throws Exception
+	public T next()
 	{
 		return item;
 	}

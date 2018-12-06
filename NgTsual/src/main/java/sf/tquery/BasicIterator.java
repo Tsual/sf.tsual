@@ -8,6 +8,10 @@
 
 package sf.tquery;
 
+import sf.tquery.irunshell.IAction;
+import sf.tquery.irunshell.IRunnable;
+import sf.tquery.irunshell.ISelector;
+import sf.tquery.irunshell.ITypeConverter;
 import sf.uds.util.ObjectHelper;
 
 import java.util.Comparator;
@@ -36,7 +40,7 @@ class BasicIterator<T> implements Iterator<T>
 	@Override
 	public <V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter)
 	{
-		return new BasicIterator<V>(new AsIterable<V>(tIterable, (ITypeConverter<Object, V>) ObjectHelper.requireNotNull(tvTypeConverter)));
+		return new BasicIterator<>(new AsIterable<>(tIterable, (ITypeConverter<Object, V>) ObjectHelper.requireNotNull(tvTypeConverter)));
 	}
 
 	@Override
@@ -66,13 +70,6 @@ class BasicIterator<T> implements Iterator<T>
 		reset();
 		while (hasNext())
 			runnable.run(next());
-		return this;
-	}
-
-	@Override
-	public Iterator<T> settle() throws Exception
-	{
-		tIterable = new JavaIterable<T>(toList());
 		return this;
 	}
 
@@ -145,21 +142,21 @@ class BasicIterator<T> implements Iterator<T>
 	@Override
 	public Iterator<T> add(T item)
 	{
-		tIterable = LinkedIterable.link(tIterable, new SingleItemIterable<T>(ObjectHelper.requireNotNull(item)));
+		tIterable = LinkedIterable.link(tIterable, new SingleItemIterable<>(ObjectHelper.requireNotNull(item)));
 		return this;
 	}
 
 	@Override
 	public Iterator<T> add(T[] arr)
 	{
-		tIterable = LinkedIterable.link(tIterable, new ArrayIterable<T>(ObjectHelper.requireNotNull(arr)));
+		tIterable = LinkedIterable.link(tIterable, new ArrayIterable<>(ObjectHelper.requireNotNull(arr)));
 		return this;
 	}
 
 	@Override
 	public Iterator<T> add(java.lang.Iterable<T> it)
 	{
-		tIterable = LinkedIterable.link(tIterable, new JavaIterable<T>(ObjectHelper.requireNotNull(it)));
+		tIterable = LinkedIterable.link(tIterable, new JavaIterable<>(ObjectHelper.requireNotNull(it)));
 		return this;
 	}
 

@@ -1,5 +1,9 @@
 package sf.tquery;
 
+import sf.tquery.irunshell.IAction;
+import sf.tquery.irunshell.IRunnable;
+import sf.tquery.irunshell.ISelector;
+import sf.tquery.irunshell.ITypeConverter;
 import sf.uds.interfaces.common.Listable;
 
 import java.util.Comparator;
@@ -7,7 +11,6 @@ import java.util.Comparator;
 public interface Iterator<T> extends Iterable<T>, Listable<T>
 {
 	Iterator<T> foreach(IRunnable<T> runnable) throws Exception;
-	Iterator<T> settle() throws Exception;
 	<V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter);
 	Iterator<T> sort(Comparator<? super T> comparator);
 	Iterator<T> where(ISelector<T> tSelector);
