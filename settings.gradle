@@ -1,5 +1,6 @@
 rootProject.name = 'sf.tsual'
 include 'NgTsual'
 include 'NgHibernate'
-include 'NgSpring'
+include 'NgSpringRedis'
+include 'NgSpringMain'
 include 'NgJedis'
