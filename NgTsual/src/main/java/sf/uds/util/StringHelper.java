@@ -3,6 +3,8 @@ package sf.uds.util;
 import sf.tquery.Iterators;
 import sf.uds.interfaces.del.IExec_1;
 
+import java.util.Random;
+
 public class StringHelper
 {
 	public static boolean isEmpty(String str)
@@ -75,5 +77,24 @@ public class StringHelper
 				.replaceAll("\n", "")
 				.replaceAll("  ", "")
 				.replaceAll("\t", "");
+	}
+
+	public static String randomString(int length)
+	{
+		return RandomStringHelper.generate(length);
+	}
+
+	private static class RandomStringHelper
+	{
+		private static final String CHARS = "0123456789QWERTYUIOPASDFGHJKLZXCVBNMzxcvbnmasdfghkjlqwertyiuop";
+		private static final Random ran = new Random();
+
+		private static String generate(int length)
+		{
+			StringBuilder sb = new StringBuilder();
+			while (length-- > 0)
+				sb.append(CHARS.charAt(ran.nextInt(CHARS.length())));
+			return sb.toString();
+		}
 	}
 }
