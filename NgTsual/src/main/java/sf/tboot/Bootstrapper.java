@@ -8,38 +8,27 @@
 
 package sf.tboot;
 
-public class Bootstrapper
-{
-	private static volatile boolean is_init = false;
+public class Bootstrapper {
+    public Bootstrapper() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        check(TbootTest.class, Class.forName("sf.tboot.TbootTest"));
+        final Class<?> load = TBootstrapper.load("sf.tboot.TbootTest", str);
+        check(TbootTest.class, load, Class.forName("sf.tboot.TbootTest"));
+    }
 
-	public static synchronized void init()
-	{
-		if (is_init) return;
-
-	}
-
-	public Bootstrapper() throws ClassNotFoundException, InstantiationException, IllegalAccessException
-	{
-		check(TbootTest.class, Class.forName("sf.tboot.TbootTest"));
-		final Class<?> load = TBootstrapper.load("sf.tboot.TbootTest", str);
-		check(TbootTest.class, load, Class.forName("sf.tboot.TbootTest"));
-	}
-
-	public static void check(Class... classes) throws IllegalAccessException, InstantiationException
-	{
-		for (Class aClass : classes)
-			aClass.newInstance();
-	}
+    public static void check(Class... klasses) throws IllegalAccessException, InstantiationException {
+        for (Class klass : klasses)
+            klass.newInstance();
+    }
 
 
-	static String str = "package sf.tboot;\n" +
-			"\n" +
-			"public class TbootTest\n" +
-			"{\n" +
-			"\tpublic TbootTest()\n" +
-			"\t{\n" +
-			"\t\tSystem.out.println(\"BBB\");\n" +
-			"\t}\n" +
-			"}";
+    static String str = "package sf.tboot;\n" +
+            "\n" +
+            "public class TbootTest\n" +
+            "{\n" +
+            "\tpublic TbootTest()\n" +
+            "\t{\n" +
+            "\t\tSystem.out.println(\"BBB\");\n" +
+            "\t}\n" +
+            "}";
 
 }

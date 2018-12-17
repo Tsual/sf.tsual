@@ -8,10 +8,8 @@
 
 package sf.tboot;
 
-public class TbootTest
-{
-	public TbootTest()
-	{
-		System.out.println("AAA");
-	}
+public class TbootTest {
+    public TbootTest() {
+        System.out.println("AAA");
+    }
 }
