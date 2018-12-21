@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${JAVA_HOME}/include/**",
-                "G:/C-Free/mingw/include/**"
+                "C:/MinGW/include/**"
             ],
             "defines": [
                 "_DEBUG",

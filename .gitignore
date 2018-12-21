@@ -4,3 +4,7 @@ gradle
 lib
 build
 out
+bin
+.classpath
+.project
+.settings
