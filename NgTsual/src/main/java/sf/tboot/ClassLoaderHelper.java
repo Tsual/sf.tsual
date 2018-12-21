@@ -8,6 +8,7 @@
 
 package sf.tboot;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.security.AccessController;
@@ -15,7 +16,7 @@ import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.util.Vector;
 
-class ClassLoaderHelper {
+public class ClassLoaderHelper {
     private static final Method findLoadedClass;
     private static final Method getClassLoader;
     private static final Method defineClass;
@@ -24,6 +25,7 @@ class ClassLoaderHelper {
     private static final Method resolveClass;
     private static final Method findClass;
     private static final Method loadClass;
+    private static final Method loadLibrary0;
 
     static {
         findLoadedClass = find0("findLoadedClass", String.class);
@@ -34,6 +36,7 @@ class ClassLoaderHelper {
         resolveClass = find0("resolveClass", Class.class);
         findClass = find0("findClass", String.class);
         loadClass = find0("loadClass", String.class, boolean.class);
+        loadLibrary0 = find0("loadLibrary0", Class.class, File.class);
     }
 
     private static final Method find0(final String name, final Class... klasses) {
@@ -53,6 +56,14 @@ class ClassLoaderHelper {
                 }
             }
         });
+    }
+
+    public static boolean loadLibrary0(ClassLoader loader, Class<?> fromClass, final File file) {
+        try {
+            return (boolean) loadLibrary0.invoke(loader, fromClass, file);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
     static final Class findBootstrapClass(ClassLoader loader, String name) {
