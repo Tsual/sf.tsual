@@ -7,7 +7,7 @@ import java.net.URL;
 
 public class HalloJni {
     static {
-        final File file = new File(ClassLoader.getSystemResource("libsf64.dll").getFile());
+        final File file = new File(ClassLoader.getSystemResource("libsfwin64.dll").getFile());
         ClassLoaderHelper.loadLibrary0(HalloJni.class.getClassLoader(), HalloJni.class, file);
     }
 
