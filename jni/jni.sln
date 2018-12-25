@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jni", "jni.vcxproj", "{C22C
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cryptdll", "cryptopp\cryptdll.vcxproj", "{94A428A1-9BA8-4DB2-B76E-BD2E3C08F257}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cryptest", "cryptopp\cryptest.vcxproj", "{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,22 @@ Global
 		{94A428A1-9BA8-4DB2-B76E-BD2E3C08F257}.Release|x64.Build.0 = Release|x64
 		{94A428A1-9BA8-4DB2-B76E-BD2E3C08F257}.Release|x86.ActiveCfg = Release|Win32
 		{94A428A1-9BA8-4DB2-B76E-BD2E3C08F257}.Release|x86.Build.0 = Release|Win32
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.Debug|x64.ActiveCfg = Debug|x64
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.Debug|x64.Build.0 = Debug|x64
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.Debug|x86.ActiveCfg = Debug|Win32
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.Debug|x86.Build.0 = Debug|Win32
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.DLL-Import Debug|x64.ActiveCfg = DLL-Import Debug|x64
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.DLL-Import Debug|x64.Build.0 = DLL-Import Debug|x64
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.DLL-Import Debug|x86.ActiveCfg = DLL-Import Debug|Win32
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.DLL-Import Debug|x86.Build.0 = DLL-Import Debug|Win32
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.DLL-Import Release|x64.ActiveCfg = DLL-Import Release|x64
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.DLL-Import Release|x64.Build.0 = DLL-Import Release|x64
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.DLL-Import Release|x86.ActiveCfg = DLL-Import Release|Win32
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.DLL-Import Release|x86.Build.0 = DLL-Import Release|Win32
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.Release|x64.ActiveCfg = Release|x64
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.Release|x64.Build.0 = Release|x64
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.Release|x86.ActiveCfg = Release|Win32
+		{09CDAC08-E6AE-48A9-8DE7-0FBC779EEBDE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

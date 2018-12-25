@@ -8,6 +8,11 @@
 #include "cryptopp/modes.h"
 
 using namespace std;
+
+
+
+
+
 /*
  * Class:     sf_jni_NativeAes
  * Method:    decrypt
@@ -88,3 +93,90 @@ JNIEXPORT jbyteArray JNICALL Java_sf_jni_HalloJni_foo(JNIEnv* env, jclass var0, 
 {
 	return NULL;
 }
+
+
+
+
+
+
+
+
+
+
+
+//// ConsoleApplication2.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
+////
+//
+//#include "pch.h"
+//#include <iostream>
+//
+//#include "aes.h"
+//#include "filters.h"
+//#include "secblock.h"
+//#include "hex.h"
+//#include "modes.h"
+//
+//using namespace std;
+//using namespace CryptoPP;
+//
+//byte* AES_CTR_Encrypt(const char *, const byte*);
+//byte* AES_CTR_Decrypt(const char *, const byte*);
+//string HexEncode(const byte*);
+//byte* HexDecode(const string);
+//
+//int main()
+//{
+//	std::cout << "Hello World!\n";
+//	auto fa = AES_CTR_Encrypt(NULL, NULL);
+//	std::cout << fa << "\n" <<
+//		HexEncode(fa) << "\n";
+//}
+//
+//
+//byte* voidByteArray(const int length) {
+//	byte* rtn = new byte[length];
+//	memset(rtn, 0x00, length);
+//	return rtn;
+//}
+//
+//SecByteBlock HexDecodeString(const char *hex)
+//{
+//	StringSource ss(hex, true, new HexDecoder);
+//	SecByteBlock result((size_t)ss.MaxRetrievable());
+//	ss.Get(result, result.size());
+//	return result;
+//}
+//
+//byte* HexDecode(const string str) {
+//	return NULL;
+//}
+//
+//string HexEncode(const byte* barray) {
+//	string encoded;
+//
+//	HexEncoder encoder;
+//	encoder.Put(barray, strlen((char*)barray));
+//	encoder.MessageEnd();
+//
+//	word64 size = encoder.MaxRetrievable();
+//	if (size)
+//	{
+//		encoded.resize(size);
+//		encoder.Get((byte*)&encoded[0], encoded.size());
+//	}
+//
+//	return encoded;
+//}
+//
+//
+//byte* AES_CTR_Encrypt(const char *hexKey, const byte*input)
+//{
+//	string rtn_buffer;
+//	SecByteBlock key(voidByteArray(16), 16);
+//	SecByteBlock iv(voidByteArray(16), 16);
+//	CTR_Mode<AES>::Encryption aes(key, key.size(), iv);
+//	StreamTransformationFilter stf(aes, new StringSink(rtn_buffer));
+//	stf.Put(input, strlen((char*)input));
+//	stf.MessageEnd();
+//	return (byte*)rtn_buffer.data();
+//}
