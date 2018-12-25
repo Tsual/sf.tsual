@@ -14,9 +14,10 @@ repositories {
 
 jar {
     baseName = 'sf.tsual'
-    version =  '1.0.1'
+    version = '1.0.1'
 }
 
 dependencies {
     compile project(':NgTsual')
 }
+

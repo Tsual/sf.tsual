@@ -21,7 +21,7 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="sf_jni_HalloJni.h">
+    <ClInclude Include="jni_common.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,7 +32,10 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sf_jni_HalloJni.cpp">
+    <ClCompile Include="native_aes.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="hallo_jni.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

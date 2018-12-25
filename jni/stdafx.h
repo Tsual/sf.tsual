@@ -14,6 +14,8 @@
 
 
 // 在此处引用程序需要的其他标头
-#include <jni.h>
+#include <stdio.h>
+#include <iostream>
 
-#include "sf_jni_HalloJni.h"
+
+#define GET_ARRAY_LEN(array,len) {len = (sizeof(array) / sizeof(array[0]));}
