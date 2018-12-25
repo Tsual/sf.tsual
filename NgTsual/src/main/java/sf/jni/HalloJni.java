@@ -1,15 +1,8 @@
 package sf.jni;
 
-import sf.tboot.ClassLoaderHelper;
+import sf.tboot.AutoBootNative;
 
-import java.io.File;
-import java.net.URL;
-
-public class HalloJni {
-    static {
-        final File file = new File(ClassLoader.getSystemResource("libsfwin64.dll").getFile());
-        ClassLoaderHelper.loadLibrary0(HalloJni.class.getClassLoader(), HalloJni.class, file);
-    }
+public class HalloJni extends AutoBootNative {
 
     public static void main(String[] args) {
         System.out.println(foo(new byte[]{0xE}, "", 0, new Object())[0]);
