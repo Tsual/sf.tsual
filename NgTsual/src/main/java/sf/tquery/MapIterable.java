@@ -14,7 +14,7 @@ class MapIterable<T> implements Iterable<T> {
 
     @Override
     public boolean hasNext() throws Exception {
-        if (t_obj.hasNext()) return true;
+        if (t_obj != null && t_obj.hasNext()) return true;
         else if (it.hasNext()) {
             t_obj = tvTypeConverter.execute(it.next());
             return hasNext();

@@ -36,11 +36,12 @@ public abstract class AutoBootNative {
             switch (oit.toList().size()) {
                 case 0:
                     throw new RuntimeException("Os not support");
-                case 1:
-                    oit.foreach(arg1 -> ClassLoaderHelper.loadLibrary0(AutoBootNative.class.getClassLoader(), AutoBootNative.class, new File(arg1)));
-                    break;
                 default:
-                    throw new RuntimeException("Config error");
+                    oit.foreach(arg1 -> {
+                        final ClassLoader classLoader = AutoBootNative.class.getClassLoader();
+                        ClassLoaderHelper.loadLibrary0(classLoader, AutoBootNative.class, new File(classLoader.getResource(arg1).getFile()));
+                    });
+                    break;
             }
         } catch (RuntimeException ignored) {
         } catch (Throwable e) {
