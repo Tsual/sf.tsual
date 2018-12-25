@@ -24,7 +24,7 @@ public abstract class AutoBootNative {
 
     private final static Map<SUPPORT_OS, String> OsLibMapping = Collections.unmodifiableMap(MapHelper.getMap(
             new SUPPORT_OS[]{SUPPORT_OS.WINDOWS_64},
-            new String[]{"libsf_win_x64"}
+            new String[]{"cryptopp.dll,libsf_win_x64.dll"}
     ));
 
     static {
