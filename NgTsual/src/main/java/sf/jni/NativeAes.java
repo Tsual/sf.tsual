@@ -10,6 +10,10 @@ public class NativeAes extends AutoBootNative implements Interchanger {
         this.key = key;
     }
 
+    public String getKey() {
+        return key;
+    }
+
     @Override
     public native byte[] decrypt(byte[] arr) throws Exception;
 

@@ -3,9 +3,6 @@
 #include "stdafx.h"
 #include <jni.h>
 
-#define JNI_FALSE 0
-#define JNI_TRUE 1
-
 char* read_jstring(JNIEnv* env, jstring jstr)
 {
 	char* rtn = NULL;
@@ -13,16 +10,7 @@ char* read_jstring(JNIEnv* env, jstring jstr)
 	jstring strencode = env->NewStringUTF("utf-8");
 	jmethodID mid = env->GetMethodID(clsstring, "getBytes", "(Ljava/lang/String;)[B");
 	jbyteArray barr = (jbyteArray)env->CallObjectMethod(jstr, mid, strencode);
-	jsize alen = env->GetArrayLength(barr);
-	jbyte* ba = env->GetByteArrayElements(barr, JNI_FALSE);
-	if (alen > 0)
-	{
-		rtn = (char*)malloc(alen + 1);
-		memcpy(rtn, ba, alen);
-		rtn[alen] = 0;
-	}
-	env->ReleaseByteArrayElements(barr, ba, 0);
-	return rtn;
+	return (char*)env->GetByteArrayElements(barr, JNI_FALSE);
 }
 
 jstring write_jstring(JNIEnv* env, const char* pat)
