@@ -19,8 +19,8 @@ public abstract class AutoBootNative {
     }
 
     private final static Map<SUPPORT_OS, IExec_0<Boolean>> OsNameMapping = Collections.unmodifiableMap(MapHelper.getMapWithEntry(
-            new EntryBean<SUPPORT_OS, IExec_0<Boolean>>(SUPPORT_OS.WINDOWS_64, () -> AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> "windows".equals(System.getProperty("sun.desktop")) && "x64".equals(System.getProperty("os.arch")))),
-            new EntryBean<SUPPORT_OS, IExec_0<Boolean>>(SUPPORT_OS.WINDOWS_32, () -> AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> "windows".equals(System.getProperty("sun.desktop")) && "x86".equals(System.getProperty("os.arch"))))
+            new EntryBean<>(SUPPORT_OS.WINDOWS_64, () -> AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> "windows".equals(System.getProperty("sun.desktop")) && "x64".equals(System.getProperty("os.arch")))),
+            new EntryBean<>(SUPPORT_OS.WINDOWS_32, () -> AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> "windows".equals(System.getProperty("sun.desktop")) && "x86".equals(System.getProperty("os.arch"))))
     ));
 
     private final static Map<SUPPORT_OS, File[]> OsLibMapping = Collections.unmodifiableMap(MapHelper.getMapWithEntry(
