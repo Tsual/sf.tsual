@@ -20,6 +20,8 @@ repositories {
 dependencies {
     compile project(':NgTsual')
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.kafka:spring-kafka")
+    compile("com.google.code.gson:gson")
 }
 
 ext.jarTree = fileTree(dir: 'lib', include: '**/*.jar')
