@@ -11,47 +11,39 @@ package sf.task;
 /**
  * worker
  */
-class TaskWorker extends Thread
-{
-	Task task;
+class TaskWorker extends Thread {
+    Task task;
 
-	public TaskWorker(Runnable target)
-	{
-		super(target);
-	}
+    public TaskWorker(Runnable target) {
+        super(target);
+    }
 
-	public TaskWorker(ThreadGroup group, Runnable target)
-	{
-		super(group, target);
-	}
+    public TaskWorker(ThreadGroup group, Runnable target) {
+        super(group, target);
+    }
 
-	public TaskWorker(String name)
-	{
-		super(name);
-	}
+    public TaskWorker(String name) {
+        super(name);
+    }
 
-	public TaskWorker(ThreadGroup group, String name)
-	{
-		super(group, name);
-	}
+    public TaskWorker(ThreadGroup group, String name) {
+        super(group, name);
+    }
 
-	public TaskWorker(Runnable target, String name)
-	{
-		super(target, name);
-	}
+    public TaskWorker(Runnable target, String name) {
+        super(target, name);
+    }
 
-	public TaskWorker(ThreadGroup group, Runnable target, String name)
-	{
-		super(group, target, name);
-	}
+    public TaskWorker(ThreadGroup group, Runnable target, String name) {
+        super(group, target, name);
+    }
 
-	public TaskWorker(ThreadGroup group, Runnable target, String name, long stackSize)
-	{
-		super(group, target, name, stackSize);
-	}
+    public TaskWorker(ThreadGroup group, Runnable target, String name, long stackSize) {
+        super(group, target, name, stackSize);
+    }
 
-	@Override
-	public String toString(){
-		return getName();
-	}
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
