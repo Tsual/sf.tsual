@@ -1,6 +1,5 @@
 package sf.tquery;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public interface Iterable<T> {
@@ -10,16 +9,8 @@ public interface Iterable<T> {
 
     void reset() throws Exception;
 
-    List[] settle_object = {null};
-
-    default List<T> settle() throws Exception {
-        reset();
-        if (settle_object[0] == null) {
-            List<T> list = new LinkedList<>();
-            while (hasNext())
-                list.add(next());
-            settle_object[0] = list;
-        }
-        return settle_object[0];
+    interface SettledIterable<T> {
+        List<T> settleList() throws Exception;
     }
 }
+

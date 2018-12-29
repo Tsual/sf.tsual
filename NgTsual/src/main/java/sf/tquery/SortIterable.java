@@ -1,10 +1,10 @@
 package sf.tquery;
 
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 
-class SortIterable<T> implements Iterable<T> {
+class SortIterable<T> implements Iterable<T>, Iterable.SettledIterable<T> {
     private Iterable<T> inner_it;
     private boolean need_sort = true;
     private Comparator<? super T> comparator;
@@ -17,7 +17,14 @@ class SortIterable<T> implements Iterable<T> {
     private void ensureSort() throws Exception {
         if (need_sort) {
             reset();
-            List<T> list = inner_it.settle();
+            List<T> list;
+            if (inner_it instanceof SettledIterable)
+                list = ((SettledIterable<T>) inner_it).settleList();
+            else {
+                list = new ArrayList<>();
+                while (inner_it.hasNext())
+                    list.add(inner_it.next());
+            }
             list.sort(comparator);
             need_sort = false;
             inner_it = new JavaIterable<>(list);
@@ -43,8 +50,8 @@ class SortIterable<T> implements Iterable<T> {
     }
 
     @Override
-    public List<T> settle() throws Exception {
+    public List<T> settleList() throws Exception {
         ensureSort();
-        return inner_it.settle();
+        return ((JavaIterable<T>) inner_it).settleList();
     }
 }

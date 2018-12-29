@@ -3,7 +3,7 @@ package sf.tquery;
 import java.util.Arrays;
 import java.util.List;
 
-public class ArrayIterable<T> implements Iterable<T> {
+public class ArrayIterable<T> implements Iterable<T>, Iterable.SettledIterable<T> {
     private T[] arr;
     private int index = -1;
     private List<T> settle_object;
@@ -28,7 +28,7 @@ public class ArrayIterable<T> implements Iterable<T> {
     }
 
     @Override
-    public List<T> settle() {
+    public List<T> settleList() {
         if (settle_object == null)
             settle_object = Arrays.asList(arr);
         return settle_object;

@@ -12,10 +12,13 @@ import sf.tquery.irunshell.ISelector;
 import sf.tquery.irunshell.ITypeConverter;
 import sf.uds.util.ObjectHelper;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 class BasicIterator<T> implements Iterator<T> {
     private Iterable<T> tIterable;
+    private List<T> settledList;
 
     BasicIterator(T[] arr) {
         tIterable = new ArrayIterable<>(arr);
@@ -88,5 +91,15 @@ class BasicIterator<T> implements Iterator<T> {
     @Override
     public void reset() throws Exception {
         tIterable.reset();
+    }
+
+    @Override
+    public List<T> settleList() throws Exception {
+        if (settledList == null) {
+            settledList = new ArrayList<>();
+            while (hasNext())
+                settledList.add(next());
+        }
+        return settledList;
     }
 }

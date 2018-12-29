@@ -1,11 +1,13 @@
 package sf.tquery;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class JavaIterable<T> implements Iterable<T> {
+public class JavaIterable<T> implements Iterable<T>, Iterable.SettledIterable<T> {
     private java.lang.Iterable<T> it;
     private Iterator<T> ito;
+    private List settledList;
 
     public JavaIterable(java.lang.Iterable<T> it) {
         this.it = it;
@@ -28,10 +30,16 @@ public class JavaIterable<T> implements Iterable<T> {
     }
 
     @Override
-    public List<T> settle() throws Exception {
+    public List<T> settleList() throws Exception {
         if (it instanceof List)
             return (List<T>) it;
-        else
-            return Iterable.super.settle();
+        else {
+            if (settledList == null) {
+                settledList = new ArrayList();
+                while (hasNext())
+                    settledList.add(next());
+            }
+            return settledList;
+        }
     }
 }

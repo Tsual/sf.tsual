@@ -10,7 +10,7 @@ import sf.uds.util.ObjectHelper;
 import java.util.Comparator;
 import java.util.List;
 
-public interface Iterator<T> extends Iterable<T>, Listable<T> {
+public interface Iterator<T> extends Iterable<T>, Listable<T>, Iterable.SettledIterable<T> {
     default Iterator<T> foreach(IRunnable<T> runnable) throws Exception {
         ObjectHelper.requireNotNull(runnable);
         reset();
@@ -66,12 +66,12 @@ public interface Iterator<T> extends Iterable<T>, Listable<T> {
 
     //region last
     default T last() throws Exception {
-        final List<T> settle = settle();
+        final List<T> settle = settleList();
         return settle.size() > 0 ? settle.get(settle.size() - 1) : null;
     }
 
     default T last(ISelector<T> tSelector) throws Exception {
-        final List<T> settle = settle();
+        final List<T> settle = settleList();
         T find = null;
         for (T t : settle)
             if (tSelector.execute(t))
@@ -87,6 +87,6 @@ public interface Iterator<T> extends Iterable<T>, Listable<T> {
 
     @Override
     default List<T> toList() throws Exception {
-        return settle();
+        return settleList();
     }
 }
