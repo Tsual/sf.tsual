@@ -19,19 +19,20 @@ public abstract class AutoBootNative {
     }
 
     private final static Map<SUPPORT_OS, IExec_0<Boolean>> OsNameMapping = Collections.unmodifiableMap(MapHelper.getMapWithEntry(
-            new EntryBean<SUPPORT_OS, IExec_0<Boolean>>(SUPPORT_OS.WINDOWS_64, () -> AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> "windows".equals(System.getProperty("sun.desktop")) && "amd64".equals(System.getProperty("sun.cpu.isalist"))))
+            new EntryBean<SUPPORT_OS, IExec_0<Boolean>>(SUPPORT_OS.WINDOWS_64, () -> AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> "windows".equals(System.getProperty("sun.desktop")) && "x64".equals(System.getProperty("os.arch")))),
+            new EntryBean<SUPPORT_OS, IExec_0<Boolean>>(SUPPORT_OS.WINDOWS_32, () -> AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> "windows".equals(System.getProperty("sun.desktop")) && "x86".equals(System.getProperty("os.arch"))))
     ));
 
-    private final static Map<SUPPORT_OS, String> OsLibMapping = Collections.unmodifiableMap(MapHelper.getMap(
-            new SUPPORT_OS[]{SUPPORT_OS.WINDOWS_64},
-            new String[]{"libsf_win_x64.dll"}
+    private final static Map<SUPPORT_OS, File[]> OsLibMapping = Collections.unmodifiableMap(MapHelper.getMapWithEntry(
+            new EntryBean<>(SUPPORT_OS.WINDOWS_64, new File[]{new File("E:\\Proj\\sf.tsual\\jni\\x64\\Release\\libsf_win_x64.dll")}),
+            new EntryBean<>(SUPPORT_OS.WINDOWS_32, new File[]{new File("E:\\Proj\\sf.tsual\\jni\\Release\\Win32\\libsf_win_Win32.dll")})
     ));
 
     static {
         try {
-            final Iterator<String> oit = Iterators.get(OsNameMapping.entrySet())
+            final Iterator<File> oit = Iterators.get(OsNameMapping.entrySet())
                     .where(arg1 -> arg1.getValue().execute())
-                    .map(arg1 -> new ArrayIterable<>(OsLibMapping.get(arg1.getKey()).split(",")));
+                    .map(arg1 -> new ArrayIterable<>(OsLibMapping.get(arg1.getKey())));
 
             switch (oit.toList().size()) {
                 case 0:
@@ -39,7 +40,7 @@ public abstract class AutoBootNative {
                 default:
                     oit.foreach(arg1 -> {
                         final ClassLoader classLoader = AutoBootNative.class.getClassLoader();
-                        ClassLoaderHelper.loadLibrary0(classLoader, AutoBootNative.class, new File(classLoader.getResource(arg1).getFile()));
+                        ClassLoaderHelper.loadLibrary0(classLoader, AutoBootNative.class, arg1);
                     });
                     break;
             }

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "sf_jni_NativeAes.h"
+#include "sf_jni_NativeAesCtr.h"
 #include "sf_jni_HalloJni.h"
 
 #include "jni_common.h"
@@ -20,28 +20,32 @@ byte* voidByteArray(const int length) {
 }
 
 byte* hash0(char* txt) {
-	size_t messageLen = std::strlen(txt) + 1;
-	byte sha_out[16];
-	memset(sha_out, 0x00, 16);
+	size_t messageLen = std::strlen(txt);
+	byte sha_out[32];
+	//memset(sha_out, 0x00, 16);
 	SHA256 sha;
 	sha.CalculateDigest(sha_out, (byte*)txt, messageLen);
 	return sha_out;
 }
 
-void encode(byte* hash_key, byte* input) {
-	SecByteBlock key(hash_key, 16);
+byte* encode(byte* hash_key, byte* input, const int msg_len) {
+	byte* out = new byte[msg_len];
+	SecByteBlock key(hash_key, 32);
 	SecByteBlock iv(voidByteArray(16), 16);
-	size_t messageLen = std::strlen((char*)input) + 1;
-	CBC_Mode<AES>::Encryption cfbEncryption(key, key.size(), iv);
-	cfbEncryption.ProcessData(input, input, messageLen);
+	size_t messageLen = msg_len;
+	CTR_Mode<AES>::Encryption cfbEncryption(key, key.size(), iv);
+	cfbEncryption.ProcessData(out, input, messageLen);
+	return out;
 }
 
-void decode(byte* hash_key, byte* input) {
-	SecByteBlock key(hash_key, 16);
+byte* decode(byte* hash_key, byte* input, const int msg_len) {
+	byte* out = new byte[msg_len];
+	SecByteBlock key(hash_key, 32);
 	SecByteBlock iv(voidByteArray(16), 16);
-	size_t messageLen = std::strlen((char*)input) + 1;
-	CBC_Mode<AES>::Decryption cfbDecryption(key, key.size(), iv);
-	cfbDecryption.ProcessData(input, input, messageLen);
+	size_t messageLen = msg_len;
+	CTR_Mode<AES>::Decryption cfbDecryption(key, key.size(), iv);
+	cfbDecryption.ProcessData(out, input, messageLen);
+	return out;
 }
 
 byte* HexDecode(const string str) {
@@ -84,19 +88,22 @@ string HexEncode(const byte* barray) {
  * Method:    decrypt
  * Signature: ([B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_sf_jni_NativeAes_decrypt
+JNIEXPORT jbyteArray JNICALL Java_sf_jni_NativeAesCtr_decrypt
 (JNIEnv * jni, jobject var0, jbyteArray var1) {
-	//read jarray
-	auto skey = read_jstring(jni, (jstring)(jni->GetObjectField(var0, jni->FromReflectedField(var0))));
-	auto buf = jni->GetByteArrayElements(var1, JNI_FALSE);
+	auto callerclass = jni->GetObjectClass(var0);
+	auto mid = jni->GetMethodID(callerclass, "getKey", "()Ljava/lang/String;");
+	auto js_key = jni->CallObjectMethod(var0, mid);
 
-	//decrypt
-	auto hkey = hash0(skey);
-	decode(hkey, (byte*)buf);
+	//read jarray
+	auto skey = read_jstring(jni, (jstring)js_key);
+	auto input = copy_jarray(jni, var1);
+
+	//encrypt
+	auto out = decode(hash0(skey.ptr), (byte*)input.ptr, input.length);
 
 	//write jarray
-	jbyteArray jbytes = jni->NewByteArray(strlen((char*)buf));
-	jni->SetByteArrayRegion(jbytes, 0, strlen((char*)buf), buf);
+	jbyteArray jbytes = jni->NewByteArray(input.length);
+	jni->SetByteArrayRegion(jbytes, 0, input.length, (jbyte*)out);
 	return jbytes;
 }
 
@@ -105,26 +112,22 @@ JNIEXPORT jbyteArray JNICALL Java_sf_jni_NativeAes_decrypt
  * Method:    encrypt
  * Signature: ([B)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_sf_jni_NativeAes_encrypt
+JNIEXPORT jbyteArray JNICALL Java_sf_jni_NativeAesCtr_encrypt
 (JNIEnv * jni, jobject var0, jbyteArray var1) {
-	if (true)return NULL;
-	auto callerclass=jni->GetObjectClass(var0);
-	auto mid=jni->GetMethodID(callerclass, "getKey", "(Ljava/lang/String;)");
-	auto js_key=jni->CallObjectMethod(var0, mid);
+	auto callerclass = jni->GetObjectClass(var0);
+	auto mid = jni->GetMethodID(callerclass, "getKey", "()Ljava/lang/String;");
+	auto js_key = jni->CallObjectMethod(var0, mid);
 
 	//read jarray
-	auto skey = read_jstring(jni,(jstring) js_key);
+	auto skey = read_jstring(jni, (jstring)js_key);
+	auto input = copy_jarray(jni, var1);
 
-	auto buf = jni->GetByteArrayElements(var1, (jboolean*)JNI_TRUE);
-
-	
 	//encrypt
-	auto hkey = hash0(skey);
-	encode(hkey, (byte*)buf);
+	auto out = encode(hash0(skey.ptr), (byte*)input.ptr, input.length);
 
 	//write jarray
-	jbyteArray jbytes = jni->NewByteArray(strlen((char*)buf));
-	jni->SetByteArrayRegion(jbytes, 0, strlen((char*)buf), buf);
+	jbyteArray jbytes = jni->NewByteArray(input.length);
+	jni->SetByteArrayRegion(jbytes, 0, input.length, (jbyte*)out);
 	return jbytes;
 }
 

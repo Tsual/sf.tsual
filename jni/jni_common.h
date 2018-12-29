@@ -3,24 +3,36 @@
 #include "stdafx.h"
 #include <jni.h>
 
-char* read_jstring(JNIEnv* env, jstring jstr)
+struct char_array
 {
-	char* rtn = NULL;
-	jclass clsstring = env->FindClass("java/lang/String");
-	jstring strencode = env->NewStringUTF("utf-8");
-	jmethodID mid = env->GetMethodID(clsstring, "getBytes", "(Ljava/lang/String;)[B");
-	jbyteArray barr = (jbyteArray)env->CallObjectMethod(jstr, mid, strencode);
-	return (char*)env->GetByteArrayElements(barr, JNI_FALSE);
+	int length;
+	char* ptr;
+};
+
+char_array copy_jarray(JNIEnv* env, jbyteArray ja) {
+	char_array rtn;
+	rtn.length = env->GetArrayLength(ja);
+	rtn.ptr = new char[rtn.length];
+	auto jbi = env->GetByteArrayElements(ja, JNI_FALSE);
+	for (int i = 0; i < rtn.length; i++) {
+		rtn.ptr[i] = jbi[i];
+	}
+	return rtn;
 }
 
-jstring write_jstring(JNIEnv* env, const char* pat)
+char_array read_jstring(JNIEnv* env, jstring jstr)
+{
+	jmethodID mid = env->GetMethodID(env->GetObjectClass(jstr), "getBytes", "()[B");
+	jbyteArray barr = (jbyteArray)env->CallObjectMethod(jstr, mid);
+	return copy_jarray(env, barr);
+}
+
+jstring write_jstring(JNIEnv* env, char_array ca)
 {
 	jclass strClass = env->FindClass("Ljava/lang/String;");
 	jmethodID ctorID = env->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
-	jbyteArray bytes = env->NewByteArray(strlen(pat));
-	env->SetByteArrayRegion(bytes, 0, strlen(pat), (jbyte*)pat);
+	jbyteArray bytes = env->NewByteArray(ca.length);
+	env->SetByteArrayRegion(bytes, 0, ca.length, (jbyte*)ca.ptr);
 	jstring encoding = env->NewStringUTF("utf-8");
 	return (jstring)env->NewObject(strClass, ctorID, bytes, encoding);
 }
-
-

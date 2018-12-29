@@ -188,6 +188,9 @@
     <ClCompile Include="trdlocal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="jni_dlo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aes.h">

@@ -9,3 +9,4 @@ bin
 .project
 .settings
 *.log
+/jni/Release

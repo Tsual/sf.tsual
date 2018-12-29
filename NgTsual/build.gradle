@@ -33,5 +33,7 @@ tasks.withType(JavaCompile) {
 dependencies {
     // https://mvnrepository.com/artifact/org.json/json
     compile group: 'org.json', name: 'json', version: '20180813'
+
+    testCompile 'junit:junit:4.12'
 }
 
