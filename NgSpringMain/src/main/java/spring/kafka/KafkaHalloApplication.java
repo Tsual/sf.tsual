@@ -10,10 +10,11 @@ public class KafkaHalloApplication {
         ConfigurableApplicationContext context = SpringApplication.run(KafkaHalloApplication.class, args);
         final KafkaHalloSender sender = context.getBean(KafkaHalloSender.class);
 
-        int count = 10;
-        while (count-- > 0) {
+        int count = 0;
+        while (true) {
+            System.out.println(count++);
             sender.send();
         }
-        Thread.currentThread().sleep(20000);
+        //Thread.currentThread().sleep(20000);
     }
 }

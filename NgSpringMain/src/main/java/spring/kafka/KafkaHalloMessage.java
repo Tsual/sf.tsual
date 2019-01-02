@@ -3,11 +3,11 @@ package spring.kafka;
 import java.util.Date;
 
 public class KafkaHalloMessage {
-    private Long id;    //id
+    private Long id;
 
-    private String msg; //消息
+    private String msg;
 
-    private Date sendTime;  //时间戳
+    private Date sendTime;
 
     public Long getId() {
         return id;

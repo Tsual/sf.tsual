@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class KafkaHalloReceiver {
-    @KafkaListener(topics = {"zhisheng"})
+    @KafkaListener(topics = {"hallo"})
     public void listen(ConsumerRecord record) {
-        System.out.println("zhisheng<<" + record.value());
+        System.out.println("hallo<<" + record.value());
     }
 }
