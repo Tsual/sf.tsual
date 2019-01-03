@@ -10,7 +10,7 @@ package sf.tquery;
 
 import sf.tquery.irunshell.ISelector;
 import sf.tquery.irunshell.ITypeConverter;
-import sf.uds.util.ObjectHelper;
+import sf.util.ObjectHelper;
 
 import java.util.ArrayList;
 import java.util.Comparator;

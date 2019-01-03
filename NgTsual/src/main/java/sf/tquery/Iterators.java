@@ -1,6 +1,6 @@
 package sf.tquery;
 
-import sf.uds.util.ObjectHelper;
+import sf.util.ObjectHelper;
 
 public final class Iterators {
     public static <T> Iterator<T> get(java.lang.Iterable<T> it) {

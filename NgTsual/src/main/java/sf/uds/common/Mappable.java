@@ -6,10 +6,11 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery.irunshell;
+package sf.uds.common;
 
-import sf.uds.del.IExec_1;
+import java.util.Map;
 
-public interface ITypeConverter<T, V> extends IExec_1<V, T>
+public interface Mappable<K,V>
 {
+	public Map<K,V> toMap();
 }

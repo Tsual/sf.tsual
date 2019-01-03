@@ -6,10 +6,10 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery.irunshell;
+package sf.uds.common;
 
-import sf.uds.del.IExec_1;
-
-public interface ITypeConverter<T, V> extends IExec_1<V, T>
+public interface ArrayInfo<T>
 {
+	public Class<T> getInstanceClass();
+	public Iterable<T> getIterable();
 }

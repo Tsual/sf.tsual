@@ -1,6 +1,6 @@
 package sf.helper;
 
-import sf.uds.util.StringHelper;
+import sf.util.StringHelper;
 
 import java.lang.reflect.Method;
 

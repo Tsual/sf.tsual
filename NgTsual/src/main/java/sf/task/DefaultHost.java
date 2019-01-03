@@ -1,6 +1,6 @@
 package sf.task;
 
-import sf.uds.interfaces.del.IRun_1;
+import sf.uds.del.IRun_1;
 
 public class DefaultHost {
     private static TaskHost host;

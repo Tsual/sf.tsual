@@ -3,9 +3,9 @@ package sf.tboot;
 import sf.tquery.ArrayIterable;
 import sf.tquery.Iterator;
 import sf.tquery.Iterators;
-import sf.uds.interfaces.del.IExec_0;
-import sf.uds.util.EntryBean;
-import sf.uds.util.MapHelper;
+import sf.uds.del.IExec_0;
+import sf.util.EntryBean;
+import sf.util.MapHelper;
 
 import java.io.File;
 import java.security.AccessController;

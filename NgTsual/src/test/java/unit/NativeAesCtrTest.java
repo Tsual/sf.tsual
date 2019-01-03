@@ -2,7 +2,7 @@ package unit;
 
 import org.junit.Test;
 import sf.jni.NativeAesCtr;
-import sf.uds.util.StringHelper;
+import sf.util.StringHelper;
 import org.junit.Assert;
 
 public class NativeAesCtrTest {

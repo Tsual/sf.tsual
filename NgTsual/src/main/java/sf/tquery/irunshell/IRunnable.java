@@ -8,7 +8,7 @@
 
 package sf.tquery.irunshell;
 
-import sf.uds.interfaces.del.IRun_1;
+import sf.uds.del.IRun_1;
 
 public interface IRunnable<T> extends IRun_1<T>
 {

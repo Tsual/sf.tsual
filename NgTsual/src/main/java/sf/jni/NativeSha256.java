@@ -1,11 +1,8 @@
 package sf.jni;
 
-import sf.uds.interfaces.encrypt.Interchanger;
+import sf.uds.encrypt.Encryptor;
 
-public class NativeSha256 implements Interchanger {
-    @Override
-    public native byte[] decrypt(byte[] arr) throws Exception;
-
+public class NativeSha256 implements Encryptor {
     @Override
     public native byte[] encrypt(byte[] arr) throws Exception;
 }

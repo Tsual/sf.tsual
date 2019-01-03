@@ -1,7 +1,7 @@
 package sf.jni;
 
 import sf.tboot.AutoBootNative;
-import sf.uds.interfaces.encrypt.Interchanger;
+import sf.uds.encrypt.Interchanger;
 
 public class NativeAesCtr extends AutoBootNative implements Interchanger {
     private final String key;

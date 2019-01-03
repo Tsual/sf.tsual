@@ -6,7 +6,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import hibernate.service.interfaces.IDbmgr;
 import sf.tquery.Iterators;
-import sf.uds.util.StringHelper;
+import sf.util.StringHelper;
 
 import javax.persistence.metamodel.*;
 import java.lang.reflect.Method;

@@ -6,10 +6,19 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery.irunshell;
+package sf.uds.common;
 
-import sf.uds.del.IExec_1;
+import java.util.Map;
 
-public interface ITypeConverter<T, V> extends IExec_1<V, T>
+public interface IBaseContext
 {
+	public Map getContext();
+
+	public void setContext(Map Context);
+
+	public void clearContext();
+
+	public <T> T getParam(Class<T> clazz, Object key);
+
+	public <T> T getParam(Class<T> clazz, Object key, T defaultValue);
 }

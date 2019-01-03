@@ -6,10 +6,9 @@
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
-package sf.tquery.irunshell;
+package sf.uds.del;
 
-import sf.uds.del.IExec_1;
-
-public interface ITypeConverter<T, V> extends IExec_1<V, T>
+public interface IExec_1<T, T1> extends IExec
 {
+	public T execute(T1 arg1) throws Exception;
 }
