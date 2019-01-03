@@ -1,7 +1,7 @@
 package hibernate.service;
 
-import sf.helper.JarHelper;
-import sf.helper.ResourceHelper;
+import sf.util.JarHelper;
+import sf.util.ResourceHelper;
 
 import java.lang.reflect.Constructor;
 import java.util.*;

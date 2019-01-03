@@ -64,7 +64,8 @@ public class StringHelper {
         return str.replace(" ", "")
                 .replace("\n", "")
                 .replace("  ", "")
-                .replace("\t", "");
+                .replace("\t", "")
+                .replace("\r", "");
     }
 
     public static String randomString(int length) {

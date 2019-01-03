@@ -10,15 +10,14 @@ package sf.uds.common;
 
 import java.util.Map;
 
-public interface IBaseContext
-{
-	public Map getContext();
+public interface IBaseContext {
+    Map getContext();
 
-	public void setContext(Map Context);
+    void setContext(Map Context);
 
-	public void clearContext();
+    void clearContext();
 
-	public <T> T getParam(Class<T> clazz, Object key);
+    <T> T getParam(Class<T> clazz, Object key);
 
-	public <T> T getParam(Class<T> clazz, Object key, T defaultValue);
+    <T> T getParam(Class<T> clazz, Object key, T defaultValue);
 }
