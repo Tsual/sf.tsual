@@ -32,7 +32,7 @@ public class SimpleAesHelper implements Interchanger
 	{
 		KeyGenerator kgen = KeyGenerator.getInstance("AES");
 		kgen.init(128, new SecureRandom(key));
-		Cipher cipher = Cipher.getInstance("AES");
+		Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
 		cipher.init(mode, new SecretKeySpec(kgen.generateKey().getEncoded(), "AES"));
 		return cipher.doFinal(arr);
 	}

@@ -6,6 +6,10 @@ import sf.util.SimpleAesHelper;
 import sf.util.StringHelper;
 import org.junit.Assert;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.function.IntFunction;
+
 public class NativeAesCtrTest {
     @Test
     public void nativeCtrFunction() throws Exception {
@@ -38,7 +42,21 @@ public class NativeAesCtrTest {
             final long l3 = System.nanoTime();
             res += (l3 - l2 - l2 + l1);
         }
+        String s_res = String.valueOf(res);
         if (res < 0)
-            Assert.fail(String.valueOf(res));
+            Assert.fail(s_res);
+        else {
+            if (s_res.length() < 9) {
+                if (s_res.length() < 8) {
+                    char[] append = new char[8 - s_res.length()];
+                    Arrays.fill(append, '0');
+                    s_res = String.valueOf(append) + s_res;
+                }
+                s_res = ("0." + s_res).substring(0, 5);
+            } else {
+                s_res = (s_res.substring(0, s_res.length() - 9) + "." + s_res.substring(s_res.length() - 9)).substring(0, 5);
+            }
+            System.out.println(s_res);
+        }
     }
 }
