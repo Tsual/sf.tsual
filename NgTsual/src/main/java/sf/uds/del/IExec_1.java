@@ -8,7 +8,7 @@
 
 package sf.uds.del;
 
-public interface IExec_1<T, T1> extends IExec
-{
-	public T execute(T1 arg1) throws Exception;
+@FunctionalInterface
+public interface IExec_1<T, T1> extends IExec {
+    T execute(T1 arg1) throws Exception;
 }

@@ -8,6 +8,5 @@
 
 package sf.uds.del;
 
-public interface IDelegate
-{
+public interface IDelegate {
 }

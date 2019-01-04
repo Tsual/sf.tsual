@@ -13,30 +13,28 @@ import sf.uds.del.IRun_1;
 
 import java.util.Collection;
 
-public interface INodeTree extends Iterable<INodeTree.INode>
-{
-	INode head();
+public interface INodeTree extends Iterable<INodeTree.INode> {
+    INode head();
 
-	boolean push(Object key, Object value);
+    boolean push(Object key, Object value);
 
-	JSONObject toJson();
+    JSONObject toJson();
 
-	void leftTraversal(IRun_1<INode> delegate,
-	                   IRun_1<INode> goDeep,
-	                   IRun_1<INode> goUp,
-	                   IRun_1<INode> firstRecursionFound) throws Exception;
+    void leftTraversal(IRun_1<INode> delegate,
+                       IRun_1<INode> goDeep,
+                       IRun_1<INode> goUp,
+                       IRun_1<INode> firstRecursionFound) throws Exception;
 
-	interface INode
-	{
-		Collection<INode> parents();
+    interface INode {
+        Collection<INode> parents();
 
-		Collection<INode> children();
+        Collection<INode> children();
 
-		Object value();
+        Object value();
 
-		INode findChild(Object value);
+        INode findChild(Object value);
 
-		boolean hasChild();
-	}
+        boolean hasChild();
+    }
 }
 

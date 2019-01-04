@@ -8,6 +8,5 @@
 
 package sf.uds.del;
 
-public interface IExec extends IDelegate
-{
+public interface IExec extends IDelegate {
 }

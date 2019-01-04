@@ -10,6 +10,7 @@ package sf.uds.common;
 
 import java.util.Collection;
 
+@FunctionalInterface
 public interface Collectible<T> {
     Collection<T> toCollection();
 }

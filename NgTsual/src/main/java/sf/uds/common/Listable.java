@@ -10,7 +10,7 @@ package sf.uds.common;
 
 import java.util.List;
 
-public interface Listable<T>
-{
-	public List<T> toList() throws Exception;
+@FunctionalInterface
+public interface Listable<T> {
+    List<T> toList() throws Exception;
 }

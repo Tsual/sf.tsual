@@ -8,7 +8,7 @@
 
 package sf.uds.del;
 
-public interface IRun_5<T1, T2, T3, T4, T5> extends IRun
-{
-	public void run(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) throws Exception;
+@FunctionalInterface
+public interface IRun_5<T1, T2, T3, T4, T5> extends IRun {
+    void run(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) throws Exception;
 }

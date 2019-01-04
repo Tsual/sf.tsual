@@ -10,7 +10,7 @@ package sf.uds.common;
 
 import java.util.Map;
 
-public interface Mappable<K,V>
-{
-	public Map<K,V> toMap();
+@FunctionalInterface
+public interface Mappable<K, V> {
+    Map<K, V> toMap();
 }

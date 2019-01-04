@@ -8,6 +8,5 @@
 
 package sf.uds.del;
 
-public interface IRun extends IDelegate
-{
+public interface IRun extends IDelegate {
 }

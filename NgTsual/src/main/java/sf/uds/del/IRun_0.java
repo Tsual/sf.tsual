@@ -8,7 +8,7 @@
 
 package sf.uds.del;
 
-public interface IRun_0 extends IRun
-{
-	public void run() throws Exception;
+@FunctionalInterface
+public interface IRun_0 extends IRun {
+    void run() throws Exception;
 }
