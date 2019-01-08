@@ -7,7 +7,7 @@ public class DefaultHost {
 
     private static TaskHost ensureCreateHost() {
         if (host == null)
-            host = new TaskHost("Default", 5, 10, 50L);
+            host = new TaskHost("Default", 50, 500, 50L);
         return host;
     }
 
