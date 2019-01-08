@@ -35,6 +35,38 @@ public class NioPerformanceTester {
         clientReceiveBuffer = new ByteBuffer[clientCount];
     }
 
+    private void start_server_async(String port) {
+        try {
+            final TaskHost nioTesterHost = new TaskHost("NioTesterServer", clientCount + 5, clientCount + 10, 50L);
+            final TaskHub taskHub = nioTesterHost.newTaskHub(150L, null);
+            ssc.socket().bind(new InetSocketAddress("127.0.0.1", Integer.parseInt(port)));
+            while (true) {
+                try (SocketChannel sc = ssc.accept()) {
+                    if (sc != null) {
+                        taskHub.execute(() -> {
+                            final ByteBuffer receive_buffer = ByteBuffer.allocate(128);
+                            final ByteBuffer send_buffer = ByteBuffer.allocate(1024);
+                            try {
+                                while (true) {
+                                    receive_buffer.clear();
+                                    sc.read(receive_buffer);
+                                    send_buffer.rewind();
+                                    sc.write(send_buffer);
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                return null;
+                            }
+                        }, ThreadLocalOperation.None);
+                    }
+                }
+
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     private void start_server(String port) {
         try {
             ssc.socket().bind(new InetSocketAddress("127.0.0.1", Integer.parseInt(port)));
@@ -79,13 +111,15 @@ public class NioPerformanceTester {
         }
     }
 
-    private void start_client(String port, int index) {
+    private void start_client(String port, final int index) {
         try {
-            clientSendBuffer[index].rewind();
-            clientConnect[index].write(clientSendBuffer[index]);
-            clientReceiveBuffer[index].clear();
-            clientConnect[index].read(clientReceiveBuffer[index]);
-            clientRec[index]++;
+            while (!quit) {
+                clientSendBuffer[index].rewind();
+                clientConnect[index].write(clientSendBuffer[index]);
+                clientReceiveBuffer[index].clear();
+                clientConnect[index].read(clientReceiveBuffer[index]);
+                clientRec[index]++;
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -103,7 +137,7 @@ public class NioPerformanceTester {
         report.record = new int[second];
 
         taskHub0.execute(() -> {
-            start_server(localPort);
+            start_server_async(localPort);
             return null;
         }, ThreadLocalOperation.None);
 
@@ -123,8 +157,7 @@ public class NioPerformanceTester {
         for (int i = 0; i < clientCount; i++) {
             int finalI = i;
             taskHub.execute(() -> {
-                while (!quit)
-                    start_client(localPort, finalI);
+                start_client(localPort, finalI);
                 return "client-" + finalI;
             }, ThreadLocalOperation.None);
         }
@@ -137,19 +170,12 @@ public class NioPerformanceTester {
             public void run() {
                 try {
                     if (cm[0] != second) {
-                        cm[0]++;
-                        int total_count = 0;
-                        for (int i = 0; i < clientCount; i++) {
-                            total_count += clientRec[i];
-                        }
-                        final int cur_total = total_count - cm[1];
-                        report.record[cm[0] - 1] = cur_total;
-                        //System.out.println(cur_total);
-                        if (cur_total > report.max)
-                            report.max = cur_total;
-                        cm[1] = total_count;
-                        if (cm[0] == second) {
-                            report.avg = total_count / cm[0];
+                        for (int i = 0; i < clientCount; i++)
+                            report.record[cm[0]] -= clientRec[i];
+                        report.record[cm[0]] = -report.record[cm[0]];
+                        cm[1] += report.record[cm[0]];
+                        if (cm[0]++ == second) {
+                            report.avg = cm[1] / cm[0];
                             quit = true;
                         }
                     }
@@ -190,8 +216,8 @@ public class NioPerformanceTester {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println(new NioPerformanceTester("12345", 10).test(5));
-        System.out.println(new NioPerformanceTester("12346", 20).test(5));
-        System.out.println(new NioPerformanceTester("12347", 24).test(5));
+        System.out.println(new NioPerformanceTester("12345", 10).test(15));
+        //System.out.println(new NioPerformanceTester("12346", 20).test(15));
+        //System.out.println(new NioPerformanceTester("12347", 24).test(5));
     }
 }
