@@ -14,10 +14,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.security.SecureRandom;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 
 public class NioPerformanceTester {
     public final String localPort;
@@ -27,7 +24,7 @@ public class NioPerformanceTester {
     public final ByteBuffer[] clientSendBuffer;
     public final ByteBuffer[] clientReceiveBuffer;
     public volatile boolean quit = false;
-    ServerSocketChannel ssc = ServerSocketChannel.open();
+    public ServerSocketChannel ssc = ServerSocketChannel.open();
 
     public NioPerformanceTester(String localPort, int clientCount) throws IOException {
         this.localPort = localPort;
@@ -36,9 +33,6 @@ public class NioPerformanceTester {
         clientRec = (int[]) Array.newInstance(int.class, clientCount);
         clientSendBuffer = new ByteBuffer[clientCount];
         clientReceiveBuffer = new ByteBuffer[clientCount];
-    }
-
-    private synchronized void clientQuit() {
     }
 
     private void start_server(String port) {
@@ -88,8 +82,6 @@ public class NioPerformanceTester {
     private void start_client(String port, int index) {
         try {
             clientSendBuffer[index].rewind();
-            clientSendBuffer[index].put("hello".getBytes());
-            clientSendBuffer[index].flip();
             clientConnect[index].write(clientSendBuffer[index]);
             clientReceiveBuffer[index].clear();
             clientConnect[index].read(clientReceiveBuffer[index]);
@@ -101,13 +93,14 @@ public class NioPerformanceTester {
 
     public Report test(int second) throws IOException {
         UUID uuid = UUID.randomUUID();
-        final TaskHost nioTesterHost = new TaskHost("NioTester-" + uuid, clientCount + 1, clientCount + 5, 50L);
-        final TaskHub taskHub = nioTesterHost.newTaskHub(150L, System.out::println);
-        final TaskHub taskHub0 = nioTesterHost.newTaskHub(150L, System.out::println);
+        final TaskHost nioTesterHost = new TaskHost("NioTester-" + uuid, clientCount + 5, clientCount + 10, 50L);
+        final TaskHub taskHub = nioTesterHost.newTaskHub(150L, null);
+        final TaskHub taskHub0 = nioTesterHost.newTaskHub(150L, null);
 
         Report report = new Report();
         report.client = clientCount;
         report.second = second;
+        report.record = new int[second];
 
         taskHub0.execute(() -> {
             start_server(localPort);
@@ -132,7 +125,6 @@ public class NioPerformanceTester {
             taskHub.execute(() -> {
                 while (!quit)
                     start_client(localPort, finalI);
-                clientQuit();
                 return "client-" + finalI;
             }, ThreadLocalOperation.None);
         }
@@ -151,7 +143,8 @@ public class NioPerformanceTester {
                             total_count += clientRec[i];
                         }
                         final int cur_total = total_count - cm[1];
-                        System.out.println(cur_total);
+                        report.record[cm[0] - 1] = cur_total;
+                        //System.out.println(cur_total);
                         if (cur_total > report.max)
                             report.max = cur_total;
                         cm[1] = total_count;
@@ -166,7 +159,12 @@ public class NioPerformanceTester {
             }
         }, 1000, 1000);
         taskHub.waitAll();
+
+        for (SocketChannel sc : clientConnect) {
+            sc.finishConnect();
+        }
         ssc.close();
+
         timer.cancel();
         return report;
     }
@@ -177,6 +175,7 @@ public class NioPerformanceTester {
         public int avg = 0;
         public int client = 0;
         public int second = 0;
+        public int[] record;
 
         @Override
         public String toString() {
@@ -185,13 +184,14 @@ public class NioPerformanceTester {
                     ", avg=" + avg +
                     ", client=" + client +
                     ", second=" + second +
+                    ", record=" + Arrays.toString(record) +
                     '}';
         }
     }
 
     public static void main(String[] args) throws IOException {
-//        System.out.println(new NioPerformanceTester("12345", 10).test(20));
-//        System.out.println(new NioPerformanceTester("12346", 20).test(20));
-        System.out.println(new NioPerformanceTester("12347", 30).test(60));
+        System.out.println(new NioPerformanceTester("12345", 10).test(5));
+        System.out.println(new NioPerformanceTester("12346", 20).test(5));
+        System.out.println(new NioPerformanceTester("12347", 24).test(5));
     }
 }
