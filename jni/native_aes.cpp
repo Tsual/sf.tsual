@@ -99,7 +99,8 @@ JNIEXPORT jbyteArray JNICALL Java_sf_jni_NativeAesCtr_decrypt
 	auto input = copy_jarray(jni, var1);
 
 	//encrypt
-	auto out = decode(hash0(skey.ptr), (byte*)input.ptr, input.length);
+	auto out = skey.length == 32 ? decode((byte*)skey.ptr, (byte*)input.ptr, input.length) : decode(hash0(skey.ptr), (byte*)input.ptr, input.length);
+
 
 	//write jarray
 	jbyteArray jbytes = jni->NewByteArray(input.length);
@@ -123,7 +124,7 @@ JNIEXPORT jbyteArray JNICALL Java_sf_jni_NativeAesCtr_encrypt
 	auto input = copy_jarray(jni, var1);
 
 	//encrypt
-	auto out = encode(hash0(skey.ptr), (byte*)input.ptr, input.length);
+	auto out = skey.length == 32 ? encode((byte*)skey.ptr, (byte*)input.ptr, input.length) : encode(hash0(skey.ptr), (byte*)input.ptr, input.length);
 
 	//write jarray
 	jbyteArray jbytes = jni->NewByteArray(input.length);

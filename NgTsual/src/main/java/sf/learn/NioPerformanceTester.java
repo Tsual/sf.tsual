@@ -37,6 +37,7 @@ public class NioPerformanceTester {
 
     private void start_server_async(String port) {
         try {
+            ServerSocketChannel ssc = ServerSocketChannel.open();
             final TaskHost nioTesterHost = new TaskHost("NioTesterServer", clientCount + 5, clientCount + 10, 50L);
             final TaskHub taskHub = nioTesterHost.newTaskHub(150L, null);
             ssc.socket().bind(new InetSocketAddress("127.0.0.1", Integer.parseInt(port)));
@@ -125,7 +126,7 @@ public class NioPerformanceTester {
         }
     }
 
-    public Report test(int second) throws IOException {
+    public Report test(int second) throws IOException, InterruptedException {
         UUID uuid = UUID.randomUUID();
         final TaskHost nioTesterHost = new TaskHost("NioTester-" + uuid, clientCount + 5, clientCount + 10, 50L);
         final TaskHub taskHub = nioTesterHost.newTaskHub(150L, null);
@@ -140,6 +141,7 @@ public class NioPerformanceTester {
             start_server_async(localPort);
             return null;
         }, ThreadLocalOperation.None);
+        Thread.sleep(500);
 
         for (int i = 0; i < clientCount; i++) {
             try {
@@ -215,8 +217,8 @@ public class NioPerformanceTester {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        System.out.println(new NioPerformanceTester("12345", 10).test(15));
+    public static void main(String[] args) throws Exception {
+        System.out.println(new NioPerformanceTester("12345", 1).test(15));
         //System.out.println(new NioPerformanceTester("12346", 20).test(15));
         //System.out.println(new NioPerformanceTester("12347", 24).test(5));
     }
