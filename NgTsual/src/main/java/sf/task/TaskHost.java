@@ -13,7 +13,7 @@ public class TaskHost implements AutoCloseable {
     private final String name;
     private final ThreadGroup thread_group;
     private final Integer max_worker_count;
-    private final SimpleTaskQueue simpleTaskQueue = new SimpleTaskQueue();
+    final SimpleTaskQueue simpleTaskQueue = new SimpleTaskQueue();
 
     volatile boolean is_add_daemon_alive = true;
     final String add_daemon_lock = "ヾ(^▽^*)))";
@@ -43,43 +43,39 @@ public class TaskHost implements AutoCloseable {
             }
 
             if (task == null) continue;
-            final TaskWorker curThread = (TaskWorker) Thread.currentThread();
-
-            switch (task.tlOperation) {
-                case Copy:
-                    copyThreadLocal(task.caller);
-                    break;
-                case None:
-                    break;
-                case Reset:
-                    resetThreadLocal();
-                    break;
-            }
-
-            task.executeTime = System.currentTimeMillis();
-            task.executor = curThread;
-            task.status = TaskStatus.Executing;
-            if (task.hub.needTrace())
-                task.hub.trace(task, task.executor.getName() + "<<Begin executing");
-
-            try {
-                curThread.task = task;
-                task.produceResult = task.executable.execute();
-                task.status = TaskStatus.Finished;
+            synchronized (task.exec_lock) {
+                if (task.isProduced) continue;
+                final TaskWorker curThread = (TaskWorker) Thread.currentThread();
+                switch (task.tlOperation) {
+                    case None:
+                        break;
+                    case Reset:
+                        resetThreadLocal();
+                        break;
+                    case Copy:
+                        copyThreadLocal(task.caller);
+                        break;
+                }
+                task.executeTime = System.currentTimeMillis();
+                task.executor = curThread;
+                task.status = TaskStatus.Executing;
                 if (task.hub.needTrace())
-                    task.hub.trace(task, "Finish executing,result:" + task.produceResult);
-                task.finishTask();
-                task.notifyFinish();
-            } catch (InterruptedException ignored) {
-            } catch (Exception ex) {
-                task.produceException = ex;
-                task.status = TaskStatus.Error;
-                if (task.hub.needTrace())
-                    task.hub.trace(task, "Caught Exception:" + ex.toString());
-                task.finishTask();
-                task.notifyFinish();
-            } finally {
-                curThread.task = null;
+                    task.hub.trace(task, task.executor.getName() + "<<Begin executing");
+                try {
+                    curThread.task = task;
+                    task.produceResult = task.executable.execute();
+                    task.status = TaskStatus.Finished;
+                    task.finishTask();
+                    task.notifyFinish();
+                } catch (InterruptedException ignored) {
+                } catch (Exception ex) {
+                    task.produceException = ex;
+                    task.status = TaskStatus.Error;
+                    task.finishTask();
+                    task.notifyFinish();
+                } finally {
+                    curThread.task = null;
+                }
             }
         }
     };
@@ -131,7 +127,7 @@ public class TaskHost implements AutoCloseable {
         });
     }
 
-    void abort_task(Task task, TaskHub hub) {
+    void abort_task_overtime(Task task, TaskHub hub) {
         if (task.isProduced)
             return;
 
@@ -209,7 +205,7 @@ public class TaskHost implements AutoCloseable {
         return name;
     }
 
-    private class SimpleTaskQueue {
+    class SimpleTaskQueue {
         private Queue<Task> queue_0 = new LinkedList<>();
         private Queue<Task> queue_1 = new LinkedList<>();
 
@@ -265,8 +261,8 @@ public class TaskHost implements AutoCloseable {
 
     /**
      * 两个灾难性问题
-     * 1.线程自引用或递归引用导致的资源枯竭
-     * 2.调用线程状态异常而处理线程仍工作的问题导致的资源枯竭
+     * half solved 1.线程自引用或递归引用导致的资源枯竭
+     * half solved 2.调用线程状态异常而处理线程仍工作的问题导致的资源枯竭
      */
     private class TaskWorkerDaemonHub {
         private ThreadGroup threadGroup = new ThreadGroup(name + "-:Daemon");

@@ -14,6 +14,7 @@ public class Task<T> {
     TaskStatus status = TaskStatus.Created;
     ThreadLocalOperation tlOperation = ThreadLocalOperation.None;
     private final Object sf_lock = "($_$)";
+    final Object exec_lock = new Object();
 
     void finishTask() {
         if (!isProduced) {
@@ -22,6 +23,11 @@ public class Task<T> {
             hub.taskFinishReport(this);
             caller = null;
             executor = null;
+            if (this.hub.needTrace())
+                if(produceException == null)
+                    this.hub.trace(this, "Finish executing,result:" + this.produceResult);
+                else
+                    this.hub.trace(this, "Caught Exception:" + produceException.toString());
         }
     }
 
@@ -44,13 +50,27 @@ public class Task<T> {
 
     public T awaitResult() throws Exception {
         await();
-        if (produceException != null) throw produceException;
-        return produceResult;
+        return getResult();
+    }
+
+    public T awaitResult(int second) throws Exception {
+        await(second);
+        return getResult();
     }
 
     public T awaitResultClose() throws Exception {
         await();
         if (hub != null) hub.getTasks().remove(this);
+        return getResult();
+    }
+
+    public T awaitResultClose(int second) throws Exception {
+        await(second);
+        if (hub != null) hub.getTasks().remove(this);
+        return getResult();
+    }
+
+    private T getResult() throws Exception {
         if (produceException != null) throw produceException;
         return produceResult;
     }
@@ -60,6 +80,19 @@ public class Task<T> {
             try {
                 if (!isProduced)
                     sf_lock.wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void await(long second) {
+        synchronized (sf_lock) {
+            try {
+                if (!isProduced)
+                    sf_lock.wait(second);
+                if (!isProduced)
+                    sync_bb();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -80,6 +113,37 @@ public class Task<T> {
 
     public boolean isProduced() {
         return isProduced;
+    }
+
+    Task<T> sync_bb() {
+        if (!isProduced)
+            synchronized (exec_lock) {
+                if (isProduced) return this;
+                hub.host.simpleTaskQueue.remove(this);
+                this.executeTime = System.currentTimeMillis();
+                this.status = TaskStatus.Executing;
+                this.executor = Thread.currentThread();
+
+                if (this.hub.needTrace())
+                    this.hub.trace(this, this.executor.getName() + "<<Begin executing");
+                try {
+                    this.produceResult = this.executable.execute();
+                    this.status = TaskStatus.Finished;
+                    this.finishTask();
+                    this.notifyFinish();
+                } catch (InterruptedException ignored) {
+                } catch (Exception ex) {
+                    this.produceException = ex;
+                    this.status = TaskStatus.Error;
+                    this.finishTask();
+                    this.notifyFinish();
+                }
+            }
+        return this;
+    }
+
+    public T syncExecute() throws Exception {
+        return sync_bb().getResult();
     }
 
     @Override

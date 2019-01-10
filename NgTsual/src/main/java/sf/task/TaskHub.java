@@ -13,7 +13,7 @@ public class TaskHub {
     private final static int report_cache_size = 10;
     private final static int report_cache_size_m1 = report_cache_size - 1;
 
-    private TaskHost host;
+    TaskHost host;
     private List<Task> tasks = new ArrayList<>();
     private IRun_1<String> traceShell;
 
@@ -88,7 +88,7 @@ public class TaskHub {
                 @Override
                 public void run() {
                     try {
-                        host.abort_task(task, hub);
+                        host.abort_task_overtime(task, hub);
                     } catch (Throwable ex) {
                         ex.printStackTrace();
                     }
@@ -110,6 +110,28 @@ public class TaskHub {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+            }
+        }
+    }
+
+    public void waitAll(int second) {
+        final long sl = System.currentTimeMillis();
+        int size = tasks.size();
+        while (finish_count < size) {
+            synchronized (wait_lock) {
+                final long kl = second - System.currentTimeMillis() + sl;
+                try {
+                    if (kl > 0)
+                        wait_lock.wait(kl);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (second - System.currentTimeMillis() + sl < 0) {
+                for (Task task : tasks)
+                    if (!task.isProduced)
+                        task.sync_bb();
+                break;
             }
         }
     }

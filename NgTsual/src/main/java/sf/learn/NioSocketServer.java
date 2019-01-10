@@ -2,11 +2,13 @@ package sf.learn;
 
 import sf.task.TaskHost;
 import sf.task.TaskHub;
+import sf.task.ThreadLocalOperation;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Base64;
 
 public class NioSocketServer {
@@ -17,7 +19,7 @@ public class NioSocketServer {
     public NioSocketServer(int port) {
         this.port = port;
         host = new TaskHost("NioSocketServer", 50, 200, 50L);
-        hub = host.newTaskHub(50L, null);
+        hub = host.newTaskHub(50L, System.out::println);
     }
 
     public void start_server() throws Exception {
@@ -25,13 +27,18 @@ public class NioSocketServer {
         ssc.socket().bind(new InetSocketAddress("127.0.0.1", port));
         while (true) {
             final SocketChannel accept = ssc.accept();
-            ByteBuffer[] bba = null;
-            accept.read(bba);
-            for (ByteBuffer receive : bba) {
-                System.out.print(receive.array().length + "<<");
-                System.out.println(Base64.getEncoder().encodeToString(receive.array()));
-            }
-            accept.finishConnect();
+            hub.execute(() -> {
+                ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+                int len;
+                String base64 = "";
+                while ((len = accept.read(byteBuffer)) > 0) {
+                    base64 += Base64.getEncoder().encodeToString(len == 1024 ? byteBuffer.array() : Arrays.copyOf(byteBuffer.array(), len));
+                    byteBuffer.clear();
+                }
+                System.out.println(System.currentTimeMillis() + "<<" + base64);
+                accept.close();
+                return true;
+            }, ThreadLocalOperation.Reset).await();
         }
     }
 
