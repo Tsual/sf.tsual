@@ -19,7 +19,7 @@ public class NioSocketServer {
     public NioSocketServer(int port) {
         this.port = port;
         host = new TaskHost("NioSocketServer", 50, 200, 50L);
-        hub = host.newTaskHub(50L, System.out::println);
+        hub = host.newTaskHub(50L, null);
     }
 
     public void start_server() throws Exception {
@@ -38,7 +38,7 @@ public class NioSocketServer {
                 System.out.println(System.currentTimeMillis() + "<<" + base64);
                 accept.close();
                 return true;
-            }, ThreadLocalOperation.Reset).await();
+            }, ThreadLocalOperation.Reset).awaitResultClose();
         }
     }
 

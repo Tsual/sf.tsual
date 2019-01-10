@@ -18,8 +18,9 @@ public class TaskHub {
     private IRun_1<String> traceShell;
 
     final Object wait_lock = "(*˘︶˘*).。.:*♡";
+    final Object finish_lock = new Object();
     boolean anyFinish = false;
-    volatile int finish_count = 0;
+    int finish_count = 0;
     private int index = 0;
     private final Long allow_delay;
     private final Long[] delays = new Long[report_cache_size_m1];
@@ -105,6 +106,7 @@ public class TaskHub {
         while (true) {
             if (finish_count >= size) return;
             synchronized (wait_lock) {
+                if (finish_count >= size) return;
                 try {
                     wait_lock.wait();
                 } catch (InterruptedException e) {

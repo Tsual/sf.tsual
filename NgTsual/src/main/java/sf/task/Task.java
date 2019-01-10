@@ -24,7 +24,7 @@ public class Task<T> {
             caller = null;
             executor = null;
             if (this.hub.needTrace())
-                if(produceException == null)
+                if (produceException == null)
                     this.hub.trace(this, "Finish executing,result:" + this.produceResult);
                 else
                     this.hub.trace(this, "Caught Exception:" + produceException.toString());
@@ -32,7 +32,9 @@ public class Task<T> {
     }
 
     void notifyFinish() {
-        hub.finish_count++;
+        synchronized (hub.finish_lock) {
+            hub.finish_count++;
+        }
         synchronized (hub.wait_lock) {
             hub.wait_lock.notifyAll();
         }
@@ -70,7 +72,7 @@ public class Task<T> {
         return getResult();
     }
 
-    private T getResult() throws Exception {
+    public T getResult() throws Exception {
         if (produceException != null) throw produceException;
         return produceResult;
     }
