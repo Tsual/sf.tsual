@@ -129,12 +129,12 @@ public class Task<T> {
                 try {
                     this.produceResult = this.executable.execute();
                     this.status = TaskStatus.Finished;
-                    this.finishTask();
-                    this.notifyFinish();
+
                 } catch (InterruptedException ignored) {
                 } catch (Exception ex) {
                     this.produceException = ex;
                     this.status = TaskStatus.Error;
+                } finally {
                     this.finishTask();
                     this.notifyFinish();
                 }

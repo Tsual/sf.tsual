@@ -65,15 +65,13 @@ public class TaskHost implements AutoCloseable {
                     curThread.task = task;
                     task.produceResult = task.executable.execute();
                     task.status = TaskStatus.Finished;
-                    task.finishTask();
-                    task.notifyFinish();
                 } catch (InterruptedException ignored) {
                 } catch (Exception ex) {
                     task.produceException = ex;
                     task.status = TaskStatus.Error;
+                } finally {
                     task.finishTask();
                     task.notifyFinish();
-                } finally {
                     curThread.task = null;
                 }
             }
@@ -214,7 +212,7 @@ public class TaskHost implements AutoCloseable {
         Long ptx_time;
         TaskHost host;
 
-        Task get() {
+        private Task get() {
             synchronized (this) {
                 return queue_0.poll();
             }
@@ -232,13 +230,13 @@ public class TaskHost implements AutoCloseable {
             }
         }
 
-        void add(Task task) {
+        private void add(Task task) {
             synchronized (lock_queue_1) {
                 queue_1.offer(task);
             }
         }
 
-        boolean remain() {
+        private boolean remain() {
             synchronized (this) {
                 if (queue_0.size() > 0)
                     return true;
