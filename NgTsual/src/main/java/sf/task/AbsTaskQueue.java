@@ -2,7 +2,7 @@ package sf.task;
 
 
 abstract class AbsTaskQueue<T extends Task> {
-    abstract T get();
+    abstract T element();
 
     abstract void remove(T task);
 

@@ -8,7 +8,7 @@ class SimpleTaskQueue extends AbsTaskQueue {
     private Queue<Task> queue_1 = new LinkedList<>();
     private final String lock_queue_1 = "(*^ω^*)";
 
-    public Task get() {
+    public Task element() {
         synchronized (this) {
             return queue_0.poll();
         }
