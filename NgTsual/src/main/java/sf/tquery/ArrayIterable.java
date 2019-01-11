@@ -1,9 +1,12 @@
 package sf.tquery;
 
+import sf.uds.common.Iterable;
+import sf.uds.common.SettledIterable;
+
 import java.util.Arrays;
 import java.util.List;
 
-public class ArrayIterable<T> implements Iterable<T>, Iterable.SettledIterable<T> {
+public class ArrayIterable<T> implements Iterable<T>, SettledIterable<T> {
     private T[] arr;
     private int index = -1;
     private List<T> settle_object;

@@ -30,8 +30,8 @@ public class TaskHost implements AutoCloseable {
             Task task = null;
             try {
                 synchronized (host_lock) {
-                    if (task_queue.remain()) {
-                        task = task_queue.element();
+                    if (task_queue.hasNext()) {
+                        task = task_queue.next();
                         host_lock.notify();
                     } else {
                         tw_ptr.state = TaskWorker.State.WAITING;

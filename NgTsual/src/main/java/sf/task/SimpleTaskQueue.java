@@ -8,7 +8,7 @@ class SimpleTaskQueue extends AbsTaskQueue {
     private Queue<Task> queue_1 = new LinkedList<>();
     private final String lock_queue_1 = "(*^ω^*)";
 
-    public Task element() {
+    public Task next() {
         synchronized (this) {
             return queue_0.poll();
         }
@@ -32,7 +32,7 @@ class SimpleTaskQueue extends AbsTaskQueue {
         }
     }
 
-    public boolean remain() {
+    public boolean hasNext() {
         synchronized (this) {
             if (queue_0.size() > 0)
                 return true;

@@ -1,6 +1,7 @@
 package sf.tquery;
 
 import sf.tquery.irunshell.ITypeConverter;
+import sf.uds.common.Iterable;
 
 class MapIterable<T> implements Iterable<T> {
     private final Iterable it;

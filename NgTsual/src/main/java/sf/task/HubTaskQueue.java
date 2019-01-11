@@ -41,7 +41,7 @@ public class HubTaskQueue extends AbsTaskQueue {
     }
 
     @Override
-    public Task element() {
+    public Task next() {
         return for_do[for_do_index];
     }
 
@@ -62,7 +62,7 @@ public class HubTaskQueue extends AbsTaskQueue {
     }
 
     @Override
-    public boolean remain() {
+    public boolean hasNext() {
         if (for_do != null) {
             synchronized (for_do_read_lock) {
                 if (for_do_index < for_do.length) {

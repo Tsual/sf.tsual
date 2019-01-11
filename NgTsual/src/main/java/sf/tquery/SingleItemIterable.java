@@ -1,5 +1,7 @@
 package sf.tquery;
 
+import sf.uds.common.Iterable;
+
 class SingleItemIterable<T> implements Iterable<T> {
     private T item;
     private boolean isDo = true;

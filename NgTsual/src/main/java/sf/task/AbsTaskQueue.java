@@ -1,14 +1,16 @@
 package sf.task;
 
 
-abstract class AbsTaskQueue<T extends Task> {
-    abstract T element();
+import sf.uds.common.OnceIterable;
+
+abstract class AbsTaskQueue<T extends Task> implements OnceIterable<T> {
+    abstract public T next();
 
     abstract void remove(T task);
 
     abstract void add(T task);
 
-    abstract boolean remain();
+    abstract public boolean hasNext();
 
     TaskHost host;
     Long remind_host_time;

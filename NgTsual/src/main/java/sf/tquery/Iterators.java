@@ -1,5 +1,6 @@
 package sf.tquery;
 
+import sf.uds.common.Iterable;
 import sf.util.ObjectHelper;
 
 public final class Iterators {

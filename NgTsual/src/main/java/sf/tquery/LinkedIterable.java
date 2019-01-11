@@ -1,7 +1,8 @@
 package sf.tquery;
 
+import sf.uds.common.Iterable;
+
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 class LinkedIterable<T> implements Iterable<T> {

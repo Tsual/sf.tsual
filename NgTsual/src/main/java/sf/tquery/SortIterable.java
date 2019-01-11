@@ -1,10 +1,13 @@
 package sf.tquery;
 
+import sf.uds.common.Iterable;
+import sf.uds.common.SettledIterable;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-class SortIterable<T> implements Iterable<T>, Iterable.SettledIterable<T> {
+class SortIterable<T> implements Iterable<T>, SettledIterable<T> {
     private Iterable<T> inner_it;
     private boolean need_sort = true;
     private Comparator<? super T> comparator;

@@ -1,8 +1,8 @@
 package sf.tquery;
 
 import sf.tquery.irunshell.ISelector;
+import sf.uds.common.Iterable;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
