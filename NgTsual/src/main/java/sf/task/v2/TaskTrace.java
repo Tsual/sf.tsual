@@ -1,10 +1,10 @@
 package sf.task.v2;
 
-import sf.task.TaskStatus;
+import sf.task.Task;
 
 public class TaskTrace {
     public Long createTime = System.currentTimeMillis(), executeTime, finishTime, abortDuration;
-    TaskStatus status = TaskStatus.Created;
+    Task.TaskStatus status = Task.TaskStatus.Created;
 
     @Override
     public String toString() {

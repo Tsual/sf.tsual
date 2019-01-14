@@ -6,36 +6,41 @@ import sf.uds.del.IRun_1;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.UUID;
 
 public class TaskHost implements AutoCloseable {
     private final String name;
     private final ThreadGroup thread_group;
     private final Integer max_worker_count;
-    final SimpleTaskQueue simpleTaskQueue = new SimpleTaskQueue();
+    ITaskQueue<Task> task_queue;
 
     volatile boolean is_add_daemon_alive = true;
     final String add_daemon_lock = "ヾ(^▽^*)))";
     private final String host_lock = "(இωஇ )";
     private final String workers_lock = "（▼へ▼メ）";
-    private final boolean[] thread_close = {false};
-
+    private volatile boolean thread_close = false;
+    private final TaskWorkerDaemonHub daemons = new TaskWorkerDaemonHub();
 
     private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (t, e) -> start_worker();
 
     private final Runnable worker_exec_shell = () ->
     {
-        while (!thread_close[0]) {
-            Task task = null;
+        TaskWorker tw_ptr = (TaskWorker) Thread.currentThread();
+        while (!thread_close) {
+            Task task;
             try {
                 synchronized (host_lock) {
-                    if (simpleTaskQueue.remain()) {
-                        task = simpleTaskQueue.get();
+                    if ((task = task_queue.next()) != null) {
                         host_lock.notify();
                     } else {
+                        tw_ptr.state = TaskWorker.State.WAITING;
                         host_lock.wait();
-                        if (thread_close[0]) break;
+                        if (thread_close) {
+                            tw_ptr.state = TaskWorker.State.QUIT;
+                            break;
+                        } else {
+                            tw_ptr.state = TaskWorker.State.WORKING;
+                        }
                     }
                 }
             } catch (InterruptedException e) {
@@ -45,7 +50,6 @@ public class TaskHost implements AutoCloseable {
             if (task == null) continue;
             synchronized (task.exec_lock) {
                 if (task.isProduced) continue;
-                final TaskWorker curThread = (TaskWorker) Thread.currentThread();
                 switch (task.tlOperation) {
                     case None:
                         break;
@@ -57,24 +61,25 @@ public class TaskHost implements AutoCloseable {
                         break;
                 }
                 task.executeTime = System.currentTimeMillis();
-                task.executor = curThread;
-                task.status = TaskStatus.Executing;
+                task.executor = tw_ptr;
+                task.status = Task.TaskStatus.Executing;
                 if (task.hub.needTrace())
                     task.hub.trace(task, task.executor.getName() + "<<Begin executing");
                 try {
-                    curThread.task = task;
+                    tw_ptr.task = task;
                     task.produceResult = task.executable.execute();
-                    task.status = TaskStatus.Finished;
+                    task.status = Task.TaskStatus.Finished;
                 } catch (InterruptedException ignored) {
                 } catch (Exception ex) {
                     task.produceException = ex;
-                    task.status = TaskStatus.Error;
+                    task.status = Task.TaskStatus.Error;
                 } finally {
                     task.finishTask();
                     task.notifyFinish();
-                    curThread.task = null;
+                    tw_ptr.task = null;
                 }
             }
+            tw_ptr.state = TaskWorker.State.QUIT;
         }
     };
 
@@ -89,7 +94,6 @@ public class TaskHost implements AutoCloseable {
             try {
                 worker.interrupt();
             } catch (Throwable e) {
-                //throw new RuntimeException(e);
                 worker.stop();
                 return null;
             }
@@ -129,7 +133,7 @@ public class TaskHost implements AutoCloseable {
         if (task.isProduced)
             return;
 
-        task.status = TaskStatus.Overtime;
+        task.status = Task.TaskStatus.Overtime;
         if (task.hub.needTrace())
             task.hub.trace(task, "Task overtime:" + task.abortDuration);
         task.isProduced = true;
@@ -140,7 +144,7 @@ public class TaskHost implements AutoCloseable {
         if (task.executor != null) {
             resetWorker(task.executor);
         } else {
-            simpleTaskQueue.remove(task);
+            task_queue.remove(task);
         }
 
         task.caller = null;
@@ -148,20 +152,29 @@ public class TaskHost implements AutoCloseable {
         task.notifyFinish();
     }
 
+    public TaskHost() {
+        final UUID uuid = UUID.randomUUID();
+        int start_worker_count = 5;
+        this.task_queue = new AdvanceTaskQueue(this, 200L);
+        this.name = uuid.toString();
+        this.thread_group = new ThreadGroup("TaskHost-" + name);
+        this.max_worker_count = 20;
+        while (start_worker_count-- > 0)
+            start_worker();
+        daemons.start_add_daemon();
+    }
+
     public TaskHost(String name, Integer start_worker_count, Integer max_worker_count, Long allow_wait_time) {
         if (start_worker_count < 1 || max_worker_count <= start_worker_count) {
             start_worker_count = 5;
             max_worker_count = 25;
         }
-        this.simpleTaskQueue.ptx_time = allow_wait_time > 50 ? allow_wait_time : 200;
-        this.simpleTaskQueue.host = this;
+        this.task_queue = new AdvanceTaskQueue(this, allow_wait_time > 50 ? allow_wait_time : 200);
         this.name = name;
         this.thread_group = new ThreadGroup("TaskHost-" + name);
         this.max_worker_count = max_worker_count;
         while (start_worker_count-- > 0)
             start_worker();
-
-        TaskWorkerDaemonHub daemons = new TaskWorkerDaemonHub();
         daemons.start_add_daemon();
     }
 
@@ -169,14 +182,14 @@ public class TaskHost implements AutoCloseable {
         synchronized (workers_lock) {
             final Thread worker = new TaskWorker(thread_group, worker_exec_shell, thread_group.getName() + ":TaskWorker@" + thread_group.activeCount());
             worker.setUncaughtExceptionHandler(uncaughtExceptionHandler);
-            worker.setPriority(8);
+            worker.setPriority(5);
             worker.start();
         }
     }
 
     void addTask(Task task) {
-        simpleTaskQueue.add(task);
-        task.status = TaskStatus.Queueing;
+        task_queue.add(task);
+        task.status = Task.TaskStatus.Queueing;
         if (task.hub.needTrace())
             task.hub.trace(task, "Begin Queueing");
         synchronized (host_lock) {
@@ -190,7 +203,7 @@ public class TaskHost implements AutoCloseable {
 
     @Override
     public void close() {
-        thread_close[0] = true;
+        thread_close = true;
         synchronized (host_lock) {
             host_lock.notifyAll();
         }
@@ -201,60 +214,6 @@ public class TaskHost implements AutoCloseable {
 
     public String getName() {
         return name;
-    }
-
-    class SimpleTaskQueue {
-        private Queue<Task> queue_0 = new LinkedList<>();
-        private Queue<Task> queue_1 = new LinkedList<>();
-
-        private final String lock_queue_1 = "(*^ω^*)";
-
-        Long ptx_time;
-        TaskHost host;
-
-        private Task get() {
-            synchronized (this) {
-                return queue_0.poll();
-            }
-        }
-
-        void remove(Task task) {
-            synchronized (queue_1) {
-                if (queue_1.contains(task))
-                    queue_1.remove(task);
-                else {
-                    synchronized (this) {
-                        queue_0.remove(task);
-                    }
-                }
-            }
-        }
-
-        private void add(Task task) {
-            synchronized (lock_queue_1) {
-                queue_1.offer(task);
-            }
-        }
-
-        private boolean remain() {
-            synchronized (this) {
-                if (queue_0.size() > 0)
-                    return true;
-                else {
-                    synchronized (lock_queue_1) {
-                        if (queue_1.size() == 0) return false;
-                        if (System.currentTimeMillis() - queue_1.element().startTime > ptx_time)
-                            synchronized (host.add_daemon_lock) {
-                                host.add_daemon_lock.notify();
-                            }
-                        Queue<Task> queue = queue_0;
-                        queue_0 = queue_1;
-                        queue_1 = queue;
-                        return true;
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -268,12 +227,11 @@ public class TaskHost implements AutoCloseable {
         void start_add_daemon() {
             final Thread thread = new Thread(threadGroup, () ->
             {
-                while (true) {
-                    if (thread_close[0]) return;
+                while (!thread_close) {
                     try {
                         synchronized (add_daemon_lock) {
                             add_daemon_lock.wait();
-                            if (thread_close[0]) return;
+                            if (thread_close) return;
                             if (thread_group.activeCount() < max_worker_count)
                                 start_worker();
                             else {
@@ -287,6 +245,17 @@ public class TaskHost implements AutoCloseable {
                 }
             });
             thread.start();
+        }
+
+        boolean check_all_worker_busy() {
+            Thread[] thg = new Thread[threadGroup.activeCount()];
+            threadGroup.enumerate(thg);
+            for (Thread thw : thg) {
+                if (thw instanceof TaskWorker)
+                    if (((TaskWorker) thw).state == TaskWorker.State.WAITING)
+                        return false;
+            }
+            return true;
         }
     }
 

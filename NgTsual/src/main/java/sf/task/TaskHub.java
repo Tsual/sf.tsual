@@ -67,13 +67,12 @@ public class TaskHub {
             }
     }
 
+    public <T> Task<T> execute(IExec_0<T> executable) {
+        return execute(executable, ThreadLocalOperation.None, 0L);
+    }
+
     public <T> Task<T> execute(IExec_0<T> executable, ThreadLocalOperation threadLocalOperation) {
-        Task<T> task = new Task<>(this, executable);
-        if (threadLocalOperation != null)
-            task.tlOperation = threadLocalOperation;
-        tasks.add(task);
-        host.addTask(task);
-        return task;
+        return execute(executable, threadLocalOperation, 0L);
     }
 
     public <T> Task<T> execute(IExec_0<T> executable, ThreadLocalOperation threadLocalOperation, Long abortDuration) {

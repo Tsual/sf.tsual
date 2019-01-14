@@ -1,13 +1,14 @@
 package sf.tquery;
 
 import sf.tquery.irunshell.ITypeConverter;
+import sf.uds.common.Iterable;
 
-class MapIterable<T> implements Iterable<T> {
-    private final Iterable it;
-    private final ITypeConverter<Object, Iterable<T>> tvTypeConverter;
+class MapIterable<T,F> implements Iterable<T> {
+    private final Iterable<F> it;
+    private final ITypeConverter<F, Iterable<T>> tvTypeConverter;
     private Iterable<T> t_obj;
 
-    MapIterable(Iterable it, ITypeConverter<Object, Iterable<T>> tvTypeConverter) {
+    MapIterable(Iterable<F> it, ITypeConverter<F, Iterable<T>> tvTypeConverter) {
         this.it = it;
         this.tvTypeConverter = tvTypeConverter;
     }

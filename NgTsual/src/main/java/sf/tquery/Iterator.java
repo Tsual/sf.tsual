@@ -4,15 +4,18 @@ import sf.tquery.irunshell.IAction;
 import sf.tquery.irunshell.IRunnable;
 import sf.tquery.irunshell.ISelector;
 import sf.tquery.irunshell.ITypeConverter;
-import sf.uds.common.Listable;
-import sf.util.ObjectHelper;
+import sf.uds.common.Iterable;
+import sf.uds.common.IListable;
+import sf.uds.common.SettledIterable;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
-public interface Iterator<T> extends Iterable<T>, Listable<T>, Iterable.SettledIterable<T> {
+public interface Iterator<T> extends Iterable<T>, IListable<T>, SettledIterable<T>, java.lang.Iterable<T> {
     default Iterator<T> foreach(IRunnable<T> runnable) throws Exception {
-        ObjectHelper.requireNotNull(runnable);
+        Objects.requireNonNull(runnable);
         reset();
         while (hasNext())
             runnable.run(next());
@@ -30,7 +33,7 @@ public interface Iterator<T> extends Iterable<T>, Listable<T>, Iterable.SettledI
     Iterator<T> where(ISelector<T> tSelector);
 
     default <V> V execute(IAction<V> action) throws Exception {
-        return ObjectHelper.requireNotNull(action).execute();
+        return Objects.requireNonNull(action).execute();
     }
 
     Iterator<T> add(T item) throws Exception;
@@ -48,7 +51,7 @@ public interface Iterator<T> extends Iterable<T>, Listable<T>, Iterable.SettledI
     }
 
     default T first(ISelector<T> tSelector) throws Exception {
-        ObjectHelper.requireNotNull(tSelector);
+        Objects.requireNonNull(tSelector);
         reset();
         while (hasNext()) {
             T t = next();
@@ -59,7 +62,7 @@ public interface Iterator<T> extends Iterable<T>, Listable<T>, Iterable.SettledI
     }
 
     default Iterator<T> first(ISelector<T> tSelector, IRunnable<T> runnable) throws Exception {
-        ObjectHelper.requireNotNull(runnable).run(first(tSelector));
+        Objects.requireNonNull(runnable).run(first(tSelector));
         return this;
     }
     //endregion
@@ -88,5 +91,14 @@ public interface Iterator<T> extends Iterable<T>, Listable<T>, Iterable.SettledI
     @Override
     default List<T> toList() throws Exception {
         return settleList();
+    }
+
+    @Override
+    default java.util.Iterator<T> iterator() {
+        try {
+            return settleList().iterator();
+        } catch (Exception e) {
+            return Collections.EMPTY_LIST.iterator();
+        }
     }
 }

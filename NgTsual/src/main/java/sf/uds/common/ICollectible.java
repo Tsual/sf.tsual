@@ -8,9 +8,9 @@
 
 package sf.uds.common;
 
-import java.util.Map;
+import java.util.Collection;
 
 @FunctionalInterface
-public interface Mappable<K, V> {
-    Map<K, V> toMap();
+public interface ICollectible<T> {
+    Collection<T> toCollection();
 }

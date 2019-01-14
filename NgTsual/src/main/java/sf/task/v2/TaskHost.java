@@ -1,7 +1,5 @@
 package sf.task.v2;
 
-import sf.task.TaskStatus;
-
 import java.util.List;
 
 /**
@@ -15,7 +13,7 @@ public class TaskHost {
     Task execTask(Task task) {
         task.trace.executeTime = System.currentTimeMillis();
         task.v.exec_t = Thread.currentThread();
-        task.changeStatus(TaskStatus.Executing);
+        task.changeStatus(sf.task.Task.TaskStatus.Executing);
 
         return task;
     }

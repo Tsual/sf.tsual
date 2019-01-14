@@ -1,6 +1,5 @@
 package sf.task.v2;
 
-import sf.task.TaskStatus;
 import sf.task.ThreadLocalOperation;
 import sf.uds.del.IExec_0;
 
@@ -36,7 +35,7 @@ public class Task<T> {
         }
     }
 
-    void changeStatus(TaskStatus status) {
+    void changeStatus(sf.task.Task.TaskStatus status) {
         trace.status = status;
     }
 

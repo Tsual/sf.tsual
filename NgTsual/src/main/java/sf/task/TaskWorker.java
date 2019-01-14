@@ -12,7 +12,12 @@ package sf.task;
  * worker
  */
 class TaskWorker extends Thread {
+    enum State {
+        WORKING, WAITING, QUIT
+    }
+
     Task task;
+    State state;
 
     public TaskWorker(Runnable target) {
         super(target);

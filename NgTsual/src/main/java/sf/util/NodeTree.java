@@ -199,7 +199,7 @@ public class NodeTree implements INodeTree
 		{
 			if (_children == null) return null;
 			for (INode node : _children)
-				if (ObjectHelper.requireNotNull(value).equals(node.value()))
+				if (Objects.requireNonNull(value).equals(node.value()))
 					return node;
 			return null;
 		}

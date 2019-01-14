@@ -1,6 +1,5 @@
-package sf.learn;
+package sf.explore;
 
-import sf.task.Task;
 import sf.task.TaskHost;
 import sf.task.TaskHub;
 import sf.task.ThreadLocalOperation;
@@ -219,7 +218,7 @@ public class NioPerformanceTester {
 
     public static void main(String[] args) throws Exception {
         System.out.println(new NioPerformanceTester("12345", 1).test(15));
-        //System.out.println(new NioPerformanceTester("12346", 20).test(15));
-        //System.out.println(new NioPerformanceTester("12347", 24).test(5));
+        System.out.println(new NioPerformanceTester("12346", 20).test(15));
+        System.out.println(new NioPerformanceTester("12347", 24).test(15));
     }
 }

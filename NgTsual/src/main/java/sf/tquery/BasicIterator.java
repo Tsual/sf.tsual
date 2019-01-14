@@ -10,11 +10,13 @@ package sf.tquery;
 
 import sf.tquery.irunshell.ISelector;
 import sf.tquery.irunshell.ITypeConverter;
+import sf.uds.common.Iterable;
 import sf.util.ObjectHelper;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 class BasicIterator<T> implements Iterator<T> {
     private Iterable<T> tIterable;
@@ -34,12 +36,12 @@ class BasicIterator<T> implements Iterator<T> {
 
     @Override
     public <V> Iterator<V> as(ITypeConverter<T, V> tvTypeConverter) {
-        return new BasicIterator<>(new AsIterable<>(tIterable, (ITypeConverter<Object, V>) ObjectHelper.requireNotNull(tvTypeConverter)));
+        return new BasicIterator<>(new AsIterable<>(tIterable, Objects.requireNonNull(tvTypeConverter)));
     }
 
     @Override
     public <V> Iterator<V> map(ITypeConverter<T, Iterable<V>> tvTypeConverter) {
-        return new BasicIterator<>(new MapIterable<>(tIterable, (ITypeConverter<Object, Iterable<V>>) ObjectHelper.requireNotNull(tvTypeConverter)));
+        return new BasicIterator<>(new MapIterable<>(tIterable, Objects.requireNonNull(tvTypeConverter)));
     }
 
     @Override
@@ -50,31 +52,31 @@ class BasicIterator<T> implements Iterator<T> {
 
     @Override
     public Iterator<T> where(ISelector<T> tSelector) {
-        tIterable = WhereIterable.add(tIterable, ObjectHelper.requireNotNull(tSelector));
+        tIterable = WhereIterable.add(tIterable, Objects.requireNonNull(tSelector));
         return this;
     }
 
     @Override
     public Iterator<T> add(T item) {
-        tIterable = LinkedIterable.link(tIterable, new SingleItemIterable<>(ObjectHelper.requireNotNull(item)));
+        tIterable = LinkedIterable.link(tIterable, new SingleItemIterable<>(Objects.requireNonNull(item)));
         return this;
     }
 
     @Override
     public Iterator<T> add(T[] arr) {
-        tIterable = LinkedIterable.link(tIterable, new ArrayIterable<>(ObjectHelper.requireNotNull(arr)));
+        tIterable = LinkedIterable.link(tIterable, new ArrayIterable<>(Objects.requireNonNull(arr)));
         return this;
     }
 
     @Override
     public Iterator<T> add(java.lang.Iterable<T> it) {
-        tIterable = LinkedIterable.link(tIterable, new JavaIterable<>(ObjectHelper.requireNotNull(it)));
+        tIterable = LinkedIterable.link(tIterable, new JavaIterable<>(Objects.requireNonNull(it)));
         return this;
     }
 
     @Override
     public Iterator<T> add(Iterable<T> it) {
-        tIterable = LinkedIterable.link(tIterable, ObjectHelper.requireNotNull(it));
+        tIterable = LinkedIterable.link(tIterable, Objects.requireNonNull(it));
         return this;
     }
 

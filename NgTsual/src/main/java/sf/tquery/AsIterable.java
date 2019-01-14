@@ -1,12 +1,13 @@
 package sf.tquery;
 
 import sf.tquery.irunshell.ITypeConverter;
+import sf.uds.common.Iterable;
 
-class AsIterable<T> implements Iterable<T> {
-    private Iterable it;
-    private ITypeConverter<Object, T> converter;
+class AsIterable<T,F> implements Iterable<T> {
+    private Iterable<F> it;
+    private ITypeConverter<F, T> converter;
 
-    AsIterable(Iterable it, ITypeConverter<Object, T> converter) {
+    AsIterable(Iterable it, ITypeConverter<F, T> converter) {
         this.it = it;
         this.converter = converter;
     }

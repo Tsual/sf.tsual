@@ -121,7 +121,7 @@ public class Task<T> {
         if (!isProduced)
             synchronized (exec_lock) {
                 if (isProduced) return this;
-                hub.host.simpleTaskQueue.remove(this);
+                hub.host.task_queue.remove(this);
                 this.executeTime = System.currentTimeMillis();
                 this.status = TaskStatus.Executing;
                 this.executor = Thread.currentThread();
@@ -163,5 +163,14 @@ public class Task<T> {
                 ", produceResult=" + produceResult +
                 ", produceException=" + produceException +
                 '}';
+    }
+
+    public enum TaskStatus {
+        Created,
+        Queueing,
+        Executing,
+        Finished,
+        Overtime,
+        Error,
     }
 }

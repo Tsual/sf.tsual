@@ -1,10 +1,13 @@
 package sf.tquery;
 
+import sf.uds.common.Iterable;
+import sf.uds.common.SettledIterable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class JavaIterable<T> implements Iterable<T>, Iterable.SettledIterable<T> {
+public class JavaIterable<T> implements Iterable<T>, SettledIterable<T>, java.lang.Iterable<T> {
     private java.lang.Iterable<T> it;
     private Iterator<T> ito;
     private List settledList;
@@ -41,5 +44,10 @@ public class JavaIterable<T> implements Iterable<T>, Iterable.SettledIterable<T>
             }
             return settledList;
         }
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return it.iterator();
     }
 }

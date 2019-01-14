@@ -13,7 +13,7 @@ import sf.uds.del.IRun_1;
 
 import java.util.Collection;
 
-public interface INodeTree extends Iterable<INodeTree.INode> {
+public interface INodeTree extends java.lang.Iterable<INodeTree.INode> {
     INode head();
 
     boolean push(Object key, Object value);
