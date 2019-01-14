@@ -18,7 +18,7 @@ public class TaskHost implements AutoCloseable {
     final String add_daemon_lock = "ヾ(^▽^*)))";
     private final String host_lock = "(இωஇ )";
     private final String workers_lock = "（▼へ▼メ）";
-    private final boolean[] thread_close = {false};
+    private volatile boolean thread_close = false;
     private final TaskWorkerDaemonHub daemons = new TaskWorkerDaemonHub();
 
     private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (t, e) -> start_worker();
@@ -26,7 +26,7 @@ public class TaskHost implements AutoCloseable {
     private final Runnable worker_exec_shell = () ->
     {
         TaskWorker tw_ptr = (TaskWorker) Thread.currentThread();
-        while (!thread_close[0]) {
+        while (!thread_close) {
             Task task;
             try {
                 synchronized (host_lock) {
@@ -35,7 +35,7 @@ public class TaskHost implements AutoCloseable {
                     } else {
                         tw_ptr.state = TaskWorker.State.WAITING;
                         host_lock.wait();
-                        if (thread_close[0]) {
+                        if (thread_close) {
                             tw_ptr.state = TaskWorker.State.QUIT;
                             break;
                         } else {
@@ -203,7 +203,7 @@ public class TaskHost implements AutoCloseable {
 
     @Override
     public void close() {
-        thread_close[0] = true;
+        thread_close = true;
         synchronized (host_lock) {
             host_lock.notifyAll();
         }
@@ -227,12 +227,11 @@ public class TaskHost implements AutoCloseable {
         void start_add_daemon() {
             final Thread thread = new Thread(threadGroup, () ->
             {
-                while (true) {
-                    if (thread_close[0]) return;
+                while (!thread_close) {
                     try {
                         synchronized (add_daemon_lock) {
                             add_daemon_lock.wait();
-                            if (thread_close[0]) return;
+                            if (thread_close) return;
                             if (thread_group.activeCount() < max_worker_count)
                                 start_worker();
                             else {
