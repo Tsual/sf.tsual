@@ -7,7 +7,7 @@ class AdvanceTaskQueue extends AdvanceAsyncQueue<Task> implements ITaskQueue<Tas
     private long delay;
 
     AdvanceTaskQueue(TaskHost taskHost, long delay) {
-        super(Task.class, 64);
+        super(Task.class, 64, 64);
         this.taskHost = taskHost;
         this.delay = delay;
     }

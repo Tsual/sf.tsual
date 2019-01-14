@@ -23,50 +23,96 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
         }
     }
 
+    class ReadBlock {
+        Block block;
+        volatile boolean inUse = false;
+        final Object lock = new Object();
+    }
+
+    private final int rb_size;
     private final static Object NULL = new Object();
     private int cs;
     private Class<T> klass;
-    private Block cur_read, cur_write;
-    private final Object cur_read_lock = new Object();
+
+    private int rb_index = 0;
+    private List<ReadBlock> rb_list;
+
+    private Block cur_write;
     private final Object cur_write_lock = new Object();
-    private ConcurrentLinkedQueue<Block> rbs;
+    private ConcurrentLinkedQueue<Block> sbq;
     private List<T> rl;
 
-    public AdvanceAsyncQueue(Class<T> klass, int cacheSize) {
+    /**
+     * @param klass          klass
+     * @param cacheSize      队列块大小
+     * @param readBlockCount 读取块大小 建议 读取线程数量/8
+     */
+    public AdvanceAsyncQueue(Class<T> klass, int cacheSize, int readBlockCount) {
         this.klass = Objects.requireNonNull(klass);
         this.cs = cacheSize > 8 ? cacheSize : 8;
+        this.rb_size = readBlockCount;
         init();
     }
 
     public AdvanceAsyncQueue(Class<T> klass) {
         this.klass = Objects.requireNonNull(klass);
         cs = 16;
+        this.rb_size = 16;
         init();
     }
 
     private void init() {
-        cur_read = new Block();
         cur_write = new Block();
-        rbs = new ConcurrentLinkedQueue<>();
+        sbq = new ConcurrentLinkedQueue<>();
         rl = Collections.synchronizedList(new ArrayList<>());
+        rb_list = new ArrayList<>(rb_size);
+        for (int i = 0; i < rb_size; i++) {
+            rb_list.add(new ReadBlock());
+        }
+    }
+
+    private synchronized ReadBlock nextReadBlock() {
+        return rb_list.get(rb_index = ((rb_index + 1) % rb_size));
     }
 
     @Override
     public T next() {
+        ReadBlock readBlock = null;
+        for (int i = 0; i < rb_size; i++) {
+            readBlock = nextReadBlock();
+            if (readBlock.inUse || readBlock.block == null || readBlock.block.array == null || readBlock.block.size == readBlock.block.index) {
+            } else break;
+        }
+
+
         Object cur_obj = NULL;
-        synchronized (cur_read_lock) {
-            if (++cur_read.index < cur_read.size) {
-                cur_obj = cur_read.array[cur_read.index];
-            } else if (rbs.size() > 0) {
-                cur_read = rbs.poll();
-                cur_obj = cur_read.array[cur_read.index];
-            } else if (cur_write.size > 0) {
-                synchronized (cur_write_lock) {
-                    cur_read = cur_write;
-                    cur_write = new Block();
-                    cur_obj = cur_read.array[cur_read.index];
+
+        synchronized (readBlock.lock) {
+            readBlock.inUse = true;
+            if (readBlock.block == null) {
+                if ((readBlock.block = sbq.poll()) != null) {
+                    cur_obj = readBlock.block.array[readBlock.block.index];
+                } else if (cur_write.size > 0) {
+                    synchronized (cur_write_lock) {
+                        readBlock.block = cur_write;
+                        cur_write = new Block();
+                        cur_obj = readBlock.block.array[readBlock.block.index];
+                    }
+                }
+            } else {
+                if (++readBlock.block.index < readBlock.block.size) {
+                    cur_obj = readBlock.block.array[readBlock.block.index];
+                } else if ((readBlock.block = sbq.poll()) != null) {
+                    cur_obj = readBlock.block.array[readBlock.block.index];
+                } else if (cur_write.size > 0) {
+                    synchronized (cur_write_lock) {
+                        readBlock.block = cur_write;
+                        cur_write = new Block();
+                        cur_obj = readBlock.block.array[readBlock.block.index];
+                    }
                 }
             }
+            readBlock.inUse = false;
         }
 
         if (NULL.equals(cur_obj))
@@ -81,7 +127,7 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
     public void add(T obj) {
         synchronized (cur_write_lock) {
             if (cur_write.size == cs) {
-                rbs.offer(cur_write);
+                sbq.offer(cur_write);
                 cur_write = new Block();
             }
             cur_write.array[cur_write.size++] = obj;
@@ -90,7 +136,7 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
 
     public void add(T[] objs) {
         for (int i = 0, lt = objs.length / cs; i <= lt; i++)
-            rbs.offer(new Block(
+            sbq.offer(new Block(
                     i == lt ? Arrays.copyOfRange(objs, lt * cs, objs.length - 1)
                             : Arrays.copyOfRange(objs, i * cs, (i + 1) * cs - 1)
             ));

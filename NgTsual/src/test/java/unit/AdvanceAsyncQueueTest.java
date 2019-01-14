@@ -15,7 +15,7 @@ public class AdvanceAsyncQueueTest {
         final int t_count = 10;
         Thread[] ths = new Thread[t_count];
         List<Integer>[] ths_list = new List[t_count];
-        AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 128);
+        AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 128, 8);
 
         final int w_count = 10000;
         for (int ti = 0; ti < t_count; ti++) {
@@ -47,9 +47,9 @@ public class AdvanceAsyncQueueTest {
 
     @Test(timeout = 4000)
     public void async0() throws InterruptedException {
-        AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 128);
-        final int ra = 5;
-        final int rw = 5;
+        AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 256, 4);
+        final int ra = 8;
+        final int rw = 32;
         Thread[] rat = new Thread[ra];
         Thread[] rwt = new Thread[rw];
         final int[] rac = new int[ra];
@@ -71,8 +71,8 @@ public class AdvanceAsyncQueueTest {
             int finalI = i;
             rwt[i] = new Thread(() -> {
                 while (true) {
-                    queue.next();
-                    rwc[finalI]++;
+                    if (null != queue.next())
+                        rwc[finalI]++;
                 }
             });
         }
@@ -81,16 +81,17 @@ public class AdvanceAsyncQueueTest {
             t.start();
         for (Thread t : rat)
             t.start();
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         try {
-            for (Thread t : rwt)
-                t.stop();
             for (Thread t : rat)
+                t.stop();
+            for (Thread t : rwt)
                 t.stop();
         } catch (Exception ignored) {
         }
-        System.out.println(Arrays.toString(rac));
-        System.out.println(Arrays.toString(rwc));
+        System.out.println(Arrays.stream(rac).sum());
+        System.out.println(Arrays.stream(rwc).sum());
+
     }
 
 }
