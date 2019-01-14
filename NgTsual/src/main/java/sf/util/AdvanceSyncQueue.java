@@ -1,16 +1,26 @@
 package sf.util;
 
-import sf.uds.common.OnceIterable;
+import sf.uds.common.OnetimeIterable;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class AdvanceSyncQueue<T> implements OnceIterable<T> {
+public class AdvanceSyncQueue<T> implements OnetimeIterable<T> {
     class Block {
-        T[] array = (T[]) Array.newInstance(klass, cacheSize);
-        int size = 0;
+        T[] array;
+        int size;
         int index = 0;
+
+        Block() {
+            array = (T[]) Array.newInstance(klass, cacheSize);
+            size = 0;
+        }
+
+        Block(T[] array) {
+            this.array = array;
+            this.size = array.length;
+        }
     }
 
     private final Object block_io_lock = new Object();
@@ -36,13 +46,12 @@ public class AdvanceSyncQueue<T> implements OnceIterable<T> {
     }
 
     @Override
-    public boolean hasNext() throws Exception {
-        boolean rc = false;
+    public boolean hasNext() {
         synchronized (cur_read_block_lock) {
             if (++cur_read_block.index < cur_read_block.size) {
                 cur_obj = cur_read_block.array[cur_read_block.index];
-                if (removedList.contains(cur_obj)) {
-                    rc = true;
+                if (removedList.remove(cur_obj)) {
+                    return hasNext();
                 } else {
                     return true;
                 }
@@ -51,8 +60,8 @@ public class AdvanceSyncQueue<T> implements OnceIterable<T> {
             if (r_blocks.size() > 0) {
                 cur_read_block = r_blocks.poll();
                 cur_obj = cur_read_block.array[cur_read_block.index];
-                if (removedList.contains(cur_obj)) {
-                    rc = true;
+                if (removedList.remove(cur_obj)) {
+                    return hasNext();
                 } else {
                     return true;
                 }
@@ -62,18 +71,15 @@ public class AdvanceSyncQueue<T> implements OnceIterable<T> {
                     cur_read_block = cur_write_block;
                     cur_write_block = new Block();
                     cur_obj = cur_read_block.array[cur_read_block.index];
-                    if (removedList.contains(cur_obj)) {
-                        rc = true;
+                    if (removedList.remove(cur_obj)) {
+                        return hasNext();
                     } else {
                         return true;
                     }
                 }
             }
         }
-        if (rc)
-            return hasNext();
-        else
-            return false;
+        return false;
     }
 
     @Override
@@ -89,6 +95,14 @@ public class AdvanceSyncQueue<T> implements OnceIterable<T> {
             }
             cur_write_block.array[cur_write_block.size++] = obj;
         }
+    }
+
+    public void add(T[] objs) {
+        for (int i = 0, lt = objs.length / cacheSize; i <= lt; i++)
+            r_blocks.offer(new Block(
+                    i == lt ? Arrays.copyOfRange(objs, lt * cacheSize, objs.length - 1)
+                            : Arrays.copyOfRange(objs, i * cacheSize, (i + 1) * cacheSize - 1)
+            ));
     }
 
     public void remove(T obj) {

@@ -1,9 +1,9 @@
 package sf.task;
 
 
-import sf.uds.common.OnceIterable;
+import sf.uds.common.OnetimeIterable;
 
-abstract class AbsTaskQueue<T extends Task> implements OnceIterable<T> {
+abstract class AbsTaskQueue<T extends Task> implements OnetimeIterable<T> {
     abstract public T next();
 
     abstract void remove(T task);

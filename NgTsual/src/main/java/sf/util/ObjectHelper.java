@@ -4,12 +4,6 @@ import java.lang.reflect.Array;
 
 public class ObjectHelper
 {
-	public static <T> T requireNotNull(T t)
-	{
-		if (t == null) throw new NullPointerException();
-		else return t;
-	}
-
 	public static <T> T requireAllNotNull(T t)
 	{
 		if (isAllNotNull(t)) throw new NullPointerException();
