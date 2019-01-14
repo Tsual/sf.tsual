@@ -164,4 +164,13 @@ public class Task<T> {
                 ", produceException=" + produceException +
                 '}';
     }
+
+    public enum TaskStatus {
+        Created,
+        Queueing,
+        Executing,
+        Finished,
+        Overtime,
+        Error,
+    }
 }

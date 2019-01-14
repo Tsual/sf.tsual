@@ -8,9 +8,9 @@
 
 package sf.uds.common;
 
-import java.util.Collection;
+import java.util.List;
 
 @FunctionalInterface
-public interface Collectible<T> {
-    Collection<T> toCollection();
+public interface IListable<T> {
+    List<T> toList() throws Exception;
 }

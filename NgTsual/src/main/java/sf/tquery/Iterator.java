@@ -5,16 +5,15 @@ import sf.tquery.irunshell.IRunnable;
 import sf.tquery.irunshell.ISelector;
 import sf.tquery.irunshell.ITypeConverter;
 import sf.uds.common.Iterable;
-import sf.uds.common.Listable;
+import sf.uds.common.IListable;
 import sf.uds.common.SettledIterable;
-import sf.util.ObjectHelper;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public interface Iterator<T> extends Iterable<T>, Listable<T>, SettledIterable<T>, java.lang.Iterable<T> {
+public interface Iterator<T> extends Iterable<T>, IListable<T>, SettledIterable<T>, java.lang.Iterable<T> {
     default Iterator<T> foreach(IRunnable<T> runnable) throws Exception {
         Objects.requireNonNull(runnable);
         reset();

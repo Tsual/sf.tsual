@@ -8,9 +8,9 @@
 
 package sf.uds.common;
 
-import java.util.List;
+import java.util.Map;
 
 @FunctionalInterface
-public interface Listable<T> {
-    List<T> toList() throws Exception;
+public interface IMappable<K, V> {
+    Map<K, V> toMap();
 }

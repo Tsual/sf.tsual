@@ -25,7 +25,7 @@ public class NativeAesCtrTest {
         }
     }
 
-    @Test
+    @Test(timeout = 3000)
     public void performance() throws Exception {
         int count = 100;
         final byte[] bytes = StringHelper.randomString(5000).getBytes();

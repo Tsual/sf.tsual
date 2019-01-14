@@ -12,7 +12,7 @@ public class TaskHost implements AutoCloseable {
     private final String name;
     private final ThreadGroup thread_group;
     private final Integer max_worker_count;
-    final AbsTaskQueue task_queue = new SimpleTaskQueue();
+    ITaskQueue<Task> task_queue;
 
     volatile boolean is_add_daemon_alive = true;
     final String add_daemon_lock = "ヾ(^▽^*)))";
@@ -27,11 +27,10 @@ public class TaskHost implements AutoCloseable {
     {
         TaskWorker tw_ptr = (TaskWorker) Thread.currentThread();
         while (!thread_close[0]) {
-            Task task = null;
+            Task task;
             try {
                 synchronized (host_lock) {
-                    if (task_queue.hasNext()) {
-                        task = task_queue.next();
+                    if ((task = task_queue.next()) != null) {
                         host_lock.notify();
                     } else {
                         tw_ptr.state = TaskWorker.State.WAITING;
@@ -63,17 +62,17 @@ public class TaskHost implements AutoCloseable {
                 }
                 task.executeTime = System.currentTimeMillis();
                 task.executor = tw_ptr;
-                task.status = TaskStatus.Executing;
+                task.status = Task.TaskStatus.Executing;
                 if (task.hub.needTrace())
                     task.hub.trace(task, task.executor.getName() + "<<Begin executing");
                 try {
                     tw_ptr.task = task;
                     task.produceResult = task.executable.execute();
-                    task.status = TaskStatus.Finished;
+                    task.status = Task.TaskStatus.Finished;
                 } catch (InterruptedException ignored) {
                 } catch (Exception ex) {
                     task.produceException = ex;
-                    task.status = TaskStatus.Error;
+                    task.status = Task.TaskStatus.Error;
                 } finally {
                     task.finishTask();
                     task.notifyFinish();
@@ -95,7 +94,6 @@ public class TaskHost implements AutoCloseable {
             try {
                 worker.interrupt();
             } catch (Throwable e) {
-                //throw new RuntimeException(e);
                 worker.stop();
                 return null;
             }
@@ -135,7 +133,7 @@ public class TaskHost implements AutoCloseable {
         if (task.isProduced)
             return;
 
-        task.status = TaskStatus.Overtime;
+        task.status = Task.TaskStatus.Overtime;
         if (task.hub.needTrace())
             task.hub.trace(task, "Task overtime:" + task.abortDuration);
         task.isProduced = true;
@@ -157,8 +155,7 @@ public class TaskHost implements AutoCloseable {
     public TaskHost() {
         final UUID uuid = UUID.randomUUID();
         int start_worker_count = 5;
-        this.task_queue.remind_host_time = 200L;
-        this.task_queue.host = this;
+        this.task_queue = new AdvanceTaskQueue(this, 200L);
         this.name = uuid.toString();
         this.thread_group = new ThreadGroup("TaskHost-" + name);
         this.max_worker_count = 20;
@@ -172,8 +169,7 @@ public class TaskHost implements AutoCloseable {
             start_worker_count = 5;
             max_worker_count = 25;
         }
-        this.task_queue.remind_host_time = allow_wait_time > 50 ? allow_wait_time : 200;
-        this.task_queue.host = this;
+        this.task_queue = new AdvanceTaskQueue(this, allow_wait_time > 50 ? allow_wait_time : 200);
         this.name = name;
         this.thread_group = new ThreadGroup("TaskHost-" + name);
         this.max_worker_count = max_worker_count;
@@ -193,7 +189,7 @@ public class TaskHost implements AutoCloseable {
 
     void addTask(Task task) {
         task_queue.add(task);
-        task.status = TaskStatus.Queueing;
+        task.status = Task.TaskStatus.Queueing;
         if (task.hub.needTrace())
             task.hub.trace(task, "Begin Queueing");
         synchronized (host_lock) {

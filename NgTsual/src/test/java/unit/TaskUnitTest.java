@@ -8,7 +8,6 @@ import sf.task.TaskHub;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 public class TaskUnitTest {
     @Test
@@ -16,8 +15,7 @@ public class TaskUnitTest {
         List<Integer> list = Collections.synchronizedList(new ArrayList<>());
         try (TaskHost th = new TaskHost("ut-0", 5, 10, 50L)) {
             final TaskHub taskHub = th.newTaskHub(150L, null);
-            Random r = new Random();
-            int count = Math.abs(r.nextInt()) % 100000;
+            int count = 100000;
             for (int i = 0; i < count; i++)
                 taskHub.execute(() -> list.add(0x0));
             taskHub.waitAll();
