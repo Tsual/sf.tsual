@@ -5,6 +5,7 @@ import org.junit.Test;
 import sf.util.AdvanceAsyncQueue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -47,28 +48,49 @@ public class AdvanceAsyncQueueTest {
     @Test(timeout = 4000)
     public void async0() throws InterruptedException {
         AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 128);
-        final int t_count = 10;
-        Thread[] ths = new Thread[t_count * 3];
-        for (int ti = 0; ti < t_count; ti++) {
-            ths[ti] = new Thread(() -> {
+        final int ra = 5;
+        final int rw = 5;
+        Thread[] rat = new Thread[ra];
+        Thread[] rwt = new Thread[rw];
+        final int[] rac = new int[ra];
+        final int[] rwc = new int[rw];
+
+
+        for (int i = 0; i < ra; i++) {
+            int finalI = i;
+            rat[i] = new Thread(() -> {
                 Random random = new Random();
-                while (true) queue.add(random.nextInt());
-            });
-            ths[ti + t_count] = new Thread(() -> {
-                while (true) queue.next();
-            });
-            ths[ti + t_count * 2] = new Thread(() -> {
-                while (true) queue.next();
+                while (true) {
+                    queue.add(random.nextInt());
+                    rac[finalI]++;
+                }
             });
         }
-        for (Thread t : ths)
+
+        for (int i = 0; i < rw; i++) {
+            int finalI = i;
+            rwt[i] = new Thread(() -> {
+                while (true) {
+                    queue.next();
+                    rwc[finalI]++;
+                }
+            });
+        }
+
+        for (Thread t : rwt)
+            t.start();
+        for (Thread t : rat)
             t.start();
         Thread.sleep(3000);
         try {
-            for (Thread t : ths)
+            for (Thread t : rwt)
+                t.stop();
+            for (Thread t : rat)
                 t.stop();
         } catch (Exception ignored) {
         }
+        System.out.println(Arrays.toString(rac));
+        System.out.println(Arrays.toString(rwc));
     }
 
 }

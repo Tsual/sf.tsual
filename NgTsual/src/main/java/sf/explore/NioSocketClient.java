@@ -40,7 +40,7 @@ public class NioSocketClient {
                 hub.waitAll();
                 try {
                     for (Task task : hub.getTasks())
-                        System.out.println(task.getResult());
+                        task.getResult();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
