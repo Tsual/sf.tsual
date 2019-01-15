@@ -20,7 +20,7 @@ class AdvanceTaskQueue extends AdvanceAsyncQueue<Task> implements ITaskQueue<Tas
     @Override
     public Task next() {
         final Task next = super.next();
-        if (System.currentTimeMillis() - next.startTime > delay)
+        if (next != null && System.currentTimeMillis() - next.startTime > delay)
             remind_host();
         return next;
     }

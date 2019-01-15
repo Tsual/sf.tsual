@@ -9,9 +9,9 @@ import java.security.PrivilegedAction;
 import java.util.UUID;
 
 public class TaskHost implements AutoCloseable {
-    private final String name;
-    private final ThreadGroup thread_group;
-    private final Integer max_worker_count;
+    final String name;
+    final ThreadGroup thread_group;
+    final Integer max_worker_count;
     ITaskQueue<Task> task_queue;
 
     volatile boolean is_add_daemon_alive = true;
