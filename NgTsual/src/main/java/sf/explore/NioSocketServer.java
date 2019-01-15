@@ -38,7 +38,7 @@ public class NioSocketServer {
                 System.out.println(System.currentTimeMillis() + "<<" + base64);
                 accept.close();
                 return true;
-            }, ThreadLocalOperation.Reset).awaitResultClose();
+            }, ThreadLocalOperation.Reset);
         }
     }
 
