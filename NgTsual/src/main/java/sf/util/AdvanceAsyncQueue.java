@@ -26,6 +26,7 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
     class ReadBlock {
         Block block;
         volatile boolean inUse = false;
+        volatile boolean containsData = false;
         final Object lock = new Object();
     }
 
@@ -77,16 +78,11 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
 
     @Override
     public T next() {
-        ReadBlock readBlock = null;
-        for (int i = 0; i < rb_size; i++) {
-            readBlock = nextReadBlock();
-            if (readBlock.inUse || readBlock.block == null) {
-            } else break;
-        }
-
+        ReadBlock readBlock = rb_list.get(0);
+        for (int i = 1; i < rb_size && readBlock.inUse; i++)
+            readBlock = rb_list.get(i);
 
         Object cur_obj = NULL;
-
         synchronized (readBlock.lock) {
             readBlock.inUse = true;
             if (readBlock.block == null) {

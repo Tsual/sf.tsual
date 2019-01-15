@@ -15,7 +15,7 @@ public class AdvanceAsyncQueueTest {
         final int t_count = 10;
         Thread[] ths = new Thread[t_count];
         List<Integer>[] ths_list = new List[t_count];
-        AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 128, 8);
+        AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 128, 1);
 
         final int w_count = 10000;
         for (int ti = 0; ti < t_count; ti++) {
@@ -45,11 +45,11 @@ public class AdvanceAsyncQueueTest {
         Assert.assertEquals(0, g1);
     }
 
-    @Test(timeout = 4000)
+    @Test(timeout = 0)
     public void async0() throws InterruptedException {
-        AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 256, 2);
-        final int ra = 8;
-        final int rw = 16;
+        AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 256, 4);
+        final int ra = 1;
+        final int rw = 4;
         Thread[] rat = new Thread[ra];
         Thread[] rwt = new Thread[rw];
         final int[] rac = new int[ra];
@@ -81,7 +81,7 @@ public class AdvanceAsyncQueueTest {
             t.start();
         for (Thread t : rat)
             t.start();
-        Thread.sleep(1000);
+        Thread.sleep(10000);
         try {
             for (Thread t : rat)
                 t.stop();
