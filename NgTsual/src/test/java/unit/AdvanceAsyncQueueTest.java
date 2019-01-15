@@ -47,9 +47,9 @@ public class AdvanceAsyncQueueTest {
 
     @Test(timeout = 4000)
     public void async0() throws InterruptedException {
-        AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 256, 4);
+        AdvanceAsyncQueue<Integer> queue = new AdvanceAsyncQueue<>(Integer.class, 256, 2);
         final int ra = 8;
-        final int rw = 32;
+        final int rw = 16;
         Thread[] rat = new Thread[ra];
         Thread[] rwt = new Thread[rw];
         final int[] rac = new int[ra];

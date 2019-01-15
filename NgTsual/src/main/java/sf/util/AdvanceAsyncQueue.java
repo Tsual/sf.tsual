@@ -80,7 +80,7 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
         ReadBlock readBlock = null;
         for (int i = 0; i < rb_size; i++) {
             readBlock = nextReadBlock();
-            if (readBlock.inUse || readBlock.block == null || readBlock.block.array == null || readBlock.block.size == readBlock.block.index) {
+            if (readBlock.inUse || readBlock.block == null) {
             } else break;
         }
 
