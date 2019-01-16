@@ -78,18 +78,23 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
 
     @Override
     public T next() {
-        ReadBlock readBlock = rb_list.get(0);
-        for (int i = 1; i < rb_size && readBlock.inUse; i++)
+        ReadBlock readBlock = null;
+        for (int i = 0; i < rb_size && readBlock.inUse && !readBlock.containsData; i++)
             readBlock = rb_list.get(i);
+
+        if (readBlock == null)
+            return null;
 
         Object cur_obj = NULL;
         synchronized (readBlock.lock) {
             readBlock.inUse = true;
             if (readBlock.block == null) {
                 if ((readBlock.block = sbq.poll()) != null) {
+                    readBlock.containsData = true;
                     cur_obj = readBlock.block.array[readBlock.block.index];
                 } else if (cur_write.size > 0) {
                     synchronized (cur_write_lock) {
+                        readBlock.containsData = true;
                         readBlock.block = cur_write;
                         cur_write = new Block();
                         cur_obj = readBlock.block.array[readBlock.block.index];
@@ -97,11 +102,14 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
                 }
             } else {
                 if (++readBlock.block.index < readBlock.block.size) {
+                    readBlock.containsData = false;
                     cur_obj = readBlock.block.array[readBlock.block.index];
                 } else if ((readBlock.block = sbq.poll()) != null) {
+                    readBlock.containsData = true;
                     cur_obj = readBlock.block.array[readBlock.block.index];
                 } else if (cur_write.size > 0) {
                     synchronized (cur_write_lock) {
+                        readBlock.containsData = true;
                         readBlock.block = cur_write;
                         cur_write = new Block();
                         cur_obj = readBlock.block.array[readBlock.block.index];
