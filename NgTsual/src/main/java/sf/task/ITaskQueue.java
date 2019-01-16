@@ -1,8 +1,8 @@
 package sf.task;
 
-import sf.uds.common.IOnetimeAsyncIterable;
+import sf.uds.common.IAsyncIterable;
 
-public interface ITaskQueue<T extends Task> extends IOnetimeAsyncIterable<T> {
+public interface ITaskQueue<T extends Task> extends IAsyncIterable<T> {
     TaskHost getHost();
 
     void remove(T task);

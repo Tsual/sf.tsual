@@ -1,12 +1,12 @@
 package sf.util;
 
-import sf.uds.common.IOnetimeAsyncIterable;
+import sf.uds.common.IAsyncIterable;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
+public class AsyncQueue<T> implements IAsyncIterable<T> {
     class Block {
         T[] array;
         int size;
@@ -16,17 +16,11 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
             array = (T[]) Array.newInstance(klass, cs);
             size = 0;
         }
-
-        Block(T[] array) {
-            this.array = array;
-            this.size = array.length;
-        }
     }
 
     class ReadBlock {
         Block block;
-        volatile boolean inUse = false;
-        volatile boolean containsData = false;
+        boolean inUse = false;
         final Object lock = new Object();
     }
 
@@ -41,21 +35,20 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
     private Block cur_write;
     private final Object cur_write_lock = new Object();
     private ConcurrentLinkedQueue<Block> sbq;
-    private List<T> rl;
 
     /**
      * @param klass          klass
      * @param cacheSize      队列块大小
      * @param readBlockCount 读取块大小 建议 读取线程数量/8
      */
-    public AdvanceAsyncQueue(Class<T> klass, int cacheSize, int readBlockCount) {
+    public AsyncQueue(Class<T> klass, int cacheSize, int readBlockCount) {
         this.klass = Objects.requireNonNull(klass);
         this.cs = cacheSize > 8 ? cacheSize : 8;
         this.rb_size = readBlockCount;
         init();
     }
 
-    public AdvanceAsyncQueue(Class<T> klass) {
+    public AsyncQueue(Class<T> klass) {
         this.klass = Objects.requireNonNull(klass);
         cs = 16;
         this.rb_size = 16;
@@ -65,23 +58,15 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
     private void init() {
         cur_write = new Block();
         sbq = new ConcurrentLinkedQueue<>();
-        rl = Collections.synchronizedList(new ArrayList<>());
         rb_list = new ArrayList<>(rb_size);
         for (int i = 0; i < rb_size; i++) {
             rb_list.add(new ReadBlock());
         }
     }
 
-    private synchronized ReadBlock nextReadBlock() {
-        return rb_list.get(rb_index = ((rb_index + 1) % rb_size));
-    }
-
     @Override
     public T next() {
-        ReadBlock readBlock = rb_list.get(0);
-        for (int i = 1; i < rb_size && readBlock.inUse; i++)
-            readBlock = rb_list.get(i);
-
+        ReadBlock readBlock = rb_list.get(rb_index = ((rb_index + 1) % rb_size));
         Object cur_obj = NULL;
         synchronized (readBlock.lock) {
             readBlock.inUse = true;
@@ -113,9 +98,7 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
 
         if (NULL.equals(cur_obj))
             return null;
-        else if (rl.remove(cur_obj)) {
-            return next();
-        } else {
+        else {
             return (T) cur_obj;
         }
     }
@@ -128,17 +111,5 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
             }
             cur_write.array[cur_write.size++] = obj;
         }
-    }
-
-    public void add(T[] objs) {
-        for (int i = 0, lt = objs.length / cs; i <= lt; )
-            if (i == lt && objs.length % cs > 0)
-                sbq.offer(new Block(Arrays.copyOfRange(objs, lt * cs, objs.length - 1)));
-            else
-                sbq.offer(new Block(Arrays.copyOfRange(objs, i * cs, ++i * cs - 1)));
-    }
-
-    public void remove(T obj) {
-        rl.add(obj);
     }
 }

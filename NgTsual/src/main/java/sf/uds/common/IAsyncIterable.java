@@ -1,6 +1,6 @@
 package sf.uds.common;
 
-public interface IOnetimeAsyncIterable<T> {
+public interface IAsyncIterable<T> {
     T next();
     void add(T obj);
 }
