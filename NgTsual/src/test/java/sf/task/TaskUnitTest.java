@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class TaskUnitTest {
-    @Test
+    @Test(timeout = 3500)
     public void base0() {
         List<Integer> list = Collections.synchronizedList(new ArrayList<>());
         final int max_ths_count = 60;
