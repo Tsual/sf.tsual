@@ -25,13 +25,10 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
     }
 
     private final int rb_size;
-    private final static Object NULL = new Object();
     private int cs;
     private Class<T> klass;
-
     private volatile int rb_index = 0;
     private List<ReadBlock> rb_list;
-
     private Block cur_write;
     private final Object cur_write_lock = new Object();
     private ConcurrentLinkedQueue<Block> sbq;
@@ -67,7 +64,7 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
     @Override
     public T next() {
         ReadBlock readBlock = rb_list.get(rb_index = ((rb_index + 1) % rb_size));
-        Object cur_obj = NULL;
+        T cur_obj = null;
         synchronized (readBlock.lock) {
             readBlock.inUse = true;
             if (readBlock.block == null) {
@@ -95,12 +92,7 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
             }
             readBlock.inUse = false;
         }
-
-        if (NULL.equals(cur_obj))
-            return null;
-        else {
-            return (T) cur_obj;
-        }
+        return cur_obj;
     }
 
     public void add(T obj) {
