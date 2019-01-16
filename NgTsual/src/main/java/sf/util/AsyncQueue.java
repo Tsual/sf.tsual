@@ -29,7 +29,7 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
     private int cs;
     private Class<T> klass;
 
-    private int rb_index = 0;
+    private volatile int rb_index = 0;
     private List<ReadBlock> rb_list;
 
     private Block cur_write;
