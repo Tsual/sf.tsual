@@ -78,23 +78,18 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
 
     @Override
     public T next() {
-        ReadBlock readBlock = null;
-        for (int i = 0; i < rb_size && readBlock.inUse && !readBlock.containsData; i++)
+        ReadBlock readBlock = rb_list.get(0);
+        for (int i = 1; i < rb_size && readBlock.inUse; i++)
             readBlock = rb_list.get(i);
-
-        if (readBlock == null)
-            return null;
 
         Object cur_obj = NULL;
         synchronized (readBlock.lock) {
             readBlock.inUse = true;
             if (readBlock.block == null) {
                 if ((readBlock.block = sbq.poll()) != null) {
-                    readBlock.containsData = true;
                     cur_obj = readBlock.block.array[readBlock.block.index];
                 } else if (cur_write.size > 0) {
                     synchronized (cur_write_lock) {
-                        readBlock.containsData = true;
                         readBlock.block = cur_write;
                         cur_write = new Block();
                         cur_obj = readBlock.block.array[readBlock.block.index];
@@ -102,14 +97,11 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
                 }
             } else {
                 if (++readBlock.block.index < readBlock.block.size) {
-                    readBlock.containsData = false;
                     cur_obj = readBlock.block.array[readBlock.block.index];
                 } else if ((readBlock.block = sbq.poll()) != null) {
-                    readBlock.containsData = true;
                     cur_obj = readBlock.block.array[readBlock.block.index];
                 } else if (cur_write.size > 0) {
                     synchronized (cur_write_lock) {
-                        readBlock.containsData = true;
                         readBlock.block = cur_write;
                         cur_write = new Block();
                         cur_obj = readBlock.block.array[readBlock.block.index];
@@ -139,11 +131,11 @@ public class AdvanceAsyncQueue<T> implements IOnetimeAsyncIterable<T> {
     }
 
     public void add(T[] objs) {
-        for (int i = 0, lt = objs.length / cs; i <= lt; i++)
-            sbq.offer(new Block(
-                    i == lt ? Arrays.copyOfRange(objs, lt * cs, objs.length - 1)
-                            : Arrays.copyOfRange(objs, i * cs, (i + 1) * cs - 1)
-            ));
+        for (int i = 0, lt = objs.length / cs; i <= lt; )
+            if (i == lt && objs.length % cs > 0)
+                sbq.offer(new Block(Arrays.copyOfRange(objs, lt * cs, objs.length - 1)));
+            else
+                sbq.offer(new Block(Arrays.copyOfRange(objs, i * cs, ++i * cs - 1)));
     }
 
     public void remove(T obj) {

@@ -59,10 +59,12 @@ public class AdvanceAsyncQueueTest {
         for (int i = 0; i < ra; i++) {
             int finalI = i;
             rat[i] = new Thread(() -> {
-                Random random = new Random();
                 while (true) {
-                    queue.add(random.nextInt());
-                    rac[finalI]++;
+                    Integer[] br = new Integer[256];
+                    for (int e = 0; e < 256; e++)
+                        br[e] = 0x00;
+                    queue.add(br);
+                    rac[finalI] += 256;
                 }
             });
         }
