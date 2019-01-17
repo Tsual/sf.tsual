@@ -75,30 +75,33 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
         ReadBlock readBlock = rb_head = rb_head.next;
         synchronized (readBlock.lock) {
             if (readBlock.block == null) {
-                if ((readBlock.block = sbq.poll()) != null) {
-                    return readBlock.block.array[readBlock.block.index];
-                } else if (cur_write.size > 0) {
-                    synchronized (cur_write_lock) {
-                        readBlock.block = cur_write;
-                        cur_write = new Block();
-                        return readBlock.block.array[readBlock.block.index];
-                    }
-                }
+                if (poll_q(readBlock)) return readBlock.block.array[readBlock.block.index];
             } else {
                 if (++readBlock.block.index < readBlock.block.size) {
                     return readBlock.block.array[readBlock.block.index];
-                } else if ((readBlock.block = sbq.poll()) != null) {
-                    return readBlock.block.array[readBlock.block.index];
-                } else if (cur_write.size > 0) {
-                    synchronized (cur_write_lock) {
-                        readBlock.block = cur_write;
-                        cur_write = new Block();
-                        return readBlock.block.array[readBlock.block.index];
-                    }
-                }
+                } else if (poll_q(readBlock)) return readBlock.block.array[readBlock.block.index];
+            }
+        }
+        readBlock = rb_head = rb_head.next;
+        synchronized (readBlock.lock) {
+            if (readBlock.block != null && ++readBlock.block.index < readBlock.block.size) {
+                return readBlock.block.array[readBlock.block.index];
             }
         }
         return null;
+    }
+
+    private boolean poll_q(ReadBlock readBlock) {
+        if ((readBlock.block = sbq.poll()) != null) {
+            return true;
+        } else if (cur_write.size > 0) {
+            synchronized (cur_write_lock) {
+                readBlock.block = cur_write;
+                cur_write = new Block();
+                return true;
+            }
+        }
+        return false;
     }
 
     public void add(T obj) {
