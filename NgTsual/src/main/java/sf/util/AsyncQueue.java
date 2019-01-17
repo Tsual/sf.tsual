@@ -16,19 +16,23 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
             array = (T[]) Array.newInstance(klass, cs);
             size = 0;
         }
+
+        Block(T[] array) {
+            this.array = array;
+            size = array.length;
+        }
     }
 
     class ReadBlock {
         Block block;
-        boolean inUse = false;
+        ReadBlock next;
         final Object lock = new Object();
     }
 
+    private ReadBlock rb_head;
     private final int rb_size;
     private int cs;
     private Class<T> klass;
-    private volatile int rb_index = 0;
-    private List<ReadBlock> rb_list;
     private Block cur_write;
     private final Object cur_write_lock = new Object();
     private ConcurrentLinkedQueue<Block> sbq;
@@ -55,44 +59,46 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
     private void init() {
         cur_write = new Block();
         sbq = new ConcurrentLinkedQueue<>();
-        rb_list = new ArrayList<>(rb_size);
+
+        ArrayList<ReadBlock> rb_list = new ArrayList<>(rb_size);
         for (int i = 0; i < rb_size; i++) {
             rb_list.add(new ReadBlock());
         }
+        for (int i = 0; i < rb_size; i++) {
+            rb_list.get(i).next = rb_list.get((i + 1) % rb_size);
+        }
+        rb_head = rb_list.get(0);
     }
 
     @Override
     public T next() {
-        ReadBlock readBlock = rb_list.get(rb_index = ((rb_index + 1) % rb_size));
-        T cur_obj = null;
+        ReadBlock readBlock = rb_head = rb_head.next;
         synchronized (readBlock.lock) {
-            readBlock.inUse = true;
             if (readBlock.block == null) {
                 if ((readBlock.block = sbq.poll()) != null) {
-                    cur_obj = readBlock.block.array[readBlock.block.index];
+                    return readBlock.block.array[readBlock.block.index];
                 } else if (cur_write.size > 0) {
                     synchronized (cur_write_lock) {
                         readBlock.block = cur_write;
                         cur_write = new Block();
-                        cur_obj = readBlock.block.array[readBlock.block.index];
+                        return readBlock.block.array[readBlock.block.index];
                     }
                 }
             } else {
                 if (++readBlock.block.index < readBlock.block.size) {
-                    cur_obj = readBlock.block.array[readBlock.block.index];
+                    return readBlock.block.array[readBlock.block.index];
                 } else if ((readBlock.block = sbq.poll()) != null) {
-                    cur_obj = readBlock.block.array[readBlock.block.index];
+                    return readBlock.block.array[readBlock.block.index];
                 } else if (cur_write.size > 0) {
                     synchronized (cur_write_lock) {
                         readBlock.block = cur_write;
                         cur_write = new Block();
-                        cur_obj = readBlock.block.array[readBlock.block.index];
+                        return readBlock.block.array[readBlock.block.index];
                     }
                 }
             }
-            readBlock.inUse = false;
         }
-        return cur_obj;
+        return null;
     }
 
     public void add(T obj) {
@@ -103,5 +109,9 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
             }
             cur_write.array[cur_write.size++] = obj;
         }
+    }
+
+    public void add(T[] obj) {
+        sbq.offer(new Block(obj));
     }
 }
