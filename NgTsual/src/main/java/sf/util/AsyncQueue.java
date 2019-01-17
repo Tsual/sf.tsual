@@ -96,9 +96,11 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
             return true;
         } else if (cur_write.size > 0) {
             synchronized (cur_write_lock) {
-                readBlock.block = cur_write;
-                cur_write = new Block();
-                return true;
+                if (cur_write.size > 0) {
+                    readBlock.block = cur_write;
+                    cur_write = new Block();
+                    return true;
+                }
             }
         }
         return false;
