@@ -72,14 +72,14 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
 
     @Override
     public T next() {
-        ReadBlock readBlock = rb_head = rb_head.next;
+        ReadBlock readBlock = rb_head.next;
         synchronized (readBlock.lock) {
             if (readBlock.block == null) {
-                if (poll_q(readBlock)) return readBlock.block.array[readBlock.block.index];
+                if (poll_q(readBlock)) return readBlock.block.array[0];
             } else {
                 if (++readBlock.block.index < readBlock.block.size) {
                     return readBlock.block.array[readBlock.block.index];
-                } else if (poll_q(readBlock)) return readBlock.block.array[readBlock.block.index];
+                } else if (poll_q(readBlock)) return readBlock.block.array[0];
             }
         }
         readBlock = rb_head = rb_head.next;

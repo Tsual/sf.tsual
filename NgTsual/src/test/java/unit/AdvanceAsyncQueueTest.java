@@ -94,7 +94,7 @@ public class AdvanceAsyncQueueTest {
         System.out.println(Arrays.stream(rwc).sum());
     }
 
-    //@Test(timeout = 10000)
+    @Test(timeout = 10000)
     public void benchmark0() throws InterruptedException {
         AsyncQueue<Integer> queue0 = new AsyncQueue<>(Integer.class, 64, 4);
         final int ra = 1;
@@ -189,6 +189,7 @@ public class AdvanceAsyncQueueTest {
         System.out.println(Arrays.stream(rwc0).sum());
         System.out.println(Arrays.stream(rac1).sum());
         System.out.println(Arrays.stream(rwc1).sum());
+        Assert.assertTrue(Arrays.stream(rwc0).sum() > Arrays.stream(rwc1).sum());
     }
 
 }
