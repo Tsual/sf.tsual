@@ -1,6 +1,7 @@
 package sf.task;
 
 import sf.uds.del.IExec_0;
+import sf.uds.del.IRun_0;
 
 public class Task<T> {
     TaskHub hub;
@@ -8,6 +9,7 @@ public class Task<T> {
     volatile boolean isInProducing = false;
     volatile boolean isAbort = false;
     Long startTime, executeTime, finishTime, abortDuration;
+    Task<T> next;
 
     private IExec_0<T> executable;
     private T produceResult = null;
@@ -101,19 +103,20 @@ public class Task<T> {
     }
 
     Task<T> execute() {
-        if (isProduced | isAbort | isInProducing) return this;
-        isInProducing = true;
-        lifecycle.startExecuting();
-        try {
-            produceResult = executable.execute();
-        } catch (InterruptedException ignored) {
-        } catch (Exception ex) {
-            lifecycle.crashException(ex);
-        } finally {
-            notifyFinish();
+        if (isProduced ^ isAbort ^ isInProducing) {
+            isInProducing = true;
+            lifecycle.startExecuting();
+            try {
+                produceResult = executable.execute();
+            } catch (InterruptedException ignored) {
+            } catch (Exception ex) {
+                lifecycle.crashException(ex);
+            } finally {
+                notifyFinish();
+            }
+            lifecycle.finish();
         }
-        lifecycle.finish();
-        return this;
+        return next == null ? this : next.execute();
     }
 
     public T syncExecute() throws Exception {

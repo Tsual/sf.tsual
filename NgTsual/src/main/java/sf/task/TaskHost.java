@@ -27,8 +27,8 @@ public class TaskHost implements AutoCloseable {
     {
         TaskWorker tw_ptr = (TaskWorker) Thread.currentThread();
         while (!thread_close) {
-            Task task;
-            try {
+            Task task = tw_ptr.task;
+            if (task != null) try {
                 synchronized (host_lock) {
                     if ((task = task_queue.next()) != null) {
                         host_lock.notifyAll();
@@ -48,7 +48,7 @@ public class TaskHost implements AutoCloseable {
             }
 
             //如果由其他线程执行task，就跳过这个task
-            if (task == null || task.isInProducing | task.isProduced() | task.isAbort) continue;
+            if (task == null) continue;
 
             //对线程变量的操作
             switch (task.tlOperation) {
@@ -70,9 +70,7 @@ public class TaskHost implements AutoCloseable {
     void abort_task_overtime(Task task, TaskHub hub) {
         if (task.isProduced()) return;
         if (task.executor instanceof TaskWorker) u.resetWorker(task.executor, this);
-        else {
-            task.isAbort = true;
-        }
+        else task.isAbort = true;
         task.lifecycle.overtime();
         task.notifyFinish();
     }
