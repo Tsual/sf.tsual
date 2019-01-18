@@ -17,9 +17,9 @@ public class TaskHost implements AutoCloseable {
     volatile boolean is_add_daemon_alive = true;
     final String add_daemon_lock = "ヾ(^▽^*)))";
     private final String host_lock = "(இωஇ )";
-    private final String workers_lock = "（▼へ▼メ）";
     private volatile boolean thread_close = false;
     private final TaskWorkerDaemonHub daemons = new TaskWorkerDaemonHub();
+    private final Util u = new Util();
 
     private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (t, e) -> start_worker();
 
@@ -47,108 +47,33 @@ public class TaskHost implements AutoCloseable {
                 throw new RuntimeException(e);
             }
 
-            if (task == null) continue;
-            synchronized (task.exec_lock) {
-                if (task.isProduced) continue;
-                switch (task.tlOperation) {
-                    case None:
-                        break;
-                    case Reset:
-                        resetThreadLocal();
-                        break;
-                    case Copy:
-                        copyThreadLocal(task.caller);
-                        break;
-                }
-                task.executeTime = System.currentTimeMillis();
-                task.executor = tw_ptr;
-                task.status = Task.TaskStatus.Executing;
-                if (task.hub.needTrace())
-                    task.hub.trace(task, task.executor.getName() + "<<Begin executing");
-                try {
-                    tw_ptr.task = task;
-                    task.produceResult = task.executable.execute();
-                    task.status = Task.TaskStatus.Finished;
-                } catch (InterruptedException ignored) {
-                } catch (Exception ex) {
-                    task.produceException = ex;
-                    task.status = Task.TaskStatus.Error;
-                } finally {
-                    task.finishTask();
-                    task.notifyFinish();
-                    tw_ptr.task = null;
-                }
+            //如果由其他线程执行task，就跳过这个task
+            if (task == null || task.isInProducing | task.isProduced() | task.isAbort) continue;
+
+            //对线程变量的操作
+            switch (task.tlOperation) {
+                case Reset:
+                    u.resetThreadLocal();
+                    break;
+                case Copy:
+                    u.copyThreadLocal(task.caller);
+                    break;
             }
-            tw_ptr.state = TaskWorker.State.QUIT;
+
+            tw_ptr.task = task;
+            task.execute();
+            tw_ptr.task = null;
         }
+        tw_ptr.state = TaskWorker.State.QUIT;
     };
 
-
-    private void resetWorker(final Thread worker) {
-        final Thread thread = new TaskWorker(thread_group, worker_exec_shell, worker.getName());
-        thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
-        thread.setPriority(worker.getPriority());
-        thread.start();
-        AccessController.doPrivileged((PrivilegedAction) () ->
-        {
-            try {
-                worker.interrupt();
-            } catch (Throwable e) {
-                worker.stop();
-                return null;
-            }
-            return null;
-        });
-    }
-
-    private void copyThreadLocal(final Thread caller) {
-        AccessController.doPrivileged((PrivilegedAction) () ->
-        {
-            try {
-                Field threadLocals = Thread.class.getDeclaredField("threadLocals");
-                threadLocals.setAccessible(true);
-                threadLocals.set(Thread.currentThread(), threadLocals.get(caller));
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-            return null;
-        });
-    }
-
-    private void resetThreadLocal() {
-        AccessController.doPrivileged((PrivilegedAction) () ->
-        {
-            try {
-                Field threadLocals = Thread.class.getDeclaredField("threadLocals");
-                threadLocals.setAccessible(true);
-                threadLocals.set(Thread.currentThread(), null);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-            return null;
-        });
-    }
-
     void abort_task_overtime(Task task, TaskHub hub) {
-        if (task.isProduced)
-            return;
-
-        task.status = Task.TaskStatus.Overtime;
-        if (task.hub.needTrace())
-            task.hub.trace(task, "Task overtime:" + task.abortDuration);
-        task.isProduced = true;
-        task.finishTime = System.currentTimeMillis();
-        if (!hub.anyFinish)
-            hub.anyFinish = true;
-
-        if (task.executor != null) {
-            resetWorker(task.executor);
-        } else {
-            task_queue.remove(task);
+        if (task.isProduced()) return;
+        if (task.executor instanceof TaskWorker) u.resetWorker(task.executor, this);
+        else {
+            task.isAbort = true;
         }
-
-        task.caller = null;
-        task.executor = null;
+        task.lifecycle.overtime();
         task.notifyFinish();
     }
 
@@ -178,15 +103,6 @@ public class TaskHost implements AutoCloseable {
         daemons.start_add_daemon();
     }
 
-    private void start_worker() {
-        synchronized (workers_lock) {
-            final Thread worker = new TaskWorker(thread_group, worker_exec_shell, thread_group.getName() + ":TaskWorker@" + thread_group.activeCount());
-            worker.setUncaughtExceptionHandler(uncaughtExceptionHandler);
-            worker.setPriority(5);
-            worker.start();
-        }
-    }
-
     void addTask(Task task) {
         task_queue.add(task);
         task.status = Task.TaskStatus.Queueing;
@@ -214,6 +130,13 @@ public class TaskHost implements AutoCloseable {
 
     public String getName() {
         return name;
+    }
+
+    private void start_worker() {
+        final Thread worker = new TaskWorker(this.thread_group, this.worker_exec_shell, this.thread_group.getName() + ":TaskWorker@" + this.thread_group.activeCount());
+        worker.setUncaughtExceptionHandler(this.uncaughtExceptionHandler);
+        worker.setPriority(5);
+        worker.start();
     }
 
     /**
@@ -257,6 +180,53 @@ public class TaskHost implements AutoCloseable {
             }
             return true;
         }
+
     }
 
+    private class Util {
+        private void resetWorker(final Thread worker, TaskHost taskHost) {
+            final Thread thread = new TaskWorker(taskHost.thread_group, taskHost.worker_exec_shell, worker.getName());
+            thread.setUncaughtExceptionHandler(taskHost.uncaughtExceptionHandler);
+            thread.setPriority(worker.getPriority());
+            thread.start();
+            AccessController.doPrivileged((PrivilegedAction) () ->
+            {
+                try {
+                    worker.interrupt();
+                } catch (Throwable e) {
+                    worker.stop();
+                    return null;
+                }
+                return null;
+            });
+        }
+
+        private void copyThreadLocal(final Thread caller) {
+            AccessController.doPrivileged((PrivilegedAction) () ->
+            {
+                try {
+                    Field threadLocals = Thread.class.getDeclaredField("threadLocals");
+                    threadLocals.setAccessible(true);
+                    threadLocals.set(Thread.currentThread(), threadLocals.get(caller));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                return null;
+            });
+        }
+
+        private void resetThreadLocal() {
+            AccessController.doPrivileged((PrivilegedAction) () ->
+            {
+                try {
+                    Field threadLocals = Thread.class.getDeclaredField("threadLocals");
+                    threadLocals.setAccessible(true);
+                    threadLocals.set(Thread.currentThread(), null);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                return null;
+            });
+        }
+    }
 }

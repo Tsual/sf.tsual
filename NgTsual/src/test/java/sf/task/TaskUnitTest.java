@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class TaskUnitTest {
-    @Test(timeout = 3500)
+    @Test(timeout = 4000)
     public void base0() {
         List<Integer> list = Collections.synchronizedList(new ArrayList<>());
         final int max_ths_count = 60;
@@ -42,7 +42,7 @@ public class TaskUnitTest {
                 });
             final boolean[] deal = {false};
             taskHub.execute(() -> deal[0] = true);
-            taskHub.waitAll(1000);
+            taskHub.waitJump(1000);
             Assert.assertTrue(deal[0]);
         }
     }

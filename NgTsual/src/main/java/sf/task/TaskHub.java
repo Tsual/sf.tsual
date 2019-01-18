@@ -11,19 +11,15 @@ import java.util.TimerTask;
 
 public class TaskHub {
     private final static int report_cache_size = 10;
-    private final static int report_cache_size_m1 = report_cache_size - 1;
 
     TaskHost host;
     private List<Task> tasks = new ArrayList<>();
     private IRun_1<String> traceShell;
 
     final Object wait_lock = "(*˘︶˘*).。.:*♡";
-    final Object finish_lock = new Object();
-    boolean anyFinish = false;
-    int finish_count = 0;
     private int index = 0;
     private final Long allow_delay;
-    private final Long[] delays = new Long[report_cache_size_m1];
+    private final Long[] delays = new Long[report_cache_size - 1];
     private Timer abort_schedule;
 
 
@@ -47,15 +43,13 @@ public class TaskHub {
     }
 
     void taskFinishReport(Task task) {
-        if (!anyFinish)
-            anyFinish = true;
         long all = task.finishTime - task.startTime;
         synchronized (delays) {
-            if (index < report_cache_size_m1)
+            if (index < report_cache_size - 1)
                 delays[index++] = all;
             else {
                 index = 0;
-                for (int i = 0; i < report_cache_size_m1; i++) {
+                for (int i = 0; i < report_cache_size - 1; i++) {
                     all += delays[i];
                     delays[i] = 0L;
                 }
@@ -100,12 +94,16 @@ public class TaskHub {
         return task;
     }
 
+    private boolean nAllFinish(int size) {
+        while (size-- > 0)
+            if (!tasks.get(size).isProduced()) return true;
+        return false;
+    }
+
     public void waitAll() {
         int size = tasks.size();
-        while (true) {
-            if (finish_count >= size) return;
+        while (nAllFinish(size)) {
             synchronized (wait_lock) {
-                if (finish_count >= size) return;
                 try {
                     wait_lock.wait();
                 } catch (InterruptedException e) {
@@ -115,23 +113,33 @@ public class TaskHub {
         }
     }
 
-    public void waitAll(int second) {
+    public void waitAll(long ms) {
         final long sl = System.currentTimeMillis();
         int size = tasks.size();
-        while (finish_count < size) {
-            synchronized (wait_lock) {
-                final long kl = second - System.currentTimeMillis() + sl;
-                try {
-                    if (kl > 0)
-                        wait_lock.wait(kl);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        while (nAllFinish(size) || (ms - System.currentTimeMillis() + sl > 0))
+            ms_wait(ms, sl);
+    }
+
+    private void ms_wait(long ms, final long sl) {
+        synchronized (wait_lock) {
+            final long kl = ms - System.currentTimeMillis() + sl;
+            try {
+                if (kl > 0) wait_lock.wait(kl);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            if (second - System.currentTimeMillis() + sl < 0) {
+        }
+    }
+
+    public void waitJump(long ms) {
+        final long sl = System.currentTimeMillis();
+        int size = tasks.size();
+        while (nAllFinish(size)) {
+            ms_wait(ms, sl);
+            if (ms - System.currentTimeMillis() + sl < 0) {
                 for (Task task : tasks)
-                    if (!task.isProduced)
-                        task.sync_bb();
+                    if (!task.isProduced())
+                        task.execute();
                 break;
             }
         }

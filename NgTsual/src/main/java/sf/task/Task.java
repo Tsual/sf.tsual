@@ -4,37 +4,21 @@ import sf.uds.del.IExec_0;
 
 public class Task<T> {
     TaskHub hub;
-    volatile boolean isProduced = false;
+    private volatile boolean isProduced = false;
+    volatile boolean isInProducing = false;
+    volatile boolean isAbort = false;
     Long startTime, executeTime, finishTime, abortDuration;
 
-    IExec_0<T> executable;
-    T produceResult = null;
-    Exception produceException = null;
+    private IExec_0<T> executable;
+    private T produceResult = null;
+    private Exception produceException = null;
     Thread caller, executor;
     TaskStatus status = TaskStatus.Created;
     ThreadLocalOperation tlOperation = ThreadLocalOperation.None;
     private final Object sf_lock = "($_$)";
-    final Object exec_lock = new Object();
-
-    void finishTask() {
-        if (!isProduced) {
-            isProduced = true;
-            finishTime = System.currentTimeMillis();
-            hub.taskFinishReport(this);
-            caller = null;
-            executor = null;
-            if (this.hub.needTrace())
-                if (produceException == null)
-                    this.hub.trace(this, "Finish executing,result:" + this.produceResult);
-                else
-                    this.hub.trace(this, "Caught Exception:" + produceException.toString());
-        }
-    }
+    final TaskLifecycle lifecycle = new TaskLifecycle(this);
 
     void notifyFinish() {
-        synchronized (hub.finish_lock) {
-            hub.finish_count++;
-        }
         synchronized (hub.wait_lock) {
             hub.wait_lock.notifyAll();
         }
@@ -78,10 +62,9 @@ public class Task<T> {
     }
 
     public void await() {
-        synchronized (sf_lock) {
+        if (!isProduced) synchronized (sf_lock) {
             try {
-                if (!isProduced)
-                    sf_lock.wait();
+                if (!isProduced) sf_lock.wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -89,12 +72,12 @@ public class Task<T> {
     }
 
     public void await(long second) {
-        synchronized (sf_lock) {
+        if (!isProduced) synchronized (sf_lock) {
             try {
                 if (!isProduced)
                     sf_lock.wait(second);
                 if (!isProduced)
-                    sync_bb();
+                    execute();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -117,35 +100,24 @@ public class Task<T> {
         return isProduced;
     }
 
-    Task<T> sync_bb() {
-        if (!isProduced)
-            synchronized (exec_lock) {
-                if (isProduced) return this;
-                hub.host.task_queue.remove(this);
-                this.executeTime = System.currentTimeMillis();
-                this.status = TaskStatus.Executing;
-                this.executor = Thread.currentThread();
-
-                if (this.hub.needTrace())
-                    this.hub.trace(this, this.executor.getName() + "<<Begin executing");
-                try {
-                    this.produceResult = this.executable.execute();
-                    this.status = TaskStatus.Finished;
-
-                } catch (InterruptedException ignored) {
-                } catch (Exception ex) {
-                    this.produceException = ex;
-                    this.status = TaskStatus.Error;
-                } finally {
-                    this.finishTask();
-                    this.notifyFinish();
-                }
-            }
+    Task<T> execute() {
+        if (isProduced | isAbort | isInProducing) return this;
+        isInProducing = true;
+        lifecycle.startExecuting();
+        try {
+            produceResult = executable.execute();
+        } catch (InterruptedException ignored) {
+        } catch (Exception ex) {
+            lifecycle.crashException(ex);
+        } finally {
+            notifyFinish();
+        }
+        lifecycle.finish();
         return this;
     }
 
     public T syncExecute() throws Exception {
-        return sync_bb().getResult();
+        return execute().getResult();
     }
 
     @Override
@@ -172,5 +144,49 @@ public class Task<T> {
         Finished,
         Overtime,
         Error,
+    }
+
+    class TaskLifecycle {
+        Task task;
+
+        TaskLifecycle(Task task) {
+            this.task = task;
+        }
+
+        void startExecuting() {
+            status = TaskStatus.Executing;
+            executeTime = System.currentTimeMillis();
+            executor = Thread.currentThread();
+            if (hub.needTrace()) hub.trace(task, executor.getName() + "<<Begin executing");
+        }
+
+        void crashException(Exception ex) {
+            produceException = ex;
+            status = TaskStatus.Error;
+            isProduced = true;
+            finishTime = System.currentTimeMillis();
+            hub.taskFinishReport(task);
+            caller = null;
+            executor = null;
+            if (hub.needTrace()) hub.trace(task, "Caught Exception:" + produceException.toString());
+        }
+
+        void finish() {
+            status = TaskStatus.Finished;
+            isProduced = true;
+            finishTime = System.currentTimeMillis();
+            hub.taskFinishReport(task);
+            caller = null;
+            executor = null;
+            if (hub.needTrace()) hub.trace(task, "Finish executing,result:" + produceResult);
+        }
+
+        void overtime() {
+            status = TaskStatus.Overtime;
+            task.isProduced = true;
+            caller = null;
+            executor = null;
+            if (hub.needTrace()) hub.trace(task, "Task overtime:" + task.abortDuration);
+        }
     }
 }

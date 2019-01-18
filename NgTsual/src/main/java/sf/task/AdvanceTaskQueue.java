@@ -8,7 +8,6 @@ import java.util.List;
 class AdvanceTaskQueue extends AsyncQueue<Task> implements ITaskQueue<Task> {
     private TaskHost taskHost;
     private long delay;
-    private List<Task> rl = new ArrayList<>();
 
     AdvanceTaskQueue(TaskHost taskHost, long delay) {
         super(Task.class, 32, 4);
@@ -22,17 +21,8 @@ class AdvanceTaskQueue extends AsyncQueue<Task> implements ITaskQueue<Task> {
     }
 
     @Override
-    public void remove(Task task) {
-        rl.add(task);
-    }
-
-    @Override
     public Task next() {
         final Task next = super.next();
-        if (rl.contains(next)) {
-            rl.remove(next);
-            return next();
-        }
         if (next != null && System.currentTimeMillis() - next.startTime > delay)
             remind_host();
         return next;

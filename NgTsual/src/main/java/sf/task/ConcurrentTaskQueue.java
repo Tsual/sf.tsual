@@ -2,7 +2,7 @@ package sf.task;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class ConcurrentTaskQueue implements ITaskQueue<Task> {
+class ConcurrentTaskQueue implements ITaskQueue<Task> {
     private ConcurrentLinkedQueue<Task> queue = new ConcurrentLinkedQueue<>();
     private TaskHost host;
     private long delay;
@@ -15,11 +15,6 @@ public class ConcurrentTaskQueue implements ITaskQueue<Task> {
     @Override
     public TaskHost getHost() {
         return host;
-    }
-
-    @Override
-    public void remove(Task task) {
-        queue.remove(task);
     }
 
     @Override
