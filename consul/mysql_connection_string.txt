@@ -1,0 +1,1 @@
+Server=20.26.38.76;Database=db0;Uid=dbu;Pwd=123456;
