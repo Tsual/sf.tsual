@@ -2,7 +2,7 @@ package sf.task;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-class ConcurrentTaskQueue extends ConcurrentLinkedQueue<Task> implements ITaskQueue<Task> {
+class AsyncTaskQueue extends ConcurrentLinkedQueue<Task> implements ITaskQueue<Task> {
     private TaskHost host;
     private long delay;
 
