@@ -1,0 +1,7 @@
+docker run -d -p 15000:8500 -p 15001-15003:8300-8302 -p 15004:8600 --name consul0 consul agent -server -bind=0.0.0.0 -datacenter=Tdx -bootstrap-expect=1 -node=node-0 -client=0.0.0.0 -ui
+
+$JOIN_IP=docker inspect -f {{.NetworkSettings.IPAddress}} node1
+
+docker run -d --name consul1 consul agent -server -datacenter=Tdx -node=node-1 -join=$JOIN_IP
+docker run -d --name consul2 consul agent -server -datacenter=Tdx -node=node-2 -join=$JOIN_IP
+docker run -d --name consul3 consul agent -server -datacenter=Tdx -node=node-3 -join=$JOIN_IP
