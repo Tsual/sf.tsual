@@ -1,11 +1,9 @@
 package sf.task;
 
-import sf.uds.common.IAsyncIterable;
+import sf.uds.common.IConcurrentIterable;
 
-public interface ITaskQueue<T extends Task> extends IAsyncIterable<T> {
+public interface ITaskQueue<T extends Task> extends IConcurrentIterable<T> {
     TaskHost getHost();
-
-    void add(T task);
 
     default void remind_host() {
         final TaskHost host = getHost();

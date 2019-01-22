@@ -2,7 +2,7 @@ package unit;
 
 import org.junit.Assert;
 import org.junit.Test;
-import sf.util.AsyncQueue;
+import sf.util.ConcurrentQueue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class AdvanceAsyncQueueTest {
+public class AdvanceConcurrentQueueTest {
     @Test(timeout = 3000)
     public void base0() throws InterruptedException {
         final int t_count = 10;
         Thread[] ths = new Thread[t_count];
         List<Integer>[] ths_list = new List[t_count];
-        AsyncQueue<Integer> queue = new AsyncQueue<>(Integer.class, 128, 1);
+        ConcurrentQueue<Integer> queue = new ConcurrentQueue<>(Integer.class, 128, 1);
 
         final int w_count = 10000;
         for (int ti = 0; ti < t_count; ti++) {
@@ -40,7 +40,7 @@ public class AdvanceAsyncQueueTest {
         for (int ti = 0; ti < t_count; ti++)
             for (int wi = 0; wi < w_count; wi++) {
                 final Integer next = queue.next();
-                if (next == null) Assert.fail("AsyncQueue.size error");
+                if (next == null) Assert.fail("ConcurrentQueue.size error");
                 g1 += (ths_list[ti].get(wi) - next);
             }
         Assert.assertEquals(0, g1);
@@ -48,7 +48,7 @@ public class AdvanceAsyncQueueTest {
 
     @Test(timeout = 0)
     public void async0() throws InterruptedException {
-        AsyncQueue<Integer> queue = new AsyncQueue<>(Integer.class, 32, 4);
+        ConcurrentQueue<Integer> queue = new ConcurrentQueue<>(Integer.class, 32, 4);
         final int ra = 32;
         final int rw = 4;
         Thread[] rat = new Thread[ra];
@@ -95,7 +95,7 @@ public class AdvanceAsyncQueueTest {
 
     @Test(timeout = 10000)
     public void benchmark0() throws InterruptedException {
-        AsyncQueue<Integer> queue0 = new AsyncQueue<>(Integer.class, 64, 4);
+        ConcurrentQueue<Integer> queue0 = new ConcurrentQueue<>(Integer.class, 64, 4);
         final int ra = 1;
         final int rw = 16;
         Thread[] rat = new Thread[ra];

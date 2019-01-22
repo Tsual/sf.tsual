@@ -78,7 +78,7 @@ public class TaskHost implements AutoCloseable {
     public TaskHost() {
         final UUID uuid = UUID.randomUUID();
         int start_worker_count = 5;
-        this.task_queue = new AdvanceTaskQueue(this, 200L);
+        this.task_queue = new ConcurrentTaskQueue(this, 200L);
         this.name = uuid.toString();
         this.thread_group = new ThreadGroup("TaskHost-" + name);
         this.max_worker_count = 20;
@@ -92,7 +92,7 @@ public class TaskHost implements AutoCloseable {
             start_worker_count = 5;
             max_worker_count = 25;
         }
-        this.task_queue = new AdvanceTaskQueue(this, allow_wait_time > 50 ? allow_wait_time : 200);
+        this.task_queue = new ConcurrentTaskQueue(this, allow_wait_time > 50 ? allow_wait_time : 200);
         this.name = name;
         this.thread_group = new ThreadGroup("TaskHost-" + name);
         this.max_worker_count = max_worker_count;

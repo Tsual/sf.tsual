@@ -1,30 +1,25 @@
 package sf.task;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import sf.util.ConcurrentQueue;
 
-class ConcurrentTaskQueue implements ITaskQueue<Task> {
-    private ConcurrentLinkedQueue<Task> queue = new ConcurrentLinkedQueue<>();
-    private TaskHost host;
+class ConcurrentTaskQueue extends ConcurrentQueue<Task> implements ITaskQueue<Task> {
+    private TaskHost taskHost;
     private long delay;
 
-    public ConcurrentTaskQueue(TaskHost host, long delay) {
-        this.host = host;
+    ConcurrentTaskQueue(TaskHost taskHost, long delay) {
+        super(Task.class, 32, 4);
+        this.taskHost = taskHost;
         this.delay = delay;
     }
 
     @Override
     public TaskHost getHost() {
-        return host;
-    }
-
-    @Override
-    public void add(Task task) {
-        queue.offer(task);
+        return taskHost;
     }
 
     @Override
     public Task next() {
-        final Task next = queue.poll();
+        final Task next = super.next();
         if (next != null && System.currentTimeMillis() - next.startTime > delay)
             remind_host();
         return next;

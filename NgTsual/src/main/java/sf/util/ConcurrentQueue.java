@@ -1,12 +1,12 @@
 package sf.util;
 
-import sf.uds.common.IAsyncIterable;
+import sf.uds.common.IConcurrentIterable;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class AsyncQueue<T> implements IAsyncIterable<T> {
+public class ConcurrentQueue<T> implements IConcurrentIterable<T> {
     class Block {
         T[] array;
         int size;
@@ -42,14 +42,14 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
      * @param cacheSize      队列块大小
      * @param readBlockCount 读取块大小 建议 读取线程数量/8
      */
-    public AsyncQueue(Class<T> klass, int cacheSize, int readBlockCount) {
+    public ConcurrentQueue(Class<T> klass, int cacheSize, int readBlockCount) {
         this.klass = Objects.requireNonNull(klass);
         this.cs = cacheSize > 8 ? cacheSize : 8;
         this.rb_size = readBlockCount;
         init();
     }
 
-    public AsyncQueue(Class<T> klass) {
+    public ConcurrentQueue(Class<T> klass) {
         this.klass = Objects.requireNonNull(klass);
         cs = 16;
         this.rb_size = 16;
@@ -106,7 +106,7 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
         return false;
     }
 
-    public void add(T obj) {
+    public boolean add(T obj) {
         synchronized (cur_write_lock) {
             if (cur_write.size == cs) {
                 sbq.offer(cur_write);
@@ -114,6 +114,7 @@ public class AsyncQueue<T> implements IAsyncIterable<T> {
             }
             cur_write.array[cur_write.size++] = obj;
         }
+        return true;
     }
 
     public void add(T[] obj) {
