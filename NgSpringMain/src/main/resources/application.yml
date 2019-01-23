@@ -1,0 +1,13 @@
+spring:
+  cloud:
+    consul:
+      host: 20.26.38.76
+      port: 15000
+      discovery:
+        instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
+        ip-address: ${EXPOSE_IP}
+        prefer-ip-address: true
+  application:
+    name: consul-demo
+
+
