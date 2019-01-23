@@ -1,1 +1,1 @@
-docker run -d -p 14500:8888 --name tsual_springcloudconfig0 ngspringcloudconfig:latest java -jar sf.spring.cloud.config-0.0.1.jar
+docker run -d -p 14500:8888 --name tsual_springconfigcloud0 springconfigcloud:latest java -jar sf.spring.cloud.config-0.0.1.jar
