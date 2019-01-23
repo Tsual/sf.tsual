@@ -1,0 +1,52 @@
+group 'sf.tsual'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+def output_jars_dir = 'build/jars'
+
+task copyDependencyJars(type: Copy) {
+    def fl = file output_jars_dir
+    if (fl != null) fl.delete();
+    fl = mkdir(output_jars_dir)
+    from configurations.runtime
+    into fl
+}
+
+jar {
+    destinationDir = file output_jars_dir
+    baseName = 'sf.spring.cloud.config'
+    version = '0.0.1'
+    manifest {
+        attributes 'Main-Class': 'sf.config.ConfigServer'
+        attributes 'Class-Path': String.join(' ', file(output_jars_dir).list())
+    }
+}
+
+task buildOutput() {
+    dependsOn(clean)
+    //dependsOn(dependencies)
+    dependsOn(copyDependencyJars)
+    dependsOn(jar)
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    //compile project(':NgTsual')
+    //compile("com.google.code.gson:gson")
+    //compile("org.springframework.boot:spring-boot-starter-web")
+    compile group: 'org.springframework.cloud', name: 'spring-cloud-config-server', version: '2.0.2.RELEASE'
+    //runtime group: 'org.springframework.cloud', name: 'spring-cloud-config-monitor', version: '2.0.2.RELEASE'
+//    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.1.2.RELEASE'
+}

@@ -1,0 +1,22 @@
+{
+    "ID": "0",
+    "Name": "srest",
+    "Tags": [
+        "sample",
+        "dotnet",
+        "restful"
+    ],
+    "Address": "20.26.38.76",
+    "Port": 14000,
+    "EnableTagOverride": false,
+    "Check": {
+        "DeregisterCriticalServiceAfter": "90m",
+        "HTTP": "http://20.26.38.76:14000/ksv/health",
+        "Interval": "15s",
+        "TTL": "15s"
+    },
+    "Weights": {
+        "Passing": 10,
+        "Warning": 1
+    }
+}
