@@ -1,4 +1,4 @@
-docker run -d -p 15000:8500 -p 15001-15003:8300-8302 -p 15004:8600 -p 15004:8600/udp --name tsual_consul0 consul agent -server -bind=0.0.0.0 -datacenter=Tdx -bootstrap-expect=1 -node=consul.node0 -client=0.0.0.0 -ui
+docker run -d -p 15000:8500 -p 15001-15003:8300-8302 -p 15004:8600 -p 15004:8600/udp --name consul0 consul agent -server -bind=0.0.0.0 -datacenter=Tdx -bootstrap-expect=1 -node=consul.master -client=0.0.0.0 -ui
 
 $JOIN_IP=docker inspect -f {{.NetworkSettings.IPAddress}} node1
 

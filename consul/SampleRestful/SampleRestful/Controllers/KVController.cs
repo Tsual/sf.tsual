@@ -26,7 +26,7 @@ namespace SampleRestful.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MKV>>> GetSKV()
         {
-            return await _context.SKV.ToListAsync();
+            return await _context.SKV.Take(10).ToListAsync();
         }
 
         // GET: api/KV/5
@@ -77,6 +77,7 @@ namespace SampleRestful.Controllers
         [HttpPost]
         public async Task<ActionResult<MKV>> PostMKV(MKV mKV)
         {
+            if (_context.SKV.Find(mKV.Key) != null) return Forbid();
             _context.SKV.Add(mKV);
             await _context.SaveChangesAsync();
 

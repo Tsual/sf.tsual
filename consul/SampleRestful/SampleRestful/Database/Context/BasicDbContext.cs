@@ -15,7 +15,7 @@ namespace SampleRestful.Database.Context
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //optionsBuilder.UseSqlite("Data Source = default.db;");
-            optionsBuilder.UseMySQL("Server=20.26.38.76;Database=db0;Uid=dbu;Pwd=123456;");
+            optionsBuilder.UseMySQL("Server=20.26.38.75;Database=db0;Uid=dbu;Pwd=123456;");
         }
     }
 }
