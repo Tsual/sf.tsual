@@ -10,5 +10,14 @@ spring:
         service-name: spring-srest
   application:
     name: consul-demo
+  datasource:
+    url: ${MYSQL_URL}
+    driver-class-name:com.mysql.jdbc.Driver
 server:
   port: ${EXPOSE_PORT}
+mybatis:
+  type-aliases-package: mybatis.entity
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
