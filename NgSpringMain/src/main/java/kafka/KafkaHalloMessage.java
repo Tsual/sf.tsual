@@ -1,4 +1,4 @@
-package spring.kafka;
+package kafka;
 
 import java.util.Date;
 

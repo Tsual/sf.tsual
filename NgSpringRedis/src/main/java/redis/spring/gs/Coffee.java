@@ -1,4 +1,4 @@
-package spring.redis.gs;
+package redis.spring.gs;
 
 public class Coffee {
 	private String id;

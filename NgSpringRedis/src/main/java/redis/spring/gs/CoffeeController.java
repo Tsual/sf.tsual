@@ -1,4 +1,4 @@
-package spring.redis.gs;
+package redis.spring.gs;
 
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package spring.redis.msg;
+package redis.spring.msg;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,15 +12,14 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import sf.task.DefaultHost;
-import sf.task.Task;
 import sf.task.TaskHub;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class RedisMsgApplication
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RedisMsgApplication.class);
 
-	@Bean
+	//@Bean
 	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
 	                                        MessageListenerAdapter listenerAdapter)
 	{
@@ -32,25 +31,24 @@ public class RedisMsgApplication
 		return container;
 	}
 
-	@Bean
+	//@Bean
 	MessageListenerAdapter listenerAdapter(Receiver receiver)
 	{
 		return new MessageListenerAdapter(receiver, "receiveMessage");
 	}
 
-	@Bean
+	//@Bean
 	Receiver receiver()
 	{
 		return new Receiver();
-	}
-
-	@Bean
+	}+++++++++++++++++++
+	//@Bean
 	StringRedisTemplate template(RedisConnectionFactory connectionFactory)
 	{
 		return new StringRedisTemplate(connectionFactory);
 	}
 
-	@Bean
+	//@Bean
 	TaskHub hub()
 	{
 		return DefaultHost.newDefaultHub(LOGGER::info);

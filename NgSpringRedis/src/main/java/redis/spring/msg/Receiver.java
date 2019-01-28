@@ -1,6 +1,4 @@
-package spring.redis.msg;
-
-import java.util.concurrent.CountDownLatch;
+package redis.spring.msg;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

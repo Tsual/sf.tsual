@@ -1,4 +1,4 @@
-package spring.redis.gs;
+package redis.spring.gs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

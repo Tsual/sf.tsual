@@ -1,0 +1,20 @@
+group 'sf.tsual'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'mysql', name: 'mysql-connector-java', version: '^{jdbc_version}'
+    compile group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '^{generator_version}'
+}
+
+task copyGeneratorJars(type: Copy) {
+    from configurations.runtime
+    into '.\\'
+}
