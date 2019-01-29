@@ -41,7 +41,8 @@ public class RedisMsgApplication
 	Receiver receiver()
 	{
 		return new Receiver();
-	}+++++++++++++++++++
+	}
+
 	//@Bean
 	StringRedisTemplate template(RedisConnectionFactory connectionFactory)
 	{

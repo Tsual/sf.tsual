@@ -1,7 +1,5 @@
 package spring.consul;
 
-import org.mybatis.spring.annotation.MapperScan;
-import org.mybatis.spring.annotation.MapperScans;
 import spring.mybatis.dao.KVMapper;
 import spring.mybatis.entity.KV;
 import org.springframework.beans.factory.annotation.Autowired;

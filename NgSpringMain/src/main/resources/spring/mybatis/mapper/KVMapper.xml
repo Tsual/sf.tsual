@@ -66,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    Key
+    SKV.Key
   </sql>
   <sql id="Blob_Column_List">
     Value
@@ -107,11 +107,11 @@
     ,
     <include refid="Blob_Column_List" />
     from SKV
-    where Key = #{key,jdbcType=VARCHAR}
+    where SKV.Key = #{key,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from SKV
-    where Key = #{key,jdbcType=VARCHAR}
+    where SKV.Key = #{key,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="spring.mybatis.entity.KVExample">
     delete from SKV
@@ -152,7 +152,7 @@
     update SKV
     <set>
       <if test="record.key != null">
-        Key = #{record.key,jdbcType=VARCHAR},
+        SKV.Key = #{record.key,jdbcType=VARCHAR},
       </if>
       <if test="record.value != null">
         Value = #{record.value,jdbcType=LONGVARCHAR},
@@ -164,7 +164,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update SKV
-    set Key = #{record.key,jdbcType=VARCHAR},
+    set SKV.Key = #{record.key,jdbcType=VARCHAR},
       Value = #{record.value,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -172,7 +172,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update SKV
-    set Key = #{record.key,jdbcType=VARCHAR}
+    set SKV.Key = #{record.key,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -184,11 +184,11 @@
         Value = #{value,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where Key = #{key,jdbcType=VARCHAR}
+    where SKV.Key = #{key,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="spring.mybatis.entity.KV">
     update SKV
     set Value = #{value,jdbcType=LONGVARCHAR}
-    where Key = #{key,jdbcType=VARCHAR}
+    where SKV.Key = #{key,jdbcType=VARCHAR}
   </update>
 </mapper>

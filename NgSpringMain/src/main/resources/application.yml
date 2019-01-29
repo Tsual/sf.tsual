@@ -12,7 +12,7 @@ spring:
     name: consul-demo
 
   datasource:
-    url: jdbc:mysql://20.26.38.75:3306/db0?user=root&password=123456 #Server=20.26.38.75;Database=db0;Uid=dbu;Pwd=123456;
+    url: jdbc:mysql://20.26.38.75:3306/db0?user=root&password=123456&charset=Unicode #Server=20.26.38.75;Database=db0;Uid=dbu;Pwd=123456;
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: dbu
     password: 123456
