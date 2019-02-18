@@ -7,7 +7,7 @@ $generator_version = '1.3.7'
 $jdbc_version = '8.0.13'
 
 Write-Host '1/4: create build.gradle'
-$gradle_out = Get-Content -Encoding UTF8 $PSScriptRoot\build.template.gradle
+$gradle_out = Get-Content -Encoding  UTF8 $PSScriptRoot\build.template.gradle
 $gradle_out = $gradle_out.Replace('^{generator_version}', $generator_version)
 $gradle_out = $gradle_out.Replace('^{jdbc_version}', $jdbc_version)
 Out-File -FilePath $PSScriptRoot\build.gradle -Encoding ASCII -InputObject $gradle_out

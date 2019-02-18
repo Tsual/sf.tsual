@@ -1,0 +1,2 @@
+worker分离为accepter和slave，由accepter托管占位和同步即与外界交互，slave只负责与master和accepter交互
+daemon作为master 负责slave生命周期与优先级算法调度
