@@ -12,6 +12,7 @@ namespace SampleRestful.Controllers
     public class HealthController : ControllerBase
     {
         [HttpGet]
+        [ResponseCache(Duration=int.MaxValue)]
         public ActionResult Get()
         {
             return Ok();

@@ -19,7 +19,6 @@ repositories {
 
 dependencies {
     compile project(':NgTsual')
-    compile project(':NgSpringRedis')
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.kafka:spring-kafka")
     compile("com.google.code.gson:gson")

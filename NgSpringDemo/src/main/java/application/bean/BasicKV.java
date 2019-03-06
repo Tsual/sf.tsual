@@ -1,18 +1,18 @@
-package application.controller.redis.kv;
+package application.bean;
 
 
-public class RedisKV {
+public class BasicKV {
     private String key;
     private String value;
 
-    public RedisKV(String key, String value) {
+    public BasicKV(String key, String value) {
         this.key = key;
         this.value = value;
     }
 
     @Override
     public String toString() {
-        return "RedisKV{" +
+        return "BasicKV{" +
                 "key='" + key + '\'' +
                 ", value='" + value + '\'' +
                 '}';
