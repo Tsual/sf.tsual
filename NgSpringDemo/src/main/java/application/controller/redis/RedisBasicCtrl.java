@@ -5,11 +5,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
+import org.springframework.data.redis.core.BoundListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import sf.util.StringHelper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 @RestController
@@ -31,6 +35,22 @@ public class RedisBasicCtrl {
         hashOps.put(obj.getKey(), obj.getValue());
         log.trace("push " + obj + " to basic hash");
         log.trace("get " + hashOps.get(obj.getKey()) + " from basic hash");
-        return hashOps.get(obj.getKey()).toString();
+        return hashOps.get(obj.getKey())+"";
+    }
+
+    @RequestMapping(value = "/2", method = {RequestMethod.GET})
+    public List<String> mh2() {
+        Random ran = new Random();
+        final BoundListOperations<String, String> basic = redisTemplate.boundListOps("Basic");
+        for (int i = 0; i < 50; i++) {
+            basic.rightPush(ran.nextInt() + "");
+        }
+        final ArrayList<String> strings = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            final String s = basic.leftPop();
+            if (StringHelper.isNotEmpty(s))
+                strings.add(s);
+        }
+        return strings;
     }
 }

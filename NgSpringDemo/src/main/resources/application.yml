@@ -1,6 +1,6 @@
 
 
-trace: true
+debug: true
 ---
 #redis
 spring:
