@@ -31,7 +31,7 @@ public class RedisBasicCtrl {
     public String mh1() {
         Random ran = new Random();
         BasicKV obj = new BasicKV(ran.nextInt() + "", ran.nextInt() + "");
-        final BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps("Basic");
+        final BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps("Basic0");
         hashOps.put(obj.getKey(), obj.getValue());
         log.trace("push " + obj + " to basic hash");
         log.trace("get " + hashOps.get(obj.getKey()) + " from basic hash");
@@ -41,7 +41,7 @@ public class RedisBasicCtrl {
     @RequestMapping(value = "/2", method = {RequestMethod.GET})
     public List<String> mh2() {
         Random ran = new Random();
-        final BoundListOperations<String, String> basic = redisTemplate.boundListOps("Basic");
+        final BoundListOperations<String, String> basic = redisTemplate.boundListOps("Basic1");
         for (int i = 0; i < 50; i++) {
             basic.rightPush(ran.nextInt() + "");
         }
