@@ -1,4 +1,4 @@
-package application.bean;
+package application.model;
 
 
 public class BasicKV {

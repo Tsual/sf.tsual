@@ -1,9 +1,10 @@
-package application.controller.redis;
+package application.controller;
 
-import application.bean.BasicKV;
+import application.model.BasicKV;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+//https://redis.io/commands
 @RestController
 @RequestMapping("/redis/basic")
 public class RedisBasicCtrl {
@@ -52,5 +54,11 @@ public class RedisBasicCtrl {
                 strings.add(s);
         }
         return strings;
+    }
+
+    @RequestMapping(value = "/3", method = {RequestMethod.GET})
+    @Cacheable("author_name")
+    public String mh3(String auth_name){
+        return auth_name;
     }
 }
