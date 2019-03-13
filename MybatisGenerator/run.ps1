@@ -1,5 +1,5 @@
 #config
-$connectionURL = 'jdbc:mysql://20.26.38.75/db0'
+$connectionURL = 'jdbc:mysql://localhost/db0'
 $db_user = 'dbu'
 $db_password = '123456'
 $java_prefix = 'spring.mybatis'

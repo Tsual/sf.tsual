@@ -1,6 +1,6 @@
 
-
-debug: true
+Author: Tsual
+#debug: true
 ---
 #redis
 spring:
