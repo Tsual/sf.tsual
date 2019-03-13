@@ -1,4 +1,4 @@
 package application.bean;
 
-public class Udb0 {
+public class Uuid2 {
 }
