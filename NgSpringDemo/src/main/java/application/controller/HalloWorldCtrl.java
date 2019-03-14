@@ -1,6 +1,7 @@
 package application.controller;
 
 import application.bean.Uuid0;
+import application.dao.SKVDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -18,12 +19,15 @@ public class HalloWorldCtrl {
     private Uuid0 uuid0;
     private ApplicationContext applicationContext;
     private String author;
+    private SKVDao dao;
 
     @Autowired
-    public HalloWorldCtrl(Uuid0 uuid0, ApplicationContext applicationContext, @Value("${Author}") String author) {
+    public HalloWorldCtrl(Uuid0 uuid0, ApplicationContext applicationContext, @Value("${Author}") String author,
+                          SKVDao dao) {
         this.uuid0 = uuid0;
         this.applicationContext = applicationContext;
-        this.author=author;
+        this.author = author;
+        this.dao = dao;
     }
 
     @RequestMapping(method = {RequestMethod.GET})
@@ -47,5 +51,10 @@ public class HalloWorldCtrl {
         m.put("count", applicationContext.getBeanDefinitionCount());
         m.put("names", applicationContext.getBeanDefinitionNames());
         return m;
+    }
+
+    @RequestMapping(method = {RequestMethod.GET}, path = "/mybatis")
+    public String mybatis() {
+        return dao.selectKV("ABCE6B227382CAB2").getValue();
     }
 }
